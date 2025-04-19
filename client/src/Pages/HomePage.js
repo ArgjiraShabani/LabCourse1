@@ -2,6 +2,7 @@ import slide1 from '../assets/family_doctor.jpg';
 import slide2 from '../assets/ooking-ahead-the-outlook-for-australias-private-hospitals.jpg';
 import slide3 from '../assets/Brain-Stimulation-Surgery-20250204-01.jpg';
 import '../App.css';
+import { Link } from 'react-router-dom';
 function HomePage(){
     return(
     <>
@@ -99,6 +100,19 @@ function HomePage(){
         <button type="button" class="btn btn-primary" style={{backgroundColor: '#51A485',
             border: 'none',
             fontSize: '25px'}}>Book your appointment</button>
+        <Link 
+            to="/staff" 
+            className="btn btn-primary" 
+            style={{
+              backgroundColor: '#51A485',
+              border: 'none',
+              fontSize: '25px',
+              textDecoration: 'none',
+              color: 'white',
+              padding: '10px 20px',
+              display: 'inline-block'
+            }}
+      >Our staff</Link>
     </div>
 
 </div>
