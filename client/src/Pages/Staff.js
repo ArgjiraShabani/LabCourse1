@@ -2,8 +2,21 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+import Axios from "axios";
+import { useState,useEffect } from 'react';
+
 import { Link } from 'react-router-dom';
 function MedicalStaff(){
+    
+
+    const [staffList,setstaffList]=useState([]);
+
+    useEffect(()=>{
+        Axios.get("http://localhost:3001/staff").then((response)=>{
+            setstaffList(response.data);
+        })
+    },[staffList])
+
     return(
         <>
         <hr style={{color:'#51A485 '}}/>
@@ -24,37 +37,21 @@ function MedicalStaff(){
             </div>
             <div style={{display:"flex",justifyContent:"space-around",margin:"100px",flexWrap:"wrap",gap:"100px",}}>
                 <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
-                    <img src="https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png" class="card-img-top" alt="..." style={{height:"270px"}}/>
-                    <div class="card-body">
-                        <p>Name: XXX</p>
-                        <p>LastName: YYY</p>
-                        <p>Catagery: ZZZ</p>
-                    </div>
-                </div>  <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
-                    <img src="https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png" class="card-img-top" alt="..." style={{height:"270px"}}/>
-                    <div class="card-body">
-                        <p>Name: XXX</p>
-                        <p>LastName: YYY</p>
-                        <p>Catagery: ZZZ</p>
-                    </div>
-                </div>
-                <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
-                    <img src="https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png" class="card-img-top" alt="..." style={{height:"270px"}}/>
-                    <div class="card-body">
-                        <p>Name: XXX</p>
-                        <p>LastName: YYY</p>
-                        <p>Catagery: ZZZ</p>
-                    </div>
-                </div>
-                <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
-                    <img src="https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png" class="card-img-top" alt="..." style={{height:"270px"}}/>
-                    <div class="card-body">
-                        <p>Name: XXX</p>
-                        <p>LastName: YYY</p>
-                        <p>Catagery: ZZZ</p>
-                    </div>
-                </div>
-               
+                    {staffList.map((val,key)=>{
+                        return(
+                            <>
+                             <img src="https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png" class="card-img-top" alt="..." style={{height:"270px"}}/>
+                             <div class="card-body">
+                                 <p>Name: {val.first_name}</p>
+                                 <p>LastName: {val.last_name}</p>
+                                 <p>Catagery: {val.department_name}</p>
+                             </div>
+                             </>
+                        )
+                    })}
+        
+                </div> 
+                
             </div>
         </>
     )
