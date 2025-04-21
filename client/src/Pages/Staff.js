@@ -36,21 +36,21 @@ function MedicalStaff(){
                 <h1 class="text-center display-4" style={{color:"#51A485",marginTop:"50px",fontWeight:"bold"}}> Medical Staff</h1>
             </div>
             <div style={{display:"flex",justifyContent:"space-around",margin:"100px",flexWrap:"wrap",gap:"100px",}}>
-                <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
-                    {staffList.map((val,key)=>{
+                 {staffList.map((val,key)=>{
                         return(
                             <>
+                            <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
                              <img src="https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png" class="card-img-top" alt="..." style={{height:"270px"}}/>
                              <div class="card-body">
                                  <p>Name: {val.first_name}</p>
                                  <p>LastName: {val.last_name}</p>
                                  <p>Catagery: {val.department_name}</p>
                              </div>
+                             </div> 
                              </>
                         )
                     })}
-        
-                </div> 
+    
                 
             </div>
         </>
