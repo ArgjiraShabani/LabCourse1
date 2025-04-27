@@ -1,7 +1,5 @@
 
-import React from "react";
-import {Link} from "react-router-dom";
-
+import React from "react"
 function Navbar(){
 
   return(
@@ -11,8 +9,7 @@ function Navbar(){
     
   <div className="container-fluid">
     <div className="d-flex flex-column">
-      
-      <Link to='/' className="navbar-brand "  style={{ fontSize: '30px' }}>CareWave </Link>
+    <a className="navbar-brand " href="/Pages/HomePage'" style={{ fontSize: '30px' }}>CareWave </a>
     <p style={{ marginTop: 0, paddingTop: 0, lineHeight: 1, fontSize: '19px' }}>Hospital</p>
     </div>
     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,18 +20,18 @@ function Navbar(){
     <div className="d-flex ms-auto">
     
       <div >
-      <Link to='/register' className="btn btn-secondary btn-sm me-2"
+      <button type="button" className="btn btn-secondary btn-sm me-2"
       style={{backgroundColor: '#51A485',
         border: 'none',
         fontSize: '20px'}}
-      >Sign up</Link>
+      >Sign up</button>
       </div>
       <div >
-        <Link to='/login' className="btn btn-secondary btn-sm"
+      <button type="button" className="btn btn-secondary btn-sm"
       style={{backgroundColor: '#51A485',
         border: 'none',
-        fontSize: '20px'}}>Log in</Link>
-      
+        fontSize: '20px'}}
+      >Log in</button>
       </div>  
 
       </div> 
