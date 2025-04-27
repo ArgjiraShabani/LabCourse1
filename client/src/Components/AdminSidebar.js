@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Sidebar = ({role}) => {
   return (
@@ -26,8 +27,10 @@ const Sidebar = ({role}) => {
       </style>
 
       <div className="text-white p-3" style={{ backgroundColor: '#51A485', width: '250px', minHeight: '100vh' }}>
-        <h4 className="text-center mb-4">Admin Panel</h4>
+        
         {role==='admin'?(
+          <>
+          <h4 className="text-center mb-4">Admin Panel</h4>
         <ul className="nav flex-column">
           <li className="nav-item mb-2">
             <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
@@ -45,7 +48,10 @@ const Sidebar = ({role}) => {
             <a href="#" className="nav-link text-danger">Log out</a>
           </li>
           </ul>
+          </>
         ): role==="doctor"?(
+          <>
+          <h4 className="text-center mb-4">Admin Panel</h4>
           <ul className="nav flex-column">
           <li className="nav-item mb-2">
             <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
@@ -63,24 +69,28 @@ const Sidebar = ({role}) => {
             <a href="#" className="nav-link text-danger">Log out</a>
           </li>
           </ul>
+          </>
         ): role==="patient"?(
+          <>
+          <h4 className="text-center mb-4">Patient Dashboard</h4>
           <ul className="nav flex-column">
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
+            <Link to='/patientdashboard' className="nav-link text-white active shadow-link">My Appointment</Link>
           </li>
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white hover-link">Departments</a>
+            <Link to='/bookAppointment' className="nav-link text-white hover-link">Book Appointments</Link>
           </li>
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white hover-link">Doctors</a>
+            <Link to='/myprofile' className="nav-link text-white hover-link">My Profile</Link>
           </li>
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white hover-link">Patient Appointment</a>
+            <a href="#" className="nav-link text-white hover-link">Message</a>
           </li>
           <li className="nav-item mt-4">
             <a href="#" className="nav-link text-danger">Log out</a>
           </li>
           </ul>
+          </>
         ):(
           null
         )}

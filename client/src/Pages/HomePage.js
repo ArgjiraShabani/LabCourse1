@@ -5,12 +5,14 @@ import surgeryImg from "../assets/surgery.jpg";
 import cardiologyImg from "../assets/Cardiology.jpg";
 import orthopedicsImg from "../assets/orthopedic.jpg";
 import gynecologyImg from "../assets/gynecology.jpg";
+import Navbar from "../Components/Navbar";
 
 import "../App.css";
 import { Link } from "react-router-dom";
 function HomePage() {
   return (
     <>
+    <Navbar/>
       <div
         id="carouselExampleIndicators"
         className="carousel slide"
@@ -142,6 +144,21 @@ function HomePage() {
           </button>
           <Link
             to="/staff"
+            className="btn btn-primary"
+            style={{
+              backgroundColor: "#51A485",
+              border: "none",
+              fontSize: "25px",
+              textDecoration: "none",
+              color: "white",
+              padding: "10px 20px",
+              display: "inline-block",
+            }}
+          >
+            Our staff
+          </Link>
+          <Link
+            to="/patientdashboard"
             className="btn btn-primary"
             style={{
               backgroundColor: "#51A485",
