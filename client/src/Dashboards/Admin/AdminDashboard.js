@@ -7,7 +7,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar />
+      <Sidebar role="admin"/>
       <div className="flex-grow-1 p-4">
         <h2>Welcome to the Admin Dashboard</h2>
         <p>Select a section from the sidebar.</p>

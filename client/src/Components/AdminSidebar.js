@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Sidebar = () => {
+const Sidebar = ({role}) => {
   return (
     <>
       <style>
@@ -27,6 +27,7 @@ const Sidebar = () => {
 
       <div className="text-white p-3" style={{ backgroundColor: '#51A485', width: '250px', minHeight: '100vh' }}>
         <h4 className="text-center mb-4">Admin Panel</h4>
+        {role==='admin'?(
         <ul className="nav flex-column">
           <li className="nav-item mb-2">
             <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
@@ -43,7 +44,47 @@ const Sidebar = () => {
           <li className="nav-item mt-4">
             <a href="#" className="nav-link text-danger">Log out</a>
           </li>
-        </ul>
+          </ul>
+        ): role==="doctor"?(
+          <ul className="nav flex-column">
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
+          </li>
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white hover-link">Patients</a>
+          </li>
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white hover-link">Appointments</a>
+          </li>
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white hover-link">Prescriptions</a>
+          </li>
+          <li className="nav-item mt-4">
+            <a href="#" className="nav-link text-danger">Log out</a>
+          </li>
+          </ul>
+        ): role==="patient"?(
+          <ul className="nav flex-column">
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
+          </li>
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white hover-link">Departments</a>
+          </li>
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white hover-link">Doctors</a>
+          </li>
+          <li className="nav-item mb-2">
+            <a href="#" className="nav-link text-white hover-link">Patient Appointment</a>
+          </li>
+          <li className="nav-item mt-4">
+            <a href="#" className="nav-link text-danger">Log out</a>
+          </li>
+          </ul>
+        ):(
+          null
+        )}
+        
       </div>
     </>
   );

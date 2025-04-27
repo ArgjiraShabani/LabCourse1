@@ -8,6 +8,7 @@ import AdminDashboard from './Dashboards/Admin/AdminDashboard';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {BrowserRouter as Router,Routes,Route,useLocation } from 'react-router-dom';
+import DoctorDashboard from './Dashboards/DoctorDashboard';
 
 function Layout() {
   const location = useLocation();
@@ -21,6 +22,7 @@ function Layout() {
           <Route path="/" element={<HomePage />} />
           <Route path="/staff" element={<MedicalStaff />} />
           <Route path="/adminDashboard" element={<AdminDashboard />} />
+          <Route path="/doctordashboard" element={<DoctorDashboard/>} />
         </Routes>
       </main>
       {!hideLayout && <Footer />}
