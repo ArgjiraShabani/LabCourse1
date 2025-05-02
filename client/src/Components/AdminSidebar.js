@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Sidebar = ({role}) => {
+const Sidebar = ({role,id}) => {
   return (
     <>
       <style>
@@ -26,7 +26,7 @@ const Sidebar = ({role}) => {
         `}
       </style>
 
-      <div className="text-white p-3" style={{ backgroundColor: '#51A485', width: '250px', minHeight: '100vh' }}>
+      <div className="text-white p-3" style={{ backgroundColor: '#51A485', width: '250px', minHeight: '100vh'}}>
         
         {role==='admin'?(
           <>
@@ -75,13 +75,13 @@ const Sidebar = ({role}) => {
           <h4 className="text-center mb-4">Patient Dashboard</h4>
           <ul className="nav flex-column">
           <li className="nav-item mb-2">
-            <Link to='/patientdashboard' className="nav-link text-white active shadow-link">My Appointment</Link>
+            <Link to={`/patientdashboard/${id}`} className="nav-link text-white active shadow-link">My Appointment</Link>
           </li>
           <li className="nav-item mb-2">
-            <Link to='/bookAppointment' className="nav-link text-white hover-link">Book Appointments</Link>
+            <Link to={`/bookAppointment/${id}`} className="nav-link text-white hover-link">Book Appointments</Link>
           </li>
           <li className="nav-item mb-2">
-            <Link to='/myprofile' className="nav-link text-white hover-link">My Profile</Link>
+            <Link to={`/myprofile/${id}`} className="nav-link text-white hover-link">My Profile</Link>
           </li>
           <li className="nav-item mb-2">
             <a href="#" className="nav-link text-white hover-link">Message</a>

@@ -1,7 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 const Sidebar = () => {
+  const param=useParams();
+  const {id}=param;
+ 
   return (
     <>
       <style>
@@ -30,10 +33,10 @@ const Sidebar = () => {
         <h4 className="text-center mb-4">Patient Dashboard</h4>
         <ul className="nav flex-column">
           <li className="nav-item mb-2">
-            <Link to='/patientDashboard' className="nav-link text-white hover-link">My Appointment</Link>
+            <Link to={`/patientDashboard/${id}`} className="nav-link text-white hover-link">My Appointment</Link>
           </li>
           <li className="nav-item mb-2">
-            <Link to='/bookAppointment' className="nav-link text-white hover-link">Book Appointment</Link>
+            <Link to={`/bookAppointment/${id}`} className="nav-link text-white hover-link">Book Appointment</Link>
           </li>
           <li className="nav-item mb-2">
             <a href="#" className="nav-link text-white active shadow-link">My Profile</a>

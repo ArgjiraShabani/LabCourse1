@@ -6,6 +6,7 @@ import Axios from "axios";
 import { useState,useEffect } from 'react';
 
 import { Link } from 'react-router-dom';
+import Navbar from '../Components/Navbar';
 function MedicalStaff(){
     
 
@@ -19,19 +20,8 @@ function MedicalStaff(){
 
     return(
         <>
-        <hr style={{color:'#51A485 '}}/>
-            <div>
-                <Link to="/"  className="btn btn-primary" style={{
-              backgroundColor:'#51A485 ',
-              border: 'none',
-              fontSize: '25px',
-              textDecoration: 'none',
-              color: 'white',
-              padding: '1px 30px ',
-              display: 'inline-block',
-              marginLeft:"10px"
-            }}><i className="bi bi-arrow-left"></i></Link>
-            </div>
+            
+            <Navbar/>
             <div class="container my-4">
                 <h1 class="text-center display-4" style={{color:"#51A485",marginTop:"50px",fontWeight:"bold"}}> Medical Staff</h1>
             </div>

@@ -1,5 +1,6 @@
 
 import React from "react"
+import { Link } from "react-router-dom";
 function Navbar(){
 
   return(
@@ -9,7 +10,7 @@ function Navbar(){
     
   <div className="container-fluid">
     <div className="d-flex flex-column">
-    <a className="navbar-brand " href="/Pages/HomePage'" style={{ fontSize: '30px' }}>CareWave </a>
+    <Link to='/' className="navbar-brand " href="/Pages/HomePage" style={{ fontSize: '30px' }}>CareWave </Link>
     <p style={{ marginTop: 0, paddingTop: 0, lineHeight: 1, fontSize: '19px' }}>Hospital</p>
     </div>
     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,11 +28,16 @@ function Navbar(){
       >Sign up</button>
       </div>
       <div >
-      <button type="button" className="btn btn-secondary btn-sm"
-      style={{backgroundColor: '#51A485',
-        border: 'none',
-        fontSize: '20px'}}
-      >Log in</button>
+      <Link
+            to="/login"
+            className="btn btn-secondary btn-sm me-2"
+              style={{backgroundColor: '#51A485',
+                border: 'none',
+                fontSize: '20px'}}
+           
+          >
+            Login
+          </Link>
       </div>  
 
       </div> 

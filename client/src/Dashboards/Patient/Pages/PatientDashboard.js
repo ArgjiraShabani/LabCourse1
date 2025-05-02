@@ -1,18 +1,29 @@
 import React from 'react';
 import Sidebar from "../../../Components/AdminSidebar"
 import { useNavigate } from 'react-router-dom'; 
+import Axios from "axios";
+import { useState,useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+
 
 const PatientDashboard = () => {
   const navigate = useNavigate(); 
+  const param=useParams();
+  const {id}=param;
+
 
   return (
+    <>
     <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar role='patient' />
-      <div className="flex-grow-1 p-4">
-        <h2>Welcome to the Patient Dashboard</h2>
-        <p>Select a section from the sidebar.</p>
+      <Sidebar role='patient' id={id} />
+      <div style={{marginTop:"100px"}}>
+        <h1>Dashboard</h1>
       </div>
     </div>
+   
+   
+    </>
+  
   );
 };
 
