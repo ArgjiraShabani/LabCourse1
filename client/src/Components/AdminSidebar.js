@@ -33,10 +33,10 @@ const Sidebar = ({role,id}) => {
           <h4 className="text-center mb-4">Admin Panel</h4>
         <ul className="nav flex-column">
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
+            <Link to={`/adminDashboard/${id}`} className="nav-link text-white active shadow-link">Dashboard</Link>
           </li>
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white hover-link">Departments</a>
+            <Link to={`/ManageDepartments/${id}`} className="nav-link text-white hover-link">Departments</Link>
           </li>
           <li className="nav-item mb-2">
             <a href="#" className="nav-link text-white hover-link">Doctors</a>
@@ -101,3 +101,4 @@ const Sidebar = ({role,id}) => {
 };
 
 export default Sidebar;
+

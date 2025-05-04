@@ -7,12 +7,13 @@ import MedicalStaff from './Pages/Staff';
 import AdminDashboard from './Dashboards/Admin/AdminDashboard';
 import PatientDashboard from './Dashboards/Patient/Pages/PatientDashboard';
 import MyProfile from './Dashboards/Patient/Pages/MyProfile';
-import Login from './Pages/Login';
 import BookAppointment from './Dashboards/Patient/Pages/BookAppointment';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {BrowserRouter as Router,Routes,Route,useLocation } from 'react-router-dom';
 import DoctorDashboard from './Dashboards/DoctorDashboard';
+import ManageDepartments from './Dashboards/Admin/manageDepartments';
+
 
 function Layout() {
   //const location = useLocation();
@@ -27,10 +28,10 @@ function Layout() {
           <Route path="/staff" element={<MedicalStaff />} />
           <Route path="/adminDashboard" element={<AdminDashboard />} />
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
-          <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
-          <Route path='/myprofile/:id' element={<MyProfile/>}></Route>
-          <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
-          <Route path='/login' element={<Login/>}></Route>
+          <Route path='/patientdashboard' element={<PatientDashboard/>}></Route>
+          <Route path='/myprofile' element={<MyProfile/>}></Route>
+          <Route path='/bookAppointment' element={<BookAppointment/>}></Route>
+          <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
         </Routes>
       </main>
      
