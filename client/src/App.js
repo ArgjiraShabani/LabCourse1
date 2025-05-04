@@ -4,6 +4,7 @@ import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 import HomePage from './Pages/HomePage';
 import MedicalStaff from './Pages/Staff';
+import Login from './Pages/Login';
 import AdminDashboard from './Dashboards/Admin/AdminDashboard';
 import PatientDashboard from './Dashboards/Patient/Pages/PatientDashboard';
 import MyProfile from './Dashboards/Patient/Pages/MyProfile';
@@ -29,11 +30,13 @@ function Layout() {
           <Route path="/staff" element={<MedicalStaff />} />
           <Route path="/adminDashboard" element={<AdminDashboard />} />
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
-          <Route path='/patientdashboard' element={<PatientDashboard/>}></Route>
-          <Route path='/myprofile' element={<MyProfile/>}></Route>
-          <Route path='/bookAppointment' element={<BookAppointment/>}></Route>
+          <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
+          <Route path='/myprofile/:id' element={<MyProfile/>}></Route>
+          <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
           <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
           <Route path="/ManageServices/:id" element={<ManageServices />} />
+          <Route path='/login' element={<Login/>}></Route>
+
         </Routes>
       </main>
      

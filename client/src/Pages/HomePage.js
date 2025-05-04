@@ -157,21 +157,6 @@ function HomePage() {
           >
             Our staff
           </Link>
-          <Link
-            to="/patientdashboard"
-            className="btn btn-primary"
-            style={{
-              backgroundColor: "#51A485",
-              border: "none",
-              fontSize: "25px",
-              textDecoration: "none",
-              color: "white",
-              padding: "10px 20px",
-              display: "inline-block",
-            }}
-          >
-            Our staff
-          </Link>
         </div>
       </div>
       <section className="container my-5">
