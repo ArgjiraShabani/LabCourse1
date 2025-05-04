@@ -13,6 +13,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {BrowserRouter as Router,Routes,Route,useLocation } from 'react-router-dom';
 import DoctorDashboard from './Dashboards/DoctorDashboard';
 import ManageDepartments from './Dashboards/Admin/manageDepartments';
+import ManageServices from './Dashboards/Admin/manageServices';
 
 
 function Layout() {
@@ -32,6 +33,7 @@ function Layout() {
           <Route path='/myprofile' element={<MyProfile/>}></Route>
           <Route path='/bookAppointment' element={<BookAppointment/>}></Route>
           <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
+          <Route path="/ManageServices/:id" element={<ManageServices />} />
         </Routes>
       </main>
      
