@@ -23,18 +23,18 @@ const upload = multer({ storage: storage });
 
 
 const db = mysql.createConnection({
-    user:"root",
-    host:"localhost",
-    password:"mysql123",
-    database:"hospital_management",
+  user: 'root',
+  host: 'localhost',
+  password: 'valjeta1!',
+  database: 'hospital_management',
 
-})
+});
 db.connect((err) => {
-    if (err) {
-        console.error("Database connection failed: " + err.stack);
-        return;
-    }
-    console.log("Connected to the database");
+  if (err) {
+    console.error('Database connection failed: ' + err.stack);
+    return;
+  }
+  console.log('Connected to the database');
 });
 
 app.get('/staff',(req,res)=>{
@@ -48,7 +48,7 @@ app.get('/staff',(req,res)=>{
 })
 
 
-// ==================== Departments ==================== //
+//Departments
 
 
 app.get('/departments', (req, res) => {
@@ -113,6 +113,57 @@ app.delete('/departments/:id', (req, res) => {
     res.status(200).send('Department deleted successfully');
   });
 });
+
+
+//Services
+app.get('/services', (req, res) => {
+  const query = 'SELECT * FROM services';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching services:', err);
+      return res.status(500).send('Error fetching services');
+    }
+    res.json(results);
+  });
+});
+app.post('/services', (req, res) => {
+  const { service_name, department_Id } = req.body;
+
+  const query = 'INSERT INTO services (service_name, department_Id) VALUES (?, ?)';
+  db.query(query, [service_name, department_Id], (err, result) => {
+    if (err) {
+      console.error('Error creating service:', err);
+      return res.status(500).send('Error creating service');
+    }
+    res.status(201).send('Service created successfully');
+  });
+});
+app.put('/services/:id', (req, res) => {
+  const { service_name, department_Id } = req.body;
+  const serviceId = req.params.id;
+
+  const query = 'UPDATE services SET service_name = ?, department_Id = ? WHERE service_id = ?';
+  db.query(query, [service_name, department_Id, serviceId], (err, result) => {
+    if (err) {
+      console.error('Error updating service:', err);
+      return res.status(500).send('Error updating service');
+    }
+    res.status(200).send('Service updated successfully');
+  });
+});
+app.delete('/services/:id', (req, res) => {
+  const serviceId = req.params.id;
+
+  const query = 'DELETE FROM services WHERE service_id = ?';
+  db.query(query, [serviceId], (err, result) => {
+    if (err) {
+      console.error('Error deleting service:', err);
+      return res.status(500).send('Error deleting service');
+    }
+    res.status(200).send('Service deleted successfully');
+  });
+});
+
 
 app.listen(3001,()=>{
     console.log("Hey po punon")
