@@ -1,4 +1,4 @@
-
+//import doctorRoutes from "./modules/doctor/doctorRoutes.js";
 const express=require("express")
 const app=express()
 const mysql=require("mysql2")
@@ -23,10 +23,13 @@ const upload = multer({ storage: storage });
 
 
 const db = mysql.createConnection({
-  user: 'root',
-  host: 'localhost',
-  password: 'database',
-  database: 'hospital_management',
+    user:"root",
+    host:"localhost",
+    password:"password",
+    database:"hospital_management",
+    /*password:"mysqldb",
+    port: 3307,*/
+   
 
 });
 db.connect((err) => {
@@ -164,6 +167,8 @@ app.delete('/services/:id', (req, res) => {
   });
 });
 
+//app.use("/server/doctorRoutes", docRoutes);
+
 app.get('/infoPatient/:id',(req,res)=>{
   const id=req.params.id;
 
@@ -215,7 +220,96 @@ app.post('/login',(req,res)=>{
 });
 
 });
+app.get('/specializations',(req,res)=>{
+    db.query('SELECT specialization_id,specialization_name FROM specialization',(err,results)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).json({error: "Database error"});
+        }
+        res.json(results);
+    });
+});
+app.get('/departments',(req,res)=>{
+    db.query('SELECT department_id,department_name FROM departments',(err,results)=>{
+        if(err){
+            console.log(err);
+             return res.status(500).json({error: "Database error"});
+        }
+        res.json(results);
+    });
+});
+app.get('/roles',(req,res)=>{
+    db.query('SELECT role_id,role_name FROM  roles',(err,results)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).json({error: "Database error"});
+        }
+        res.json(results);
+    });
+});
+app.post("/insertDoctor",(req,res)=>{
+    const {userData,doctorData}=req.body;
+    
+    const userValues=[
+        userData.first_name,
+        userData.last_name,
+        userData.email,
+        userData.password,
+        userData.phone,
+        userData.role_id
+    ];
+    const doctorValues=[
+        doctorData.specialization_id,
+        doctorData.department_id,
+        doctorData.gender
+    ];
+    db.getConnection((err,connection)=>{
+        if(err){
+            return res.status(500).json({error: "Database connectionfailed"});
+        }
+        connection.beginTransaction(err=>{
+            if(err){
+                connection.release();
+                return res.status(500).json({error: "Transaction start failed"});
+            }
+            const userQuery="INSERT INTO users(first_name,last_name,email,password,phone,role_id) VALUES(?,?,?,?,?,?)";
+            connection.query(userQuery,userValues,(err,userResult)=>{
+                if(err){
+                    return connection.rollback(()=>{
+                        connection.release();
+                        res.status(500).json({error: "Failed to insert user"});
+                    });
+                }
+                const userId=userResult.insertId;
 
+                const doctorQuery="INSERT INTO doctors(user_id,specialization_id,department_id,gender) VALUES(?,?,?,?)";
+                connection.query(doctorQuery,[userId,...doctorValues],(err,doctorResult)=>{
+                    if(err){
+                        console.error(err);
+                        return connection.rollback(()=>{
+                            connection.release();
+                            res.status(500).json({error: "Failed to insert doctor"});
+                        });
+                    }
+                    connection.commit(err=>{
+                        connection.release();
+                        if(err){
+                            return res.status(500).json({error: "Transaction commit failed"});
+                        }
+                        res.status(201).json({
+                            message: "Doctor inserted successfully",
+                            userId,
+                            doctorId: doctorResult.insertId
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
 app.listen(3001,()=>{
     console.log("Hey po punon")
 })
+
+
+
