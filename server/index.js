@@ -25,7 +25,7 @@ const upload = multer({ storage: storage });
 const db = mysql.createConnection({
     user:"root",
     host:"localhost",
-    password:"password",
+    password:"database",
     database:"hospital_management",
     /*password:"mysqldb",
     port: 3307,*/
@@ -41,7 +41,7 @@ db.connect((err) => {
 });
 
 app.get('/staff',(req,res)=>{
-    db.query("SELECT users.first_name,users.last_name,departments.department_name FROM doctors inner join users on doctors.doctor_id=users.user_id inner join departments on doctors.department_id=departments.department_Id",(err,result)=>{
+    db.query("SELECT doctors.first_name,doctors.last_name,specialization.specialization_name FROM doctors inner join specialization on doctors.specialization_id=specialization.specialization_id",(err,result)=>{
     if(err){
         console.log(err);
     }else{
@@ -172,54 +172,124 @@ app.delete('/services/:id', (req, res) => {
 app.get('/infoPatient/:id',(req,res)=>{
   const id=req.params.id;
 
-  db.query("SELECT * from users inner join patients on users.user_id=patients.patient_id where users.user_id = ?",[id],(err,result)=>{
+  db.query("SELECT * from patients inner join gender on patients.gender_id=gender.gender_id inner join blood on patients.blood_id=blood.blood_id where patients.patient_id = ?",[id],(err,result)=>{
   if(err){
       console.log(err);
   }else{
       res.send(result[0])
   }
   })
-})
+});
+
+app.get('/gender',(req,res)=>{
+  db.query('Select gender_name * from gender'),(err,data)=>{
+    if(err){
+      return res.json("You did not fetch Gender!");
+    }else{
+      res.send(data);
+    }
+  }
+});
+
 app.put('/updatePatient/:id',(req,res)=>{
   const first_name=req.body.first_name;
   const last_name=req.body.last_name;
   const email=req.body.email;
   const phone=req.body.phone;
   const birth=req.body.date_of_birth;
-  const gender=req.body.gender;
+  const gender_name=req.body.gender_name;
   const blood=req.body.blood_type;
   const id = req.params.id;
-  db.query("UPDATE users SET first_name=?,last_name=?,email=?,phone=? WHERE user_id=?",[first_name,last_name,email,phone,id],(err,data)=>{
-      if(err){
-      return res.json("Error");
-  }
-
-  db.query("UPDATE patients SET date_of_birth=?,blood_type=?,gender=? WHERE patient_id=?",[birth,blood,gender,id],(err,data)=>{
-      if(err){
-      return res.json("Error");
-  }
+  db.query("select gender_id from gender where gender_name=?",[gender],(err,data)=>{
+    if(err){
+      return res.json("Didnt fetch gender id!!");
+    }
+    
+      if(data.length>0){
+        const genderId=data[0].gender_id;
+     
   
- }
- );   
+    db.query("select blood_id from blood where blood_type=?",[blood],(err,data)=>{
+      if(err){
+        return res.json("Error");
+      }
+        if(data.length>0){
+          const bloodId=data[0].blood_id;
+          
+    
+          db.query("UPDATE patients SET first_name=?,last_name=?,email=?,phone=?,date_of_birth=?,gender_id=?,blood_id=? WHERE patient_id=?",[first_name,last_name,email,phone,birth,genderId,bloodId,id],(err,data)=>{
+            if(err){
+              return res.json("Error");
+            }
+            return res.json("Patient updated successfully");
+          });
+     }else{
+      return res.json("No matching blood found");
+     };
+ });
+}else{
+  return res.json("No matching gender found");
+}
+  })
+})
 
+
+
+app.get('/patient',(req,res)=>{
+  db.query("SELECT patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name FROM patients inner join gender on patients.gender_id=gender.gender_id",(err,result)=>{
+  if(err){
+      console.log(err);
+  }else{
+      res.send(result)
+  }
+  })
+  
 });
-});
+
+app.delete("/deletePatient/:id",(req,res)=>{
+  const id = req.params.id;
+  db.query("DELETE from patients where patient_id=?",[id],(err,res)=>{
+    if(err){
+      return res.json("Error");
+    }
+    db.query("Delete from users where user_id=?",[id],(err,res)=>{
+      if(err){
+        return res.json("Error");
+      }
+    })
+  })
+})
 
 app.post('/login',(req,res)=>{
-  const sql="SELECT user_id,email,password,role_name FROM users inner join roles on users.role_id=roles.role_id WHERE `email`=? AND `password`=?";
+  const sql="SELECT patients.patient_id,patients.email,patients.password,roles.role_name FROM patients inner join roles on patients.role_id=roles.role_id WHERE `email`=? AND `password`=?";
   db.query(sql,[req.body.email,req.body.password],(err,data)=>{
       if(err){
       return res.json("Error");
-  }
+      }
   if(data.length>0){
-      return res.json({ message: "Success", id: data[0].user_id,role: data[0].role_name});
+      return res.json({ message: "Success", id: data[0].patient_id,role: data[0].role_name});
   }else{
-      return res.json("Failed");
-  }
-
-});
-
-});
+    const sql2="SELECT doctors.doctor_id,doctors.email,doctors.password,roles.role_name FROM doctors inner join roles on doctors.role_id=roles.role_id WHERE `email`=? AND `password`=?";
+    db.query(sql2,[req.body.email,req.body.password],(err,data)=>{
+      if(err){
+        return res.json("Error");
+        }
+        if(data.length>0){
+          return res.json({ message: "Success", id: data[0].doctor_id,role: data[0].role_name});
+        }else{
+          const sql3="SELECT admin.admin_id,admin.email,admin.password,roles.role_name FROM admin inner join roles on admin.role_id=roles.role_id WHERE `email`=? AND `password`=?";
+          db.query(sql3,[req.body.email,req.body.password],(err,data)=>{
+            if(err){
+              return res.json("Error");
+              }
+              if(data.length>0){
+                return res.json({ message: "Success", id: data[0].admin_id,role: data[0].role_name});
+              }
+           }); 
+                };
+              });
+}});
+})
 app.get('/specializations',(req,res)=>{
     db.query('SELECT specialization_id,specialization_name FROM specialization',(err,results)=>{
         if(err){
@@ -307,6 +377,8 @@ app.post("/insertDoctor",(req,res)=>{
         });
     });
 });
+
+
 app.listen(3001,()=>{
     console.log("Hey po punon")
 })

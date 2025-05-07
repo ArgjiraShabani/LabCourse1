@@ -12,16 +12,20 @@ function UpdateProfile({id}){
     email: "",
     phone: "",
     date_of_birth: "",
-    gender: "",
+    gender_name: "",
     blood_type: ""
   });
+
   useEffect(()=>{
       axios.get(`http://localhost:3001/infoPatient/${id}`).then((response)=>{
         const dateOfBirth = response.data.date_of_birth.split("T")[0];
         response.data.date_of_birth = dateOfBirth;
+        console.log(response.data)
           setInfo(response.data);
+
       })
   },[id]);
+
 
   if (!info) {
     return <p>Loading...</p>;
@@ -65,7 +69,7 @@ function UpdateProfile({id}){
             </div>
             <div style={{marginBottom:"20px"}}>
               <label>Gender:</label><br/>
-              <select value={info.gender} onChange={e=>setInfo({...info,gender:e.target.value})} style={{width:"300px",height:"35px"}}>
+              <select value={info.gender_name} onChange={e=>setInfo({...info,gender_name:e.target.value})} style={{width:"300px",height:"35px"}}>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>

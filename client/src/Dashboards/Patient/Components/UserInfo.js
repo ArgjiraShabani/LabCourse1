@@ -10,7 +10,7 @@ function Info({id}){
         email: "",
         phone: "",
         date_of_birth: "",
-        gender: "",
+        gender_name: "",
         blood_type: ""
     });
     useEffect(()=>{
@@ -38,7 +38,7 @@ function Info({id}){
     <br/>
     <h5>Phone Number:<b> {info.phone}</b></h5>
     <br/>
-    <h5>Gender:<b> {info.gender}</b></h5>
+    <h5>Gender:<b> {info.gender_name}</b></h5>
     <br/>
     <h5>Birthday:<b> {info.date_of_birth}</b></h5>
     <br/>

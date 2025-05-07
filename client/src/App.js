@@ -16,7 +16,7 @@ import DoctorDashboard from './Dashboards/Doctor/DoctorDashboard';
 import AdminDoctor from './Dashboards/Admin/AdminDoctor';
 import ManageDepartments from './Dashboards/Admin/manageDepartments';
 import ManageServices from './Dashboards/Admin/manageServices';
-
+import Patient from './Dashboards/Admin/Patient';
 
 function Layout() {
   //const location = useLocation();
@@ -41,6 +41,7 @@ function Layout() {
           <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
           <Route path="/ManageServices/:id" element={<ManageServices />} />
           <Route path='/login' element={<Login/>}></Route>
+          <Route path='/patient' element={<Patient/>}></Route>
 
         </Routes>
       </main>
