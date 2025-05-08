@@ -182,13 +182,47 @@ app.get('/infoPatient/:id',(req,res)=>{
 });
 
 app.get('/gender',(req,res)=>{
-  db.query('Select gender_name * from gender'),(err,data)=>{
+  db.query('Select gender_name from gender',(err,data)=>{
     if(err){
       return res.json("You did not fetch Gender!");
     }else{
       res.send(data);
     }
-  }
+  })
+});
+
+app.get('/status',(req,res)=>{
+  db.query('Select * from status',(err,data)=>{
+    if(err){
+      return res.json("You did not fetch Status!");
+    }else{
+      res.send(data);
+    }
+  })
+});
+
+app.put('/updateStatus',(req,res)=>{
+  const status_id=req.body.status;
+  const id=req.body.id;
+  db.query("update patients set status_id=? where patient_id=?",[status_id,id],(err,data)=>{
+    if(err){
+      return res.json("Didnt Update Patient!");
+    }else{
+      console.log("Updated Patients!");
+    }
+  })
+});
+
+
+
+app.get('/blood',(req,res)=>{
+  db.query('Select blood_type from blood',(err,data)=>{
+    if(err){
+      return res.json("You did not fetch Blood!");
+    }else{
+      res.send(data);
+    }
+  })
 });
 
 app.put('/updatePatient/:id',(req,res)=>{
@@ -200,7 +234,7 @@ app.put('/updatePatient/:id',(req,res)=>{
   const gender_name=req.body.gender_name;
   const blood=req.body.blood_type;
   const id = req.params.id;
-  db.query("select gender_id from gender where gender_name=?",[gender],(err,data)=>{
+  db.query("select gender_id from gender where gender_name=?",[gender_name],(err,data)=>{
     if(err){
       return res.json("Didnt fetch gender id!!");
     }
@@ -236,7 +270,7 @@ app.put('/updatePatient/:id',(req,res)=>{
 
 
 app.get('/patient',(req,res)=>{
-  db.query("SELECT patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name FROM patients inner join gender on patients.gender_id=gender.gender_id",(err,result)=>{
+  db.query("SELECT patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name FROM patients inner join gender on patients.gender_id=gender.gender_id inner join status on patients.status_id=status.status_id",(err,result)=>{
   if(err){
       console.log(err);
   }else{

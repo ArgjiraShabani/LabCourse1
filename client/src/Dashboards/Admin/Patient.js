@@ -5,6 +5,7 @@ import Sidebar from "../../Components/AdminSidebar";
 function Patient(){
 
     const [patientList,setPatientList]=useState([]);
+    const[status,setStatus]=useState([]);
 
     useEffect(()=>{
         Axios.get("http://localhost:3001/patient").then((response)=>{
@@ -12,15 +13,22 @@ function Patient(){
         })
     },[patientList]);
 
-    function handleDelete(id){
-        console.log(id)
-        Axios.delete(`http://localhost:3001/deletePatient/${id}`).then((response)=>{
-            console.log("Deleted successfully");
-        }).catch((error)=>{
-            console.log("Error deleting!");
-
+    useEffect(()=>{
+        Axios.get("http://localhost:3001/status").then((response)=>{
+            setStatus(response.data);
         })
-    };
+    },[]);
+
+
+    function handleClick(s_id,id){
+        Axios.put("http://localhost:3001/updateStatus",{status:s_id,id:id}).then(response=>{
+            console.log("Success:", response.data);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+          });
+        }
+    
 
     return(
         <>
@@ -42,25 +50,30 @@ function Patient(){
                     <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Phone</th>
                     <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Birthday</th>
                     <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
-                    <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit/Delete</th>
+                    <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Status</th>
+                    <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>
+
                     </tr>
                 </thead>
                 {patientList.map((value,key)=>{
                     return(
                 <tbody> 
                     <tr>
-                    <th scope="row">{value.user_id}</th>
+                    <th scope="row">{value.patient_id}</th>
                     <td>{value.first_name}</td>
                     <td>{value.last_name}</td>
                     <td>{value.email}</td>
                     <td>{value.phone}</td>
                     <td>{value.date_of_birth}</td>
                     <td>{value.gender_name}</td>
+                    <td>{value.status_name}</td>
                     <td>
-                        <button>Edit</button>
-                        <button onClick={()=> handleDelete(value.user_id)}>Delete</button>
+                        {status.map((val,key)=>{
+                            return(
+                                    <button onClick={() => handleClick(val.status_id,value.patient_id)}>{val.status_name}</button>
+                               )
+                            })}
                     </td>
-
                     </tr>
                     </tbody>
                     )
