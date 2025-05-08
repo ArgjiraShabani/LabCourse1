@@ -5,6 +5,8 @@ const mysql=require("mysql2")
 const cors=require("cors");
 const multer = require('multer');
 const path = require('path');
+const { emit } = require("process");
+const { error } = require("console");
 
 app.use(cors());
 app.use(express.json());
@@ -18,17 +20,29 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname));
   },
 });
+
 const upload = multer({ storage: storage });
+
+const userStorage=multer.diskStorage({
+  destination: (req,file,cb)=>{
+    cb(null,'public/userUploads');
+  },
+  filename: (req,file,cb)=>{
+    cb(null,'user_' + Date.now()+ path.extname(file.originalname));
+  },
+});
+const userUpload=multer({storage: userStorage});
 
 
 
 const db = mysql.createConnection({
     user:"root",
     host:"localhost",
-    password:"database",
+    //password:"password",
+    password:"mysqldb",
     database:"hospital_management",
-    /*password:"mysqldb",
-    port: 3307,*/
+    
+    port: 3307,
    
 
 });
@@ -390,7 +404,7 @@ app.get('/specializations',(req,res)=>{
     });
 });
 app.get('/departments',(req,res)=>{
-    db.query('SELECT department_id,department_name FROM departments',(err,results)=>{
+    db.query('SELECT department_Id,department_name FROM departments',(err,results)=>{
         if(err){
             console.log(err);
              return res.status(500).json({error: "Database error"});
@@ -407,6 +421,16 @@ app.get('/roles',(req,res)=>{
         res.json(results);
     });
 });
+app.get('/gender',(req,res)=>{
+  db.query('SELECT gender_id,gender_name FROM gender',(err,result)=>{
+    if(err){
+      console.log(err);
+      return res.status(500).json({error: "Database error"});
+    }
+    res.json(result);
+  });
+});
+/*
 app.post("/insertDoctor",(req,res)=>{
     const {userData,doctorData}=req.body;
     
@@ -466,9 +490,70 @@ app.post("/insertDoctor",(req,res)=>{
             });
         });
     });
+});*/
+app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
+  
+  
+  
+  const {
+    first_name,
+    last_name,
+    email,
+    password,
+    phone,
+    role_id,
+    date_of_birth,
+    gender_id,
+    specialization_id,
+    department_Id
+  }=req.body;
+  const image_path = req.file ? req.file.filename : null;
+  db.query("INSERT INTO doctors(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,specialization_id ,department_Id,image_path) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+    [first_name,
+     last_name,
+     email,
+     password,
+     phone,
+     role_id,
+     date_of_birth || null,
+     gender_id || null,
+     specialization_id,
+     department_Id,
+     image_path || null
+    ],(err,result)=>{
+      if(err){
+        console.log("Error inserting into users",err);
+        return res.status(500).json({error: "Failed to insert user"});
+
+      }
+      res.json({message: "Doctor added successfully!"});
+});
 });
 
-
+app.put("/doctors/:id",(req,res)=>{
+  const values=[
+    req.body.first_name,
+    req.body.last_name,
+    req.body.email,
+    req.body.password,
+    req.body.phone,
+    req.body.role_id,
+    req.body.date_of_birth,
+    req.body.gender_id,
+    req.body.specialization_id,
+    req.body.department_Id,
+    req.body.image_path
+  ]
+  const doctorId=req.params.id;
+  const q= "UPDATE  doctors SET first_name=?,last_name=?,email=?,password=?,phone=?,role_id=?,date_of_birth=?,gender_id=?,specialization_id=?,department_Id=?,image_path=?  WHERE doctor_id=?";
+  db.query(q,[...values,doctorId],(err,data)=>{
+    if(err) return res.json(err);
+    return res.json("Doctor has been updated successfully");
+  })
+  
+})
+    
+    
 app.listen(3001,()=>{
     console.log("Hey po punon")
 })

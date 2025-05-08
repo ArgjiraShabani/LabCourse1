@@ -16,6 +16,8 @@ import DoctorDashboard from './Dashboards/Doctor/DoctorDashboard';
 import AdminDoctor from './Dashboards/Admin/AdminDoctor';
 import ManageDepartments from './Dashboards/Admin/manageDepartments';
 import ManageServices from './Dashboards/Admin/manageServices';
+import UpdateDoctor from './Dashboards/Admin/UpdateDoctor';
+
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
 
@@ -34,6 +36,7 @@ function Layout() {
           <Route path="/adminDashboard" element={<AdminDashboard />}>
           </Route> 
           <Route path="/doctors" element={<AdminDoctor/>}/>
+          <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
           
 
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
@@ -45,6 +48,7 @@ function Layout() {
           <Route path='/login' element={<Login/>}></Route>
           <Route path='/patient' element={<Patient/>}></Route>
           <Route path='/registerPatient' element={<Register/>}></Route>
+          
 
         </Routes>
       </main>
