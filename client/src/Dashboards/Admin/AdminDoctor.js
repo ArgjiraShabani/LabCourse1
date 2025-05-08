@@ -6,31 +6,72 @@ const AdminDoctor=()=>{
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
-        gender: '',
-        phone: '',
-        specialization_id: '',
-        department_id: '',
         email: '',
         password: '',
+        phone: '',
         role_id: '',
+        date_of_birth: '',
+        gender_id: '',
+        specialization_id: '',
+        department_Id: ''
+        
+        
     });
+    const [img,setImg]=useState(null);
     const [options,setOptions]=useState({
         specializations: [],
         departments: [],
-        roles: []
+        roles: [],
+        gender: []
     });
+    
+    const add=(e)=>{
+        e.preventDefault();
+        const data= new FormData();
+        Object.entries(formData).forEach(([key,value])=>{
+            data.append(key,value);
+        });
+        if(img){
+            data.append("img",img);
+        }
+        Axios.post('http://localhost:3001/addDoctor',data)
+        .then((response)=>{
+            console.log("Doctor added:",response.data);
+        })
+        .catch((error)=>{
+            console.log("Error adding doctor:",error);
+        });
+        setFormData({
+            first_name: '',
+            last_name: '',
+            email: '',
+            password: '',
+            phone: '',
+            role_id: '',
+            date_of_birth: '',
+            gender_id: '',
+            specialization_id: '',
+            department_Id: '',
+            
+
+        });
+        setImg(null);
+    };
+        
     useEffect(()=>{
         const fetchOptions=async()=>{
             try{
-                const [spectRes,depRes,roleRes]=await Promise.all([
+                const [spectRes,depRes,roleRes,genderRes]=await Promise.all([
                     fetch('http://localhost:3001/specializations'),
                     fetch('http://localhost:3001/departments'),
-                    fetch('http://localhost:3001/roles')
+                    fetch('http://localhost:3001/roles'),
+                    fetch('http://localhost:3001/gender')
                 ]);
                 setOptions({
                     specializations: await spectRes.json(),
                     departments: await depRes.json(),
-                    roles: await roleRes.json()
+                    roles: await roleRes.json(),
+                    gender: await genderRes.json()
                 });
             }catch(error){
                 console.error('Error fetching options:', error);
@@ -40,57 +81,8 @@ const AdminDoctor=()=>{
         
 
     },[]);
-    const handleChange=(e)=>{
-        setFormData({...formData,[e.target.name]: e.target.value});
-    };
-    const handleSubmit= async(e)=>{
-        e.preventDefault();
-
-        try{
-            const response=await fetch('http://localhost:3001/insertDoctor',{
-                method: 'POST',
-                headers:{
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userData: {
-                        first_name: formData.first_name,
-                        last_name: formData.last_name,
-                        email: formData.email,
-                        password: formData.password,
-                        phone: formData.phone,
-                        role_id: formData.role_id,
-
-                    },
-                    doctorData: {
-                        specialization_id: formData.specialization_id,
-                        department_id: formData.department_id,
-                        gender: formData.gender
-                    }
-                }),
-            });
-            if(response.ok){
-                alert('Doctor added successfully!');
-
-                setFormData({
-                    first_name: '',
-                    last_name: '',
-                    gender: '',
-                    phone: '',
-                    specialization_id: '',
-                    department_id: '',
-                    email: '',
-                    password: '',
-                    role_id: '',
-                });
-            }else{
-                alert('Failed to add doctor.');
-            }
-        }catch(error){
-            console.log('Fetch error: ',error);
-            alert('Something went wrong.');
-        }
-    };
+    
+  
     return(
         <>
         <div style={{display: "flex",minHeight: "100vh"}}>
@@ -107,30 +99,47 @@ const AdminDoctor=()=>{
                 maxWidth: "1500px",
                 width: "100%"}}>
                 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={add}>
                     <div className="row">
                         <div className="col-md-6">
                             <div className="mb-3">
                                 <label htmlFor="first_name" className="form-label">Name:</label>
                                 <input type="text" className="form-control w-100" id="first_name" aria-describedby="name"
-                                name="first_name" value={formData.first_name} onChange={handleChange}/>
+                                name="first_name" value={formData.first_name} onChange={(e)=>{
+                                    setFormData({...formData,first_name: e.target.value});
+                                }}/>
                             
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="last_name" className="form-label">Last Name:</label>
                                 <input type="text" className="form-control w-100" id="last_name" aria-describedby="lastname"
-                                name="last_name" value={formData.last_name} onChange={handleChange}/>
+                                name="last_name" value={formData.last_name} onChange={(e)=>{
+                                    setFormData({...formData,last_name: e.target.value});
+                                }}/>
                             
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="gender" className="form-label">Gender:</label>
-                                <select name="gender" id="gender" className="form-control w-100" aria-describedby="specialization"
-                                value={formData.gender} onChange={handleChange} >
-                                    <option value={"Female"}>Female</option>
-                                    <option value={"Male"}>Male</option>
-                                    <option value={"Other"}>Other</option>
+                                <select name="gender_id" id="gender" className="form-control w-100" aria-describedby="gender"
+                                value={formData.gender_id}
+                                onChange={(e)=>{
+                                    setFormData({...formData,gender_id: parseInt(e.target.value)});
+                                }} >
+                                    <option value="">Select gender:</option>
+                                    {options.gender.map(g=>(
+                                        <option key={g.gender_id} value={g.gender_id}>{g.gender_name}</option>
+                                    ))}
                                 </select>
                                     
+                            
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="date_of_birth" className="form-label">Date of birth:</label>
+                                <input type="date" className="form-control w-100" id="date_of_birth" aria-describedby="date_of_birth"
+                                name="date_of_birth" value={formData.date_of_birth} onChange={(e)=>{
+                                    setFormData({...formData,date_of_birth: e.target.value});
+                                }}/>
                             
                             </div>
                         
@@ -138,13 +147,17 @@ const AdminDoctor=()=>{
                             <div className="mb-3">
                                 <label htmlFor="phone" className="form-label">Phone Number:</label>
                                 <input type="text" className="form-control w-100" id="phone" aria-describedby="phone"
-                               name="phone" value={formData.phone} onChange={handleChange}/>
+                               name="phone" value={formData.phone} onChange={(e)=>{
+                                setFormData({...formData,phone: e.target.value});
+                            }}/>
                             
                             </div>
-                            <div className="mb-3">
+                           <div className="mb-3">
                                 <label htmlFor="img" className="form-label">Upload image:</label>
-                                <input type="file" className="form-control w-100" id="img" aria-describedby="emailHelp"
-                                />
+                                <input type="file" className="form-control w-100" id="img" aria-describedby="img"
+                                name="img" onChange={(e)=>{
+                                    setImg( e.target.files[0]);
+                                }}/>
                                 
                             
                             </div>
@@ -154,7 +167,9 @@ const AdminDoctor=()=>{
                     <div className="mb-3">
                         <label htmlFor="specialization" className="form-label">Specialization:</label>
                         <select name="specialization_id" id="specialization" className="form-control w-100" aria-describedby="specialization"
-                        value={formData.specialization_id} onChange={handleChange} >
+                        value={formData.specialization_id} onChange={(e)=>{
+                            setFormData({...formData,specialization_id: parseInt(e.target.value)});
+                        }}>
                             <option value="">Select Specialization</option>
                             {options.specializations.map(s=>(
                                 <option key={s.specialization_id} value={s.specialization_id}>{s.specialization_name}</option>
@@ -164,12 +179,14 @@ const AdminDoctor=()=>{
                        
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="department" className="form-label">department:</label>
-                        <select name="department_id" id="department" className="form-control w-100" aria-describedby="department"
-                        value={formData.department_id} onChange={handleChange} >
-                            <option value="">Select department</option>
+                        <label htmlFor="department" className="form-label">Department:</label>
+                        <select name="department_Id" id="department" className="form-control w-100" aria-describedby="department"
+                        value={formData.department_Id} onChange={(e)=>{
+                            setFormData({...formData,department_Id: e.target.value});
+                        }}>
+                            <option value="">Select Department</option>
                             {options.departments.map(d=>(
-                                <option key={d.department_id} value={d.department_id}>{d.department_name}</option>
+                                <option key={d.department_Id} value={d.department_Id}>{d.department_name}</option>
                             ))}
                         </select>
                         
@@ -178,18 +195,24 @@ const AdminDoctor=()=>{
                     <div className="mb-3">
                                 <label htmlFor="email" className="form-label">Email address</label>
                                 <input type="email" className="form-control w-100" id="email" aria-describedby="email"
-                               name="email" value={formData.email} onChange={handleChange}/>
+                               name="email" value={formData.email} onChange={(e)=>{
+                                setFormData({...formData,email: e.target.value});
+                            }}/>
                             
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label">Password</label>
                                 <input type="password" className="form-control w-100" id="password"
-                               name="password" value={formData.password} onChange={handleChange}/>
+                               name="password" value={formData.date_of_birth.password} onChange={(e)=>{
+                                setFormData({...formData,password: e.target.value});
+                            }}/>
                             </div>
                             <div className="mb-3">
                             <label htmlFor="role" className="form-label">Role:</label>
                             <select name="role_id" id="role" className="form-control w-100" aria-describedby="role"
-                            value={formData.role_id} onChange={handleChange} >
+                            value={formData.role_id} onChange={(e)=>{
+                                setFormData({...formData,role_id: parseInt(e.target.value)});
+                            }} >
                                 <option value="">Select role</option>
                                 {options.roles.map(r=>(
                                     <option key={r.role_id} value={r.role_id}>{r.role_name}</option>
@@ -204,7 +227,7 @@ const AdminDoctor=()=>{
                     
                     </div>
                     <button type="submit" className="btn btn-primary" style={{backgroundColor: '#51A485',width: '100%'}}
-                    onClick={handleSubmit}>Add a doctor</button>
+                     >Add a doctor</button>
                     </div>
                 </form>
             </div>
@@ -215,3 +238,4 @@ const AdminDoctor=()=>{
     );
 };
 export default AdminDoctor;
+

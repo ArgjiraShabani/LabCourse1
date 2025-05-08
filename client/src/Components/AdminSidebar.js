@@ -41,9 +41,16 @@ const Sidebar = ({role,id}) => {
           <li className="nav-item mb-2">
             <Link to={`/ManageServices/${id}`} className="nav-link text-white hover-link">Services</Link>
           </li>
+
+          
+           
+          
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white hover-link">Doctors</a>
+          
+            <Link to='/doctors' className="nav-link text-white hover-link">Doctors</Link>
           </li>
+          
+          
           <li className="nav-item mb-2">
             <Link to="/patient" className="nav-link text-white hover-link">All Patients</Link>
           </li>
