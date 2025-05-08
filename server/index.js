@@ -430,67 +430,7 @@ app.get('/gender',(req,res)=>{
     res.json(result);
   });
 });
-/*
-app.post("/insertDoctor",(req,res)=>{
-    const {userData,doctorData}=req.body;
-    
-    const userValues=[
-        userData.first_name,
-        userData.last_name,
-        userData.email,
-        userData.password,
-        userData.phone,
-        userData.role_id
-    ];
-    const doctorValues=[
-        doctorData.specialization_id,
-        doctorData.department_id,
-        doctorData.gender
-    ];
-    db.getConnection((err,connection)=>{
-        if(err){
-            return res.status(500).json({error: "Database connectionfailed"});
-        }
-        connection.beginTransaction(err=>{
-            if(err){
-                connection.release();
-                return res.status(500).json({error: "Transaction start failed"});
-            }
-            const userQuery="INSERT INTO users(first_name,last_name,email,password,phone,role_id) VALUES(?,?,?,?,?,?)";
-            connection.query(userQuery,userValues,(err,userResult)=>{
-                if(err){
-                    return connection.rollback(()=>{
-                        connection.release();
-                        res.status(500).json({error: "Failed to insert user"});
-                    });
-                }
-                const userId=userResult.insertId;
 
-                const doctorQuery="INSERT INTO doctors(user_id,specialization_id,department_id,gender) VALUES(?,?,?,?)";
-                connection.query(doctorQuery,[userId,...doctorValues],(err,doctorResult)=>{
-                    if(err){
-                        console.error(err);
-                        return connection.rollback(()=>{
-                            connection.release();
-                            res.status(500).json({error: "Failed to insert doctor"});
-                        });
-                    }
-                    connection.commit(err=>{
-                        connection.release();
-                        if(err){
-                            return res.status(500).json({error: "Transaction commit failed"});
-                        }
-                        res.status(201).json({
-                            message: "Doctor inserted successfully",
-                            userId,
-                            doctorId: doctorResult.insertId
-                        });
-                    });
-                });
-            });
-        });
-    });
-});*/
 app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
   
   
