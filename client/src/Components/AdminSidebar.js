@@ -1,7 +1,14 @@
-import React from 'react';
+
+
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Sidebar = ({role,id}) => {
+  const [doctorMenuOpen, setDoctorMenuOpen] = useState(false);
+
+  const toggleDoctorMenu=()=>{
+    setDoctorMenuOpen(!doctorMenuOpen);
+  };
   return (
     <>
       <style>
@@ -46,9 +53,26 @@ const Sidebar = ({role,id}) => {
            
           
           <li className="nav-item mb-2">
+            <div onClick={toggleDoctorMenu} className='nav-link text-white hover-link'>
+              Doctors {doctorMenuOpen? '▲': '▼'}
+            </div>
+            {doctorMenuOpen && (
+              <ul className='submenu list-unstyled'>
+                <li className='nav-item mb-2'>
+                <Link to='/doctors' className="nav-link text-white hover-link">Add Doctors</Link>
+
+                </li>
+                <li className='nav-item mb-2'>
+                <Link to='/viewDoctors' className="nav-link text-white hover-link">View Doctors</Link>
+
+                </li>
+                
+              </ul>
           
-            <Link to='/doctors' className="nav-link text-white hover-link">Doctors</Link>
+           
+          )}
           </li>
+
           
           
           <li className="nav-item mb-2">
@@ -114,4 +138,5 @@ const Sidebar = ({role,id}) => {
 };
 
 export default Sidebar;
+
 
