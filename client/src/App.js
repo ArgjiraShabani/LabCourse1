@@ -13,10 +13,11 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {BrowserRouter as Router,Routes,Route,useLocation } from 'react-router-dom';
 import DoctorDashboard from './Dashboards/Doctor/DoctorDashboard';
-import AdminDoctor from './Dashboards/Admin/AdminDoctor';
+import AdminDoctor from './Dashboards/Admin/addDoctor';
 import ManageDepartments from './Dashboards/Admin/manageDepartments';
 import ManageServices from './Dashboards/Admin/manageServices';
 import UpdateDoctor from './Dashboards/Admin/UpdateDoctor';
+import ViewDoctors from './Dashboards/Admin/viewDoctors';
 
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
@@ -37,6 +38,7 @@ function Layout() {
           </Route> 
           <Route path="/doctors" element={<AdminDoctor/>}/>
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
+          <Route path='/viewDoctors' element={<ViewDoctors/>}/>
           
 
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />

@@ -38,11 +38,11 @@ const userUpload=multer({storage: userStorage});
 const db = mysql.createConnection({
     user:"root",
     host:"localhost",
-    //password:"password",
-    password:"mysqldb",
+    password:"password",
+    //password:"mysqldb",
     database:"hospital_management",
     
-    port: 3307,
+    //port: 3307,
    
 
 });
@@ -470,7 +470,9 @@ app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
 });
 });
 
-app.put("/doctors/:id",(req,res)=>{
+app.put("/updateDoctors/:id",(req,res)=>{
+  const doctorId=req.params.id;
+  const q= "UPDATE  doctors SET first_name=?,last_name=?,email=?,password=?,phone=?,role_id=?,date_of_birth=?,gender_id=?,specialization_id=?,department_Id=?,image_path=?  WHERE doctor_id=?";
   const values=[
     req.body.first_name,
     req.body.last_name,
@@ -484,14 +486,57 @@ app.put("/doctors/:id",(req,res)=>{
     req.body.department_Id,
     req.body.image_path
   ]
-  const doctorId=req.params.id;
-  const q= "UPDATE  doctors SET first_name=?,last_name=?,email=?,password=?,phone=?,role_id=?,date_of_birth=?,gender_id=?,specialization_id=?,department_Id=?,image_path=?  WHERE doctor_id=?";
+  
   db.query(q,[...values,doctorId],(err,data)=>{
     if(err) return res.json(err);
     return res.json("Doctor has been updated successfully");
   })
   
-})
+});
+app.get('/viewDoctors',(req,res)=>{
+  const sqlGet=`
+  SELECT d.doctor_id,d.first_name,
+    d.last_name,
+    d.email,
+    d.password,
+    d.phone,
+    r.role_name,
+    d.date_of_birth,
+    g.gender_name,
+  s.specialization_name,
+  dep.department_name 
+  FROM doctors d inner join roles r on d.role_id=r.role_id
+   inner join gender g on d.gender_id=g.gender_id
+    inner join specialization s on d.specialization_id=s.specialization_id
+   inner join departments dep on d.department_id=dep.department_id
+   `;
+  db.query(sqlGet,(err,result)=>{
+    if(err){
+      console.error("Database error:",err);
+      return res.status(500).json({error: "Database error"});
+    }
+    return res.json(result);
+   
+
+  });
+});
+app.delete("/deleteDoctor/:doctor_id",(req,res)=>{
+  const doctorId=req.params.doctor_id;
+  const sqlDel="DELETE FROM doctors WHERE doctor_id=?";
+  db.query(sqlDel,[doctorId],(err,result)=>{
+    if(err){
+      console.error("Database error:",err);
+      return res.status(500).json({error: "Database error"});
+
+    }
+    if(result.affectedRows===0){
+      return res.status(404).json({message: "Doctor not found"});
+    }
+    res.json({message: "Doctor deleted successfully"});
+    
+    
+  });
+});
     
     
 app.listen(3001,()=>{

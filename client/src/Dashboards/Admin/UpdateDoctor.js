@@ -27,11 +27,11 @@ const UpdateDoctor=()=>{
         roles: [],
         gender: []
     });
-    const location=useLocation( )
+    const location=useLocation();
 
     const update=(e)=>{
         e.preventDefault();
-        Axios.post('http://localhost:3001/doctors/:id',formData)
+        Axios.put('http://localhost:3001/updateDoctors/:id',formData)
         .then((response)=>{
             console.log("Doctor added:",response.data);
         })
