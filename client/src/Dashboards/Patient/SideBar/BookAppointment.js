@@ -27,7 +27,7 @@ const Sidebar = () => {
         `}
       </style>
 
-      <div className="text-white p-3" style={{ backgroundColor: '#51A485', width: '250px', minHeight: '100vh' }}>
+      <div className="text-white p-3" style={{ backgroundColor: '#51A485',width:"250px", minHeight: '100vh' }}>
         <h4 className="text-center mb-4">Patient Dashboard</h4>
         <ul className="nav flex-column">
           <li className="nav-item mb-2">
@@ -43,7 +43,7 @@ const Sidebar = () => {
             <a href="#" className="nav-link text-white hover-link">Message</a>
           </li>
           <li className="nav-item mt-4">
-            <a href="#" className="nav-link text-danger">Log out</a>
+            <Link to={"/"} className="nav-link text-danger">Log out</Link>
           </li>
         </ul>
       </div>

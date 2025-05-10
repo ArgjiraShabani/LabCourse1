@@ -19,7 +19,7 @@ const Sidebar = () => {
 
           .hover-link:hover {
             background-color: rgba(255, 255, 255, 0.1);
-          }
+          } 
 
           .nav-link.active {
             background-color: rgba(255, 255, 255, 0.2);
@@ -45,7 +45,7 @@ const Sidebar = () => {
             <a href="#" className="nav-link text-white hover-link">Message</a>
           </li>
           <li className="nav-item mt-4">
-            <a href="#" className="nav-link text-danger">Log out</a>
+            <Link to={"/"} className="nav-link text-danger">Log out</Link>
           </li>
         </ul>
       </div>

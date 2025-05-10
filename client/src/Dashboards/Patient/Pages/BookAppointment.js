@@ -11,6 +11,7 @@ const BookAppointment = () => {
       <div className="flex-grow-1 p-4">
         <h2>BookAppointment</h2>
         <p>Select a section from the sidebar.</p>
+       
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 import { useState,useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 
 function UpdateProfile({id}){
@@ -54,48 +55,48 @@ function UpdateProfile({id}){
 
   return(
     <>
-        <div style={{marginTop:"20px",borderStyle:"solid",padding:"60px 90px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)'}}>
+        <div style={{marginTop:"20px",borderStyle:"solid",padding:"60px 90px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'}}>
           <h1 style={{textAlign:"center",marginBottom:"40px"}}>Update Profile</h1>
-          <form >
-            <div style={{marginBottom:"20px"}}>
+          <form className="mt-4">
+            <div className="mb-3" style={{marginBottom:"20px"}}>
               <label>Firstname:</label><br/>
-              <input type="text" value={info.first_name} onChange={e=>setInfo({...info,first_name:e.target.value})} style={{width:'300px',height:"35px"}}/>
+              <input className="form-control" type="text" value={info.first_name} onChange={e=>setInfo({...info,first_name:e.target.value})} style={{width:'300px',height:"40px"}}/>
             </div>
             <div style={{marginBottom:"20px"}}>
-              <label>Lastname:</label><br/>
-              <input type="text" value={info.last_name} onChange={e=>setInfo({...info,last_name:e.target.value})} style={{width:'300px',height:"35px"}}/>
+              <label >Lastname:</label><br/>
+              <input className="form-control" type="text" value={info.last_name} onChange={e=>setInfo({...info,last_name:e.target.value})} style={{width:'300px',height:"40px"}}/>
             </div>
             <div style={{marginBottom:"20px"}}>
               <label>Phone Number:</label><br/>
-              <input type="text" value={info.phone} onChange={e=>setInfo({...info,phone:e.target.value})} style={{width:'300px',height:"35px"}}/>
+              <input className="form-control" type="text" value={info.phone} onChange={e=>setInfo({...info,phone:e.target.value})} style={{width:'300px',height:"40px"}}/>
             </div>
             <div style={{marginBottom:"20px"}}>
               <label>Birthday:</label><br/>
-              <input type="date" value={info.date_of_birth} onChange={e=>setInfo({...info,date_of_birth:e.target.value})} style={{width:'300px',height:"35px"}}/>
+              <input className="form-control" type="date" value={info.date_of_birth} onChange={e=>setInfo({...info,date_of_birth:e.target.value})} style={{width:'300px',height:"40px"}}/>
             </div>
             <div style={{marginBottom:"20px"}}>
               <label>Gender:</label><br/>
-              <select value={info.gender_name} onChange={e=>setInfo({...info,gender_name:e.target.value})} style={{width:"300px",height:"35px"}}>
+              <select  className="form-control" value={info.gender_name} onChange={e=>setInfo({...info,gender_name:e.target.value})} style={{width:"300px",height:"40px"}}>
               {gender.map((value,key)=>{
                 return(
-                <option >{value.gender_name}</option>
+                <option key={key}>{value.gender_name}</option>
                 )
               })}
               </select>
             </div>
             <div style={{marginBottom:"20px"}}>
               <label>Blood Type:</label><br/>
-              <select value={info.blood_type} onChange={e=>setInfo({...info,blood_type:e.target.value})} style={{width:"300px",height:"35px"}}>
+              <select  className="form-control" value={info.blood_type} onChange={e=>setInfo({...info,blood_type:e.target.value})} style={{width:"300px",height:"40px"}}>
               {blood.map((value,key)=>{
                 return(
-                <option>{value.blood_type}</option>
+                <option key={key}>{value.blood_type}</option>
                 )
               })}
               </select>
             </div>
 
-            <div style={{marginBottom:"20px"}}>
-              <button type="submit" onClick={handleSubmit} style={{width:"300px",borderColor:"#51A485",backgroundColor:"#51A485",height:"50px",color:"white"}}>UPDATE</button>
+            <div style={{marginBottom:"10px"}}>
+              <button  className="form-control" type="submit" onClick={handleSubmit} style={{width:"300px",borderColor:"#51A485",backgroundColor:"#51A485",height:"50px",color:"white"}}>UPDATE</button>
             </div>
           </form>
             

@@ -63,7 +63,7 @@ const Sidebar = ({role,id}) => {
             <a href="#" className="nav-link text-white active shadow-link">Dashboard</a>
           </li>
           <li className="nav-item mb-2">
-            <a href="#" className="nav-link text-white hover-link">Patients</a>
+            <Link to="/registerPatient" className="nav-link text-white hover-link">Patients</Link>
           </li>
           <li className="nav-item mb-2">
             <a href="#" className="nav-link text-white hover-link">Appointments</a>
@@ -93,7 +93,7 @@ const Sidebar = ({role,id}) => {
             <a href="#" className="nav-link text-white hover-link">Message</a>
           </li>
           <li className="nav-item mt-4">
-            <a href="#" className="nav-link text-danger">Log out</a>
+            <Link to={'/'} className="nav-link text-danger">Log out</Link>
           </li>
           </ul>
           </>

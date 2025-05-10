@@ -29,7 +29,7 @@ function Info({id}){
   return (
    <>
    
-   <div style={{marginTop:"60px",borderStyle:"solid",padding:'70px 110px',borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',height:"500px"}}>
+   <div style={{marginTop:"60px",borderStyle:"solid",padding:'70px 110px',borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',height:"500px"}}>
     <h5>Firstname:<b> {info.first_name}</b></h5>
     <br/>
     <h5>Lastname: <b> {info.last_name}</b></h5>

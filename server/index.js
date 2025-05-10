@@ -282,17 +282,73 @@ app.get('/patient',(req,res)=>{
 
 app.delete("/deletePatient/:id",(req,res)=>{
   const id = req.params.id;
-  db.query("DELETE from patients where patient_id=?",[id],(err,res)=>{
+  db.query("DELETE from patients where patient_id=?",[id],(err,result)=>{
     if(err){
       return res.json("Error");
+    }else{
+      res.send(result)
     }
-    db.query("Delete from users where user_id=?",[id],(err,res)=>{
+  })
+})
+
+app.post("/registerPatient",(req,res)=>{
+  const name=req.body.first_name;
+  const lastname=req.body.last_name;
+  const email=req.body.email;
+  const password=req.body.password;
+  const number=req.body.number;
+  const birth=req.body.birth;
+  const gender=req.body.gender;
+  const blood=req.body.blood;
+  const status=req.body.status;
+  console.log(req.body)
+  db.query("select gender_id from gender where gender_name=?",[gender],(err,data)=>{
+    if(err){
+      return res.json("Didnt fetch gender id!!");
+    }
+    
+      if(data.length>0){
+        const genderId=data[0].gender_id;
+        console.log(genderId);
+     
+  
+    db.query("select blood_id from blood where blood_type=?",[blood],(err,data)=>{
       if(err){
         return res.json("Error");
       }
-    })
-  })
-})
+        if(data.length>0){
+          const bloodId=data[0].blood_id;
+                  console.log(bloodId);
+
+
+        db.query("select status_id from status where status_name=?",[status],(err,data)=>{
+          if(err){
+            return res.json("Error");
+          }
+            if(data.length>0){
+              const statusId=data[0].status_id;
+                      console.log(statusId);
+
+
+            db.query(`insert into patients(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,blood_id,status_id)value(?, ?, ?, ?, ?, 3, ?, ?, ?, ?)`, [name, lastname, email, password, number, birth, genderId, bloodId, statusId],(err,data)=>{
+            if(err){
+              return res.json("Error");
+            }
+            return res.json("Patient registered successfully");
+          });
+               }else{
+                  return res.json("No matching status found");
+                };
+                });
+          }else{
+            return res.json("No matching blood found");
+          };
+          });
+    }else{
+      return res.json("No matching gender found");
+    }
+      })
+    });
 
 app.post('/login',(req,res)=>{
   const sql="SELECT patients.patient_id,patients.email,patients.password,roles.role_name FROM patients inner join roles on patients.role_id=roles.role_id WHERE `email`=? AND `password`=?";
