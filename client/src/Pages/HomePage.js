@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react"; // Import useState and useEffect
+import axios from "axios"; // Import axios
 import slide1 from "../assets/family_doctor.jpg";
 import slide2 from "../assets/ooking-ahead-the-outlook-for-australias-private-hospitals.jpg";
 import slide3 from "../assets/Brain-Stimulation-Surgery-20250204-01.jpg";
@@ -10,6 +12,39 @@ import Navbar from "../Components/Navbar";
 import "../App.css";
 import { Link } from "react-router-dom";
 function HomePage() {
+  const [services, setServices] = useState([]);
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    fetchDepartments();
+    fetchServices();
+  }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      const res = await axios.get("http://localhost:3001/departments");
+      setDepartments(res.data);
+    } catch (err) {
+      console.error("Error fetching departments:", err);
+    }
+  };
+
+  const fetchServices = async () => {
+    try {
+      const res = await axios.get("http://localhost:3001/services");
+      setServices(res.data);
+    } catch (err) {
+      console.error("Error fetching services:", err);
+    }
+  };
+
+  // Group services by department
+  const groupedServices = departments.map(dept => ({
+    ...dept,
+    services: services.filter(service => service.department_Id === dept.department_Id)
+  }));
+
+
   return (
     <>
     <Navbar/>
@@ -159,86 +194,45 @@ function HomePage() {
           </Link>
         </div>
       </div>
-      <section className="container my-5">
-  <h2 className="text-center mb-4" style={{ color: "#51A485" }}>Our Services</h2>
-  <p className="text-center mb-4" style={{ color: "#555" }}>
-  At our hospital, your health and well-being are our top priorities. We offer a wide range of specialized medical services designed to meet your needs with professionalism and care. Below, you can explore the services we provide for you and your family.
-</p>
-  <div className="row g-4">
-    {/* General Surgery */}
-    <div className="col-md-6 col-lg-3">
-      <div className="card h-100 border-0 shadow-sm">
-        <img 
-          src={surgeryImg} 
-          className="card-img-top" 
-          alt="General Surgery" 
-          style={{ height: "200px", objectFit: "cover" }}
-        />
-        <div className="card-body">
-          <h5 className="card-title" style={{ color: "#51A485" }}>General Surgery</h5>
-          <p className="card-text">Comprehensive surgical care for conditions affecting the abdomen, digestive tract, and more.</p>
+      {/* Services Section */}
+        <section className="container my-5">
+        <h2 className="text-center mb-4" style={{ color: "#51A485" }}>Our Services</h2>
+        <p className="text-center mb-4" style={{ color: "#555" }}>
+          At our hospital, your health and well-being are our top priorities. We offer a wide range of specialized medical services designed to meet your needs with professionalism and care. Below, you can explore the services we provide for you and your family.
+        </p>
+        <div className="row g-4">
+          
+          {groupedServices.map(dept => (
+            <div key={dept.department_Id} className="col-md-6 col-lg-3">
+              <div className="card h-100 border-0 shadow-sm">
+                {dept.image_path && (
+                  <img
+                    src={`http://localhost:3001/uploads/${dept.image_path}`}
+                    className="card-img-top"
+                    alt={dept.department_name}
+                    style={{ height: "200px", objectFit: "cover" }}
+                  />
+                )}
+                <div className="card-body">
+                  <h5 className="card-title" style={{ color: "#51A485" }}>{dept.department_name}</h5>
+                  <p className="card-text">{dept.description}</p>
+                  <ul>
+                    {dept.services.map(service => (
+                      <li key={service.service_id}>{service.service_name}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    </div>
-
-    {/* Cardiology */}
-    <div className="col-md-6 col-lg-3">
-      <div className="card h-100 border-0 shadow-sm">
-        <img 
-          src={cardiologyImg} 
-          className="card-img-top" 
-          alt="Cardiology" 
-          style={{ height: "200px", objectFit: "cover" }}
-        />
-        <div className="card-body">
-          <h5 className="card-title" style={{ color: "#51A485" }}>Cardiology</h5>
-          <p className="card-text">Specialized care for heart and blood vessel diseases with advanced diagnostic tools.</p>
+        <div className="text-center mt-4">
+          <button className="btn px-4 py-2 text-white" style={{ backgroundColor: "#51A485", border: "none" }}>
+            Book Your Appointment
+          </button>
         </div>
-      </div>
-    </div>
+      </section>
 
-    {/* Gynecology & Obstetrics */}
-    <div className="col-md-6 col-lg-3">
-      <div className="card h-100 border-0 shadow-sm">
-        <img 
-          src={gynecologyImg} 
-          className="card-img-top" 
-          alt="Gynecology & Obstetrics" 
-          style={{ height: "200px", objectFit: "cover" }}
-        />
-        <div className="card-body">
-          <h5 className="card-title" style={{ color: "#51A485" }}>Gynecology & Obstetrics</h5>
-          <p className="card-text">Specialized care for women's reproductive health, pregnancy, and childbirth.</p>
-        </div>
-      </div>
-    </div>
-
-    {/* Orthopedics */}
-    <div className="col-md-6 col-lg-3">
-      <div className="card h-100 border-0 shadow-sm">
-        <img 
-          src={orthopedicsImg} 
-          className="card-img-top" 
-          alt="Orthopedics" 
-          style={{ height: "200px", objectFit: "cover" }}
-        />
-        <div className="card-body">
-          <h5 className="card-title" style={{ color: "#51A485" }}>Orthopedics</h5>
-          <p className="card-text">Diagnosis and treatment for conditions related to bones, joints, and muscles.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div className="text-center mt-4">
-    <button 
-      className="btn px-4 py-2 text-white"
-      style={{ backgroundColor: "#51A485", border: "none" }}
-    >
-      Book Your Appointment
-    </button>
-  </div>
-</section>
 
       <div className="container-fluid py-5 bg-light">
         <div className="container">
