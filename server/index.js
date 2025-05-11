@@ -544,7 +544,107 @@ app.delete("/deleteDoctor/:doctor_id",(req,res)=>{
     
   });
 });
-    
+
+app.get('/api/doctors', (req, res) => {
+  const query = `
+    SELECT doctor_id AS id, CONCAT(first_name, " ", last_name) AS name 
+    FROM doctors 
+    WHERE is_active = 1
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Gabim gjate marrjes se mjekeve:', err.message);
+      return res.status(500).json({ error: 'Gabim gjate marrjes se mjekeve' });
+    }
+    res.json(results);
+  });
+});
+
+
+app.get('/api/standardSchedules', (req, res) => {
+  const query = `
+    SELECT ss.schedule_id, CONCAT(d.first_name, " ", d.last_name) AS doctor_name, 
+           ss.weekday, ss.start_time, ss.end_time, ss.shift_type
+    FROM standard_schedules ss
+    JOIN doctors d ON ss.doctor_id = d.doctor_id
+    WHERE d.is_active = 1
+  `;
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Gabim gjatë marrjes së orareve:', err.message);
+      return res.status(500).json({ error: 'Gabim gjate marrjes së orareve' });
+    }
+    res.json(results);
+  });
+});
+
+
+app.post('/api/standardSchedules', (req, res) => {
+  const { doctor_id, weekday, start_time, end_time, shift_type } = req.body;
+
+  if (!doctor_id || !weekday || !start_time || !end_time || !shift_type) {
+    return res.status(400).json({ error: 'Të dhenat e kerkuara mungojne' });
+  }
+
+  const query = `
+    INSERT INTO standard_schedules (doctor_id, weekday, start_time, end_time, shift_type)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(query, [doctor_id, weekday, start_time, end_time, shift_type], (err, result) => {
+    if (err) {
+      console.error('Gabim gjatë ruajtjes së orarit:', err.message);
+      return res.status(500).json({ error: 'Gabim gjate ruajtjes se orarit' });
+    }
+    res.status(201).json({ message: 'Orari u shtua me sukses' });
+  });
+});
+
+
+app.put('/api/standardSchedules/:schedule_id', (req, res) => {
+  const { schedule_id } = req.params;
+  const { start_time, end_time, shift_type } = req.body;
+
+  if (!start_time || !end_time || !shift_type) {
+    return res.status(400).json({ error: 'Të dhenat e kerkuara mungojne' });
+  }
+
+  const query = `
+    UPDATE standard_schedules 
+    SET start_time = ?, end_time = ?, shift_type = ?
+    WHERE schedule_id = ?
+  `;
+
+  db.query(query, [start_time, end_time, shift_type, schedule_id], (err, result) => {
+    if (err) {
+      console.error('Gabim gjate perditesimit te orarit:', err.message);
+      return res.status(500).json({ error: 'Gabim gjate perditesimit te orarit' });
+    }
+    res.json({ message: 'Orari u perditesua me sukses' });
+  });
+});
+
+
+app.get('/api/standardSchedules', (req, res) => {
+  const query = `
+    SELECT ss.schedule_id, ss.doctor_id, CONCAT(d.first_name, " ", d.last_name) AS doctor_name, 
+           ss.weekday, ss.start_time, ss.end_time, ss.shift_type
+    FROM standard_schedules ss
+    JOIN doctors d ON ss.doctor_id = d.doctor_id
+    WHERE d.is_active = 1
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Gabim gjate marrjes se orareve:', err.message);
+      return res.status(500).json({ error: 'Gabim gjate marrjes se orareve' });
+    }
+    res.json(results);
+  });
+});
+
     
 app.listen(3001,()=>{
     console.log("Hey po punon")
