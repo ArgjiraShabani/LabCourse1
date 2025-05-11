@@ -75,6 +75,7 @@ function Patient(){
                   <table className="table table-striped">
                     <thead>
                         <tr>
+                        <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Photo</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>ID</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Firstname</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Lastname</th>
@@ -93,7 +94,8 @@ function Patient(){
                         return(
                     <tbody> 
                         <tr>
-                        <th scope="row">{value.patient_id}</th>
+                        <th scope="row"><img src={`http://localhost:3001/uploads/`+value.image_path} style={{width:"70px"}}/></th>
+                        <td>{value.patient_id}</td>
                         <td>{value.first_name}</td>
                         <td>{value.last_name}</td>
                         <td>{value.email}</td>

@@ -38,7 +38,7 @@ const userUpload=multer({storage: userStorage});
 const db = mysql.createConnection({
     user:"root",
     host:"localhost",
-    password:"password",
+    password:"database",
     //password:"mysqldb",
     database:"hospital_management",
     
@@ -284,7 +284,7 @@ app.put('/updatePatient/:id',(req,res)=>{
 
 
 app.get('/patient',(req,res)=>{
-  db.query("SELECT patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name FROM patients inner join gender on patients.gender_id=gender.gender_id inner join status on patients.status_id=status.status_id",(err,result)=>{
+  db.query("SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name FROM patients inner join gender on patients.gender_id=gender.gender_id inner join status on patients.status_id=status.status_id",(err,result)=>{
   if(err){
       console.log(err);
   }else{
@@ -305,7 +305,7 @@ app.delete("/deletePatient/:id",(req,res)=>{
   })
 })
 
-app.post("/registerPatient",(req,res)=>{
+app.post("/registerPatient",upload.single("image"),(req,res)=>{
   const name=req.body.first_name;
   const lastname=req.body.last_name;
   const email=req.body.email;
@@ -315,7 +315,7 @@ app.post("/registerPatient",(req,res)=>{
   const gender=req.body.gender;
   const blood=req.body.blood;
   const status=req.body.status;
-  console.log(req.body)
+    const image=req.file.filename
   db.query("select gender_id from gender where gender_name=?",[gender],(err,data)=>{
     if(err){
       return res.json("Didnt fetch gender id!!");
@@ -323,7 +323,6 @@ app.post("/registerPatient",(req,res)=>{
     
       if(data.length>0){
         const genderId=data[0].gender_id;
-        console.log(genderId);
      
   
     db.query("select blood_id from blood where blood_type=?",[blood],(err,data)=>{
@@ -332,7 +331,6 @@ app.post("/registerPatient",(req,res)=>{
       }
         if(data.length>0){
           const bloodId=data[0].blood_id;
-                  console.log(bloodId);
 
 
         db.query("select status_id from status where status_name=?",[status],(err,data)=>{
@@ -341,15 +339,24 @@ app.post("/registerPatient",(req,res)=>{
           }
             if(data.length>0){
               const statusId=data[0].status_id;
-                      console.log(statusId);
 
+                      db.query("select role_id from roles where role_name=?",['patient'],(err,data)=>{
+                        if(err){
+                          return res.json("Error");
+                        }
+                          if(data.length>0){
+                            const roleId=data[0].role_id;
 
-            db.query(`insert into patients(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,blood_id,status_id)value(?, ?, ?, ?, ?, 3, ?, ?, ?, ?)`, [name, lastname, email, password, number, birth, genderId, bloodId, statusId],(err,data)=>{
+            db.query(`insert into patients(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,blood_id,status_id,image_path)value(?, ?, ?, ?, ?, 3, ?, ?, ?, ?,?)`, [name, lastname, email, password, number, birth, genderId, bloodId, statusId,image],(err,data)=>{
             if(err){
               return res.json("Error");
             }
             return res.json("Patient registered successfully");
           });
+          }else{
+                  return res.json("No matching role found");
+                };
+                });
                }else{
                   return res.json("No matching status found");
                 };

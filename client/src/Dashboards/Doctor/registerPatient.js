@@ -22,7 +22,9 @@ function Register(){
         birth:"",
         gender:"",
         blood:"",
-        status:""
+        status:"",
+        file:""
+
     });
 
      useEffect(()=>{
@@ -42,9 +44,20 @@ function Register(){
     },[]);
     const handleClick=(e)=>{
           e.preventDefault();
-         axios.post("http://localhost:3001/registerPatient",info).then(res=>{ 
+          const formdata=new FormData();
+            formdata.append("image", info.file);
+            formdata.append("first_name", info.first_name);
+            formdata.append("last_name", info.last_name);
+            formdata.append("email", info.email);
+            formdata.append("password", info.password);
+            formdata.append("number", info.number);
+            formdata.append("birth", info.birth);
+            formdata.append("gender", info.gender);
+            formdata.append("blood", info.blood);
+            formdata.append("status", info.status);
+         axios.post("http://localhost:3001/registerPatient",formdata).then(res=>{ 
             Swal.fire({
-                position: "top-end",
+                position: "center",
                 icon: "success",
                 title: "The patient was successfully registered!",
                 showConfirmButton: false,
@@ -55,7 +68,7 @@ function Register(){
 
            console.log(err);
              Swal.fire({
-                position: "top-end",
+                position: "center",
                 icon: "error",
                 title: "Patient is not registered!Please check again!",
                 showConfirmButton: false,
@@ -95,9 +108,12 @@ function Register(){
                     </div>
                     <div className="mb-3">
                     <label htmlFor="name" className="form-label">Birthday:</label>
-                    <input type="date" className="form-control" required onChange={e=>setInfo({...info,birth:e.target.value})}/>
+                    <input type="date" className="form-control" onFocus={(e) => e.target.showPicker && e.target.showPicker()} required onChange={e=>setInfo({...info,birth:e.target.value})}/>
                     </div>
-                   
+                    <div className="mb-3">
+                    <label htmlFor="photo" className="form-label">Upload Photo:</label>
+                     <input type="file" className="form-control" onChange={e=>setInfo({...info,file:e.target.files[0]})} />
+                     </div>
                     <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap"}}>
                     <div className="mb-3">
                     <select className="form-control" onChange={e=>setInfo({...info,gender:e.target.value})} required>
