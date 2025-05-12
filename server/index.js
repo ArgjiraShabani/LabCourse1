@@ -247,9 +247,8 @@ app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
   const gender_name=req.body.gender_name;
   const blood=req.body.blood_type;
   const id = req.params.id;
-   const image = req.file ? req.file.filename : null;
-   console.log(req.body);
-console.log(req.file)
+  const image = req.file ? req.file.filename : null;
+   
   db.query("select gender_id from gender where gender_name=?",[gender_name],(err,data)=>{
     if(err){
       return res.json("Didnt fetch gender id!!");
@@ -397,6 +396,8 @@ app.post('/login',(req,res)=>{
               }
               if(data.length>0){
                 return res.json({ message: "Success", id: data[0].admin_id,role: data[0].role_name});
+              }else{
+                return res.json("Invalid email or password!");
               }
            }); 
                 };
