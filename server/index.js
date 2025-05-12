@@ -552,7 +552,7 @@ app.get('/api/doctors', (req, res) => {
   const query = `
     SELECT doctor_id AS id, CONCAT(first_name, " ", last_name) AS name 
     FROM doctors 
-    WHERE is_active = 1
+   WHERE is_active = 1 AND department_id IS NOT NULL
   `;
 
   db.query(query, (err, results) => {
@@ -567,17 +567,17 @@ app.get('/api/doctors', (req, res) => {
 
 app.get('/api/standardSchedules', (req, res) => {
   const query = `
-    SELECT ss.schedule_id, CONCAT(d.first_name, " ", d.last_name) AS doctor_name, 
-           ss.weekday, ss.start_time, ss.end_time, ss.shift_type
+    SELECT ss.schedule_id, ss.doctor_id, CONCAT(d.first_name, " ", d.last_name) AS doctor_name, 
+           ss.weekday, ss.start_time, ss.end_time
     FROM standard_schedules ss
     JOIN doctors d ON ss.doctor_id = d.doctor_id
     WHERE d.is_active = 1
   `;
-  
+
   db.query(query, (err, results) => {
     if (err) {
       console.error('Gabim gjatë marrjes së orareve:', err.message);
-      return res.status(500).json({ error: 'Gabim gjate marrjes së orareve' });
+      return res.status(500).json({ error: 'Gabim gjatë marrjes së orareve' });
     }
     res.json(results);
   });
@@ -585,18 +585,18 @@ app.get('/api/standardSchedules', (req, res) => {
 
 
 app.post('/api/standardSchedules', (req, res) => {
-  const { doctor_id, weekday, start_time, end_time, shift_type } = req.body;
+  const { doctor_id, weekday, start_time, end_time } = req.body;
 
-  if (!doctor_id || !weekday || !start_time || !end_time || !shift_type) {
+  if (!doctor_id || !weekday || !start_time || !end_time) {
     return res.status(400).json({ error: 'Të dhenat e kerkuara mungojne' });
   }
 
   const query = `
-    INSERT INTO standard_schedules (doctor_id, weekday, start_time, end_time, shift_type)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO standard_schedules (doctor_id, weekday, start_time, end_time)
+    VALUES (?, ?, ?, ?)
   `;
 
-  db.query(query, [doctor_id, weekday, start_time, end_time, shift_type], (err, result) => {
+  db.query(query, [doctor_id, weekday, start_time, end_time], (err, result) => {
     if (err) {
       console.error('Gabim gjatë ruajtjes së orarit:', err.message);
       return res.status(500).json({ error: 'Gabim gjate ruajtjes se orarit' });
@@ -608,19 +608,19 @@ app.post('/api/standardSchedules', (req, res) => {
 
 app.put('/api/standardSchedules/:schedule_id', (req, res) => {
   const { schedule_id } = req.params;
-  const { start_time, end_time, shift_type } = req.body;
+  const { start_time, end_time } = req.body;
 
-  if (!start_time || !end_time || !shift_type) {
+  if (!start_time || !end_time) {
     return res.status(400).json({ error: 'Të dhenat e kerkuara mungojne' });
   }
 
   const query = `
     UPDATE standard_schedules 
-    SET start_time = ?, end_time = ?, shift_type = ?
+    SET start_time = ?, end_time = ?
     WHERE schedule_id = ?
   `;
 
-  db.query(query, [start_time, end_time, shift_type, schedule_id], (err, result) => {
+  db.query(query, [start_time, end_time, schedule_id], (err, result) => {
     if (err) {
       console.error('Gabim gjate perditesimit te orarit:', err.message);
       return res.status(500).json({ error: 'Gabim gjate perditesimit te orarit' });
@@ -630,21 +630,17 @@ app.put('/api/standardSchedules/:schedule_id', (req, res) => {
 });
 
 
-app.get('/api/standardSchedules', (req, res) => {
-  const query = `
-    SELECT ss.schedule_id, ss.doctor_id, CONCAT(d.first_name, " ", d.last_name) AS doctor_name, 
-           ss.weekday, ss.start_time, ss.end_time, ss.shift_type
-    FROM standard_schedules ss
-    JOIN doctors d ON ss.doctor_id = d.doctor_id
-    WHERE d.is_active = 1
-  `;
+app.delete('/api/standardSchedules/:schedule_id', (req, res) => {
+  const { schedule_id } = req.params;
 
-  db.query(query, (err, results) => {
+  const query = `DELETE FROM standard_schedules WHERE schedule_id = ?`;
+
+  db.query(query, [schedule_id], (err, result) => {
     if (err) {
-      console.error('Gabim gjate marrjes se orareve:', err.message);
-      return res.status(500).json({ error: 'Gabim gjate marrjes se orareve' });
+      console.error('Gabim gjate fshirjes së orarit:', err.message);
+      return res.status(500).json({ error: 'Gabim gjate fshirjes së orarit' });
     }
-    res.json(results);
+    res.json({ message: 'Orari u fshi me sukses' });
   });
 });
 

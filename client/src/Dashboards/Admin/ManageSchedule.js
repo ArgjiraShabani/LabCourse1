@@ -7,13 +7,13 @@ const ManageSchedule = () => {
   const [formData, setFormData] = useState({
     doctor_id: "",
     schedule: {
-      Monday: { start_time: "", end_time: "", shift_type: "morning" },
-      Tuesday: { start_time: "", end_time: "", shift_type: "morning" },
-      Wednesday: { start_time: "", end_time: "", shift_type: "morning" },
-      Thursday: { start_time: "", end_time: "", shift_type: "morning" },
-      Friday: { start_time: "", end_time: "", shift_type: "morning" },
-      Saturday: { start_time: "", end_time: "", shift_type: "morning" },
-      Sunday: { start_time: "", end_time: "", shift_type: "morning" },
+      Monday: { start_time: "", end_time: "" },
+      Tuesday: { start_time: "", end_time: "" },
+      Wednesday: { start_time: "", end_time: "" },
+      Thursday: { start_time: "", end_time: "" },
+      Friday: { start_time: "", end_time: "" },
+      Saturday: { start_time: "", end_time: "" },
+      Sunday: { start_time: "", end_time: "" },
     },
   });
   const [loading, setLoading] = useState(false);
@@ -38,7 +38,6 @@ const ManageSchedule = () => {
   const fetchDoctors = async () => {
     try {
       const res = await axios.get("http://localhost:3001/api/doctors");
-      console.log("Doctors:", res.data);
       setDoctors(res.data);
     } catch (err) {
       setError("Gabim me listen e mjekeve");
@@ -47,9 +46,7 @@ const ManageSchedule = () => {
 
   const fetchSchedules = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:3001/api/standardSchedules"
-      );
+      const res = await axios.get("http://localhost:3001/api/standardSchedules");
       setSchedules(res.data);
     } catch (err) {
       console.error("Gabim gjate marrjes se orareve:", err);
@@ -79,9 +76,7 @@ const ManageSchedule = () => {
       if (!formData.doctor_id) return;
 
       try {
-        const res = await axios.get(
-          "http://localhost:3001/api/standardSchedules"
-        );
+        const res = await axios.get("http://localhost:3001/api/standardSchedules");
         const doctorSchedule = res.data.filter(
           (item) => item.doctor_id === parseInt(formData.doctor_id)
         );
@@ -89,21 +84,11 @@ const ManageSchedule = () => {
         const updatedSchedule = { ...formData.schedule };
 
         doctorSchedule.forEach((entry) => {
-          if (entry.schedule_id) {
-            updatedSchedule[entry.weekday] = {
-              start_time: entry.start_time?.slice(0, 5),
-              end_time: entry.end_time?.slice(0, 5),
-              shift_type: entry.shift_type,
-              schedule_id: entry.schedule_id,
-            };
-          } else {
-            updatedSchedule[entry.weekday] = {
-              start_time: entry.start_time?.slice(0, 5),
-              end_time: entry.end_time?.slice(0, 5),
-              shift_type: entry.shift_type,
-              schedule_id: null,
-            };
-          }
+          updatedSchedule[entry.weekday] = {
+            start_time: entry.start_time?.slice(0, 5),
+            end_time: entry.end_time?.slice(0, 5),
+            schedule_id: entry.schedule_id,
+          };
         });
 
         setFormData((prev) => ({
@@ -128,9 +113,8 @@ const ManageSchedule = () => {
     try {
       const requests = days
         .map((day) => {
-          const { start_time, end_time, shift_type, schedule_id } =
-            schedule[day];
-          if (!start_time || !end_time || !shift_type) return null;
+          const { start_time, end_time, schedule_id } = schedule[day];
+          if (!start_time || !end_time) return null;
 
           if (schedule_id) {
             return axios.put(
@@ -138,7 +122,6 @@ const ManageSchedule = () => {
               {
                 start_time,
                 end_time,
-                shift_type,
               }
             );
           } else {
@@ -147,7 +130,6 @@ const ManageSchedule = () => {
               weekday: day,
               start_time,
               end_time,
-              shift_type,
             });
           }
         })
@@ -155,12 +137,12 @@ const ManageSchedule = () => {
 
       await Promise.all(requests);
 
-      alert("Orari u ruajt/përditësua me sukses!");
+      alert("Orari u ruajt/perditesua me sukses!");
 
       setFormData({
         doctor_id: "",
         schedule: days.reduce((acc, day) => {
-          acc[day] = { start_time: "", end_time: "", shift_type: "morning" };
+          acc[day] = { start_time: "", end_time: "" };
           return acc;
         }, {}),
       });
@@ -174,11 +156,24 @@ const ManageSchedule = () => {
     }
   };
 
+  const handleDeleteSchedule = async (schedule_id) => {
+    if (!window.confirm("A jeni i sigurt qe deshironi te fshini kete orar?")) return;
+
+    try {
+      await axios.delete(`http://localhost:3001/api/standardSchedules/${schedule_id}`);
+      alert("Orari u fshi me sukses!");
+      fetchSchedules();
+    } catch (err) {
+      console.error("Gabim gjate fshirjes se orarit:", err);
+      setError("Gabim gjate fshirjes se orarit");
+    }
+  };
+
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
       <div className="container mt-4">
-        <h2>Cakto Orarin për Mjekun</h2>
+        <h2>Cakto Orarin per Mjekun</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
         <form onSubmit={handleSubmit}>
@@ -200,12 +195,12 @@ const ManageSchedule = () => {
             </select>
           </div>
 
-          <h5>Oraret për ditët e javës:</h5>
+          <h5>Oraret per ditet e javes:</h5>
           {days.map((day) => (
             <div key={day} className="mb-4 border p-3 rounded">
               <h6>{day}</h6>
               <div className="row">
-                <div className="col-md-4 mb-2">
+                <div className="col-md-6 mb-2">
                   <label>Ora e fillimit:</label>
                   <input
                     type="time"
@@ -215,7 +210,7 @@ const ManageSchedule = () => {
                     onChange={(e) => handleChange(e, day)}
                   />
                 </div>
-                <div className="col-md-4 mb-2">
+                <div className="col-md-6 mb-2">
                   <label>Ora e mbarimit:</label>
                   <input
                     type="time"
@@ -225,20 +220,6 @@ const ManageSchedule = () => {
                     onChange={(e) => handleChange(e, day)}
                   />
                 </div>
-                <div className="col-md-3 mb-2">
-                  <label>Ndërrimi:</label>
-                  <select
-                    name="shift_type"
-                    className="form-select"
-                    value={formData.schedule[day].shift_type}
-                    onChange={(e) => handleChange(e, day)}
-                  >
-                    <option value="morning">Paradite</option>
-                    <option value="afternoon">Pasdite</option>
-                    <option value="night">Nate</option>
-                  </select>
-                </div>
-                <div className="col-md-1 d-flex align-items-end"></div>
               </div>
             </div>
           ))}
@@ -283,19 +264,32 @@ const ManageSchedule = () => {
                     existing[item.weekday] = {
                       start_time: item.start_time.slice(0, 5),
                       end_time: item.end_time.slice(0, 5),
-                      shift_type: item.shift_type,
+                      schedule_id: item.schedule_id,
                     };
                     return acc;
                   }, [])
-                  .map((schedule) => (
-                    <tr key={schedule.schedule_id}>
+                  .map((schedule, idx) => (
+                    <tr key={idx}>
                       <td>{schedule.schedule_id}</td>
                       <td>{schedule.doctor_name}</td>
                       {days.map((day) => (
                         <td key={day}>
-                          {schedule[day]?.start_time
-                            ? `${schedule[day].start_time} - ${schedule[day].end_time}`
-                            : "-"}
+                          {schedule[day]?.start_time ? (
+                            <>
+                              {`${schedule[day].start_time} - ${schedule[day].end_time}`}
+                              <br />
+                              <button
+                                className="btn btn-sm btn-danger mt-1"
+                                onClick={() =>
+                                  handleDeleteSchedule(schedule[day].schedule_id)
+                                }
+                              >
+                                Fshij
+                              </button>
+                            </>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                       ))}
                     </tr>
