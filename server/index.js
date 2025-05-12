@@ -239,15 +239,17 @@ app.get('/blood',(req,res)=>{
   })
 });
 
-app.put('/updatePatient/:id',(req,res)=>{
+app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
   const first_name=req.body.first_name;
   const last_name=req.body.last_name;
-  const email=req.body.email;
   const phone=req.body.phone;
   const birth=req.body.date_of_birth;
   const gender_name=req.body.gender_name;
   const blood=req.body.blood_type;
   const id = req.params.id;
+   const image = req.file ? req.file.filename : null;
+   console.log(req.body);
+console.log(req.file)
   db.query("select gender_id from gender where gender_name=?",[gender_name],(err,data)=>{
     if(err){
       return res.json("Didnt fetch gender id!!");
@@ -265,7 +267,7 @@ app.put('/updatePatient/:id',(req,res)=>{
           const bloodId=data[0].blood_id;
           
     
-          db.query("UPDATE patients SET first_name=?,last_name=?,email=?,phone=?,date_of_birth=?,gender_id=?,blood_id=? WHERE patient_id=?",[first_name,last_name,email,phone,birth,genderId,bloodId,id],(err,data)=>{
+          db.query("UPDATE patients SET first_name=?,last_name=?,phone=?,date_of_birth=?,gender_id=?,blood_id=?,image_path=? WHERE patient_id=?",[first_name,last_name,phone,birth,genderId,bloodId,image,id],(err,data)=>{
             if(err){
               return res.json("Error");
             }

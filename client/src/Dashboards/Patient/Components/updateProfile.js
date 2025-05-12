@@ -10,11 +10,11 @@ function UpdateProfile({id}){
   const [info,setInfo]=useState({
     first_name: "",
     last_name: "",
-    email: "",
     phone: "",
     date_of_birth: "",
     gender_name: "",
-    blood_type: ""
+    blood_type: "",
+    file:""
   });
   const [gender,setGender]=useState([]);
   const [blood,setBlood]=useState([]);
@@ -45,7 +45,15 @@ function UpdateProfile({id}){
    
 
   const handleSubmit=(e)=>{
-    axios.put(`http://localhost:3001/updatePatient/${id}`,info)
+    const formdata=new FormData();
+      formdata.append("image",info.file);
+      formdata.append("first_name",info.first_name);
+      formdata.append("last_name",info.last_name);
+      formdata.append("phone",info.phone);
+      formdata.append("date_of_birth",info.date_of_birth);
+      formdata.append("gender_name",info.gender_name);
+      formdata.append("blood_type",info.blood_type);
+    axios.put(`http://localhost:3001/updatePatient/${id}`,formdata)
     .then(res=>{
       navigate(`/myProfile/${id}`);
     })
@@ -73,6 +81,10 @@ function UpdateProfile({id}){
             <div style={{marginBottom:"20px"}}>
               <label>Birthday:</label><br/>
               <input className="form-control" type="date" value={info.date_of_birth} onChange={e=>setInfo({...info,date_of_birth:e.target.value})} style={{width:'300px',height:"40px"}}/>
+            </div>
+             <div style={{marginBottom:"20px"}}>
+              <label>Photo:</label><br/>
+              <input className="form-control" type="file" onChange={e=>setInfo({...info,file:e.target.files[0]})} style={{width:'300px',height:"40px"}}/>
             </div>
             <div style={{marginBottom:"20px"}}>
               <label>Gender:</label><br/>
