@@ -166,17 +166,21 @@ function HomePage() {
           Your next doctor's appintment is one click away.
         </p>
         <div class="d-grid gap-2 col-6 mx-auto">
-          <button
-            type="button"
-            class="btn btn-primary"
+          <Link
+            to="/login"
+            className="btn btn-primary"
             style={{
               backgroundColor: "#51A485",
               border: "none",
               fontSize: "25px",
+              textDecoration: "none",
+              color: "white",
+              padding: "10px 20px",
+              display: "inline-block",
             }}
           >
             Book your appointment
-          </button>
+          </Link>
           <Link
             to="/staff"
             className="btn btn-primary"

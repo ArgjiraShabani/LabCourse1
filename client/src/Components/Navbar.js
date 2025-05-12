@@ -21,11 +21,16 @@ function Navbar(){
     <div className="d-flex ms-auto">
     
       <div >
-      <button type="button" className="btn btn-secondary btn-sm me-2"
-      style={{backgroundColor: '#51A485',
-        border: 'none',
-        fontSize: '20px'}}
-      >Sign up</button>
+      <Link
+            to="/signUp"
+            className="btn btn-secondary btn-sm me-2"
+              style={{backgroundColor: '#51A485',
+                border: 'none',
+                fontSize: '20px'}}
+           
+          >
+            Sign up
+          </Link>
       </div>
       <div >
       <Link

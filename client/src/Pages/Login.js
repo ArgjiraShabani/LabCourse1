@@ -45,8 +45,8 @@ function Login(){
         <>
         <Navbar/>
         <hr style={{color:"#51A485"}}/>
-       <div className="d-flex justify-content-center align-items-center vh-100">
-                <div className="p-5 rounded bg-white" style={{ width: '100%', maxWidth: '550px',borderStyle:"solid",borderColor:"white", boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',marginBottom:"300px"}}>
+       <div className="d-flex justify-content-center align-items-center " style={{marginTop:"100px"}}>
+                <div className="p-5 rounded bg-white" style={{ width: '100%', maxWidth: '550px',borderStyle:"solid",borderColor:"white", boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',marginBottom:""}}>
                     <form onSubmit={handleSubmit(submitForm)}>
                     <h3 className="text-center mb-4">Login</h3>
                      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
@@ -76,7 +76,7 @@ function Login(){
                         <button type="submit" className="w-100" style={{backgroundColor:"#51A485",borderColor:"white",height:"50px",color:"white",borderRadius:"7px"}}>LOGIN</button>
                     </div>
                     <p className="text-right">
-                        Forgot <a href=''>Password?</a> | <a href="">Register</a>
+                        Forgot <a href=''>Password?</a> | <Link to="/signUp">Sign Up</Link>
                     </p>
                     </form>
                 </div>

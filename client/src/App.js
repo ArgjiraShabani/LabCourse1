@@ -19,7 +19,7 @@ import ManageServices from './Dashboards/Admin/manageServices';
 import UpdateDoctor from './Dashboards/Admin/UpdateDoctor';
 import ViewDoctors from './Dashboards/Admin/viewDoctors';
 import ManageSchedule from './Dashboards/Admin/ManageSchedule';
-
+import SignUp from './Pages/Signup';
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
 
@@ -52,7 +52,7 @@ function Layout() {
           <Route path='/patient' element={<Patient/>}></Route>
           <Route path='/registerPatient' element={<Register/>}></Route>
           <Route path="/ManageSchedule/:id" element={<ManageSchedule />} />
-          
+          <Route path='/signUp' element={<SignUp/>}></Route>
 
         </Routes>
       </main>
