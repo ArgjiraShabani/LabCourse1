@@ -38,7 +38,7 @@ const userUpload=multer({storage: userStorage});
 const db = mysql.createConnection({
     user:"root",
     host:"localhost",
-    password:"database",
+    password:"mysql123",
     //password:"mysqldb",
     database:"hospital_management",
     

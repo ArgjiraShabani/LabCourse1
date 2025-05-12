@@ -22,6 +22,7 @@ import ManageSchedule from './Dashboards/Admin/ManageSchedule';
 import SignUp from './Pages/Signup';
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
+import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
 
 
 function Layout() {
@@ -53,6 +54,7 @@ function Layout() {
           <Route path='/registerPatient' element={<Register/>}></Route>
           <Route path="/ManageSchedule/:id" element={<ManageSchedule />} />
           <Route path='/signUp' element={<SignUp/>}></Route>
+          <Route path="/DoctorSchedule" element={<DoctorSchedule />} />
 
         </Routes>
       </main>
