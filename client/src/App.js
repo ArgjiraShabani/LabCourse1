@@ -20,6 +20,7 @@ import UpdateDoctor from './Dashboards/Admin/UpdateDoctor';
 import ViewDoctors from './Dashboards/Admin/viewDoctors';
 import ManageSchedule from './Dashboards/Admin/ManageSchedule';
 import SignUp from './Pages/Signup';
+import BookAppointments from './Pages/BookAppointments';
 
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
@@ -59,6 +60,7 @@ function Layout() {
           <Route path="/ManageSchedule/:id" element={<ManageSchedule />} />
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path="/DoctorSchedule" element={<DoctorSchedule />} />
+          <Route path="/BookAppointments" element={<BookAppointments />} />
 
         </Routes>
       </main>
