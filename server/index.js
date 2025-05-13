@@ -40,7 +40,8 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    password:"mysql123",
+    //password:"mysql123",
+    password:"valjeta1!",
     database:"hospital_management",
     
     //port: 3307,
@@ -737,6 +738,19 @@ app.delete('/api/standardSchedules/:schedule_id', (req, res) => {
     }
     res.json({ message: 'Orari u fshi me sukses' });
   });
+});
+
+app.get('/services', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT service_id, service_name, department_id
+      FROM services
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching services:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
     
