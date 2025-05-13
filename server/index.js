@@ -32,17 +32,18 @@ const userStorage=multer.diskStorage({
   },
 });
 const userUpload=multer({storage: userStorage});
+app.use('/userUploads',express.static(path.join(__dirname,'public/userUploads')));
 
 
 
 const db = mysql.createConnection({
     user:"root",
     host:"localhost",
-    password:"mysql123",
-    //password:"mysqldb",
+    //password:"password",
+    password:"mysqldb",
     database:"hospital_management",
     
-    //port: 3307,
+    port: 3307,
    
 
 });
@@ -440,8 +441,9 @@ app.get('/gender',(req,res)=>{
     res.json(result);
   });
 });
-
-app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
+/*app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
+  console.log('Body:', req.body);
+ console.log('File:', req.file);
   
   
   
@@ -457,6 +459,12 @@ app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
     specialization_id,
     department_Id
   }=req.body;
+  const roleIdInt = role_id ? parseInt(role_id, 10) : null;
+const genderIdInt = gender_id ? parseInt(gender_id, 10) : null;
+const specializationIdInt = specialization_id ? parseInt(specialization_id, 10) : null;
+const departmentIdInt = department_Id ? parseInt(department_Id, 10) : null;
+
+
   const image_path = req.file ? req.file.filename : null;
   db.query("INSERT INTO doctors(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,specialization_id ,department_Id,image_path) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
     [first_name,
@@ -464,11 +472,11 @@ app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
      email,
      password,
      phone,
-     role_id,
+     roleIdInt,
      date_of_birth || null,
-     gender_id || null,
-     specialization_id,
-     department_Id,
+     genderIdInt,
+     specializationIdInt,
+     departmentIdInt,
      image_path || null
     ],(err,result)=>{
       if(err){
@@ -478,6 +486,37 @@ app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
       }
       res.json({message: "Doctor added successfully!"});
 });
+});*/
+app.post("/doctors",userUpload.single('img'),(req,res)=>{
+  const q="INSERT INTO doctors (`first_name`,`last_name`,`email`,`password`,`phone`,`role_id`,`date_of_birth`,`gender_id`,`specialization_id` ,`department_Id`,`image_path`) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+  const gender_id= parseInt(req.body.gender_id);
+  if (isNaN(gender_id)) {
+    return res.status(400).json({ error: "Invalid gender" });
+  }
+  const values=[
+    req.body.first_name,
+    req.body.last_name,
+    req.body.email,
+    req.body.password,
+    req.body.phone,
+    parseInt(req.body.role_id),
+    req.body.date_of_birth,
+    gender_id,
+    
+    parseInt(req.body.specialization_id),
+    parseInt(req.body.department_Id),
+    req.file ? req.file.filename : null
+
+  ];
+  db.query(q,values,(err,data)=>{
+     if (err) {
+    console.error("DB INSERT ERROR:", err);
+    return res.status(500).json({ error: err.message });
+  }
+   console.log("DB INSERT SUCCESS:", data);
+    return res.json("Doctor has been successfully created");
+  });
+    
 });
 
 app.put("/updateDoctors/:id",(req,res)=>{
@@ -547,6 +586,62 @@ app.delete("/deleteDoctor/:doctor_id",(req,res)=>{
     
   });
 });
+app.get("/doctorId/:doctor_id",(req,res)=>{
+  const doctorId=req.params.doctor_id;
+  const s=`SELECT d.doctor_id,d.first_name,
+  d.last_name,
+  d.email,
+  d.password,
+  d.phone,
+  d.role_id,
+  r.role_name,
+  d.date_of_birth,
+  d.gender_id,
+  g.gender_name,
+  d.specialization_id,
+s.specialization_name,
+d.department_id,
+dep.department_name,
+d.image_path
+FROM doctors d inner join roles r on d.role_id=r.role_id
+ inner join gender g on d.gender_id=g.gender_id
+  inner join specialization s on d.specialization_id=s.specialization_id
+ inner join departments dep on d.department_id=dep.department_id
+ WHERE d.doctor_id=?
+ `;
+ db.query(s,[doctorId],(err,result)=>{
+  if(err){
+    console.error("Database error:",err);
+    return res.status(500).json({error: "Database error"});
+
+  }
+  if(result.length===0){
+    return res.status(404).json({message: "Doctor not found"});
+  }
+  res.json(result[0]);
+ });
+
+});
+
+/*app.post('/uploadProfileImage/:doctor_id',userUpload.single('profileImage'),
+(req,res)=>{
+  const doctorId=req.params.doctor_id;
+
+  if(!req.file){
+    return res.status(400).json({error: 'No file uploaded'});
+  }
+  const imagePath=`/userUploads/${req.file.filename}`;
+  const sql = `UPDATE doctors SET image_path = ? WHERE doctor_id = ?`;
+  db.query(sql,[imagePath,doctorId],(err,result)=>{
+    if(err){
+      console.log("Database error",err);
+      return res.status(500).json({error: "Database error"});
+    }
+    res.json({message: "Image uploaded successfully",imagePath});
+  });
+
+});*/
+
 
 app.get('/api/doctors', (req, res) => {
   const query = `

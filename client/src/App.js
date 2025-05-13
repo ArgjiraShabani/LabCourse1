@@ -20,9 +20,11 @@ import UpdateDoctor from './Dashboards/Admin/UpdateDoctor';
 import ViewDoctors from './Dashboards/Admin/viewDoctors';
 import ManageSchedule from './Dashboards/Admin/ManageSchedule';
 import SignUp from './Pages/Signup';
+
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
 import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
+import DoctorPofile from './Dashboards/Doctor/DoctorProfile';
 
 
 function Layout() {
@@ -41,6 +43,8 @@ function Layout() {
           <Route path="/doctors" element={<AdminDoctor/>}/>
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
           <Route path='/viewDoctors' element={<ViewDoctors/>}/>
+          <Route path='/doctorProfile/:id' element={<DoctorPofile/>}/>
+          
           
 
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
