@@ -21,25 +21,29 @@ function Login(){
 
     const navigate=useNavigate();
    
-    const submitForm=(event)=>{
-        
-        axios.post('http://localhost:3001/login',event).then(res=>{
-            if(res.data.message==='Success'){
-                if(res.data.role==='doctor'){
-                    navigate(`/doctordashboard`);
-                }else if(res.data.role==='patient'){
-                    navigate(`/patientdashboard/${res.data.id}`)
-                }else{
-                    navigate(`/adminDashboard`);
-                }
-               
-            }else{
-                setErrorMessage("Incorrect email or password!");
-            }
-        })
-        .catch(err=>console.log(err));
+       const submitForm = (event) => {
+  axios.post('http://localhost:3001/login', event).then(res => {
+    if (res.data.message === 'Success') {
+    
+      localStorage.setItem("role", res.data.role);
 
+      if (res.data.role === 'doctor') {
+        localStorage.setItem("doctor_id", res.data.id);
+        navigate(`/doctordashboard`);
+      } else if (res.data.role === 'patient') {
+        localStorage.setItem("patient_id", res.data.id);
+        navigate(`/patientdashboard/${res.data.id}`);
+      } else {
+        localStorage.setItem("admin_id", res.data.id);
+        navigate(`/adminDashboard`);
+      }
+
+    } else {
+      setErrorMessage("Incorrect email or password!");
     }
+  })
+  .catch(err => console.log(err));
+};
 
     return(
         <>

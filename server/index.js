@@ -40,10 +40,10 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    password:"mysqldb",
+    password:"mysql123",
     database:"hospital_management",
     
-    port: 3307,
+    //port: 3307,
    
 
 });
