@@ -15,6 +15,7 @@ function Info({id}){
     });
     useEffect(()=>{
         Axios.get(`http://localhost:3001/infoPatient/${id}`).then((response)=>{
+            console.log(response.data)
             const dateOfBirth = response.data.date_of_birth.split("T")[0];
             response.data.date_of_birth = dateOfBirth;
             setInfo(response.data);
@@ -30,7 +31,7 @@ function Info({id}){
    <>
    
    <div style={{marginTop:"60px",borderStyle:"solid",padding:'70px 110px',borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'}}>
-    <img src={`http://localhost:3001/uploads/${info.image_path}`} style={{width:"200px",paddingBottom:"50px"}}/>
+    <img src={`http://localhost:3001/uploads/${info.image_path}`} alt="My Photo" style={{width:"200px",paddingBottom:"50px"}}/>
     <br/>
     <h5>Firstname:<b> {info.first_name}</b></h5>
     <br/>
