@@ -6,13 +6,17 @@ import { set } from "react-hook-form";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup"
 import * as yup from "yup";
-import { parse, isDate, differenceInYears,isValid,isFuture } from 'date-fns';
+//import { parse, isDate, differenceInYears,isValid,isFuture } from 'date-fns';
 import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
+
 
 
  const schema =yup.object().shape({
-        name:yup.string().required("Firstname is required!"),
-        lastname:yup.string().required("Lastname is required!"),
+        name:yup.string().required("Firstname is required!")
+         .matches(/^\S+$/, "Firstname cannot contain spaces!"),
+        lastname:yup.string().required("Lastname is required!")
+         .matches(/^\S+$/, "Firstname cannot contain spaces!"),
         email:yup.string().email("Email must be a valid email").required("Email is required!"),
         password:yup.string()
                     .required("Password is required!")
@@ -36,8 +40,18 @@ import { useNavigate } from "react-router-dom";
                 .required("Gender is required!"),
         
          blood: yup
-                .string()
-                .required("Blood is required!"),
+               .string()
+               .required("Blood is required!"),
+
+      birth: yup
+        .string()
+        .test('is-valid-date', 'Date is required!', value => value !== "" && !isNaN(Date.parse(value)))
+        .transform(value => value === "" ? null : value) // Convert empty string to null
+        .required("Date is required!")
+         .test("max-date", "Date cannot be in the future!", (value) => {
+            const parsedDate = new Date(value);
+            return parsedDate <= new Date(); // Check if the parsed date is not in the future
+        }),
                 
     });
 
@@ -66,11 +80,19 @@ function SignUp(){
     },[]);
 
     function formSubmit(event){
-     axios.post("http://localhost:3001/signup",event).then((response)=>{
+        axios.post("http://localhost:3001/signup",event).then((response)=>{
          if(response){
             setError(response.data);
-         }else{
-           navigate('/login')
+            if(response.data===""){
+                 Swal.fire({
+                                position: "center",
+                                icon: "success",
+                                title: "You are successfully registered!\nNow please login!",
+                                showConfirmButton: false,
+                                timer: 3300
+                                });
+               navigate('/login');
+            }
          }
      }).catch(error => {
             console.error("Error:", error);
@@ -140,6 +162,7 @@ function SignUp(){
 
                     </div>
                     <div className="mb-3">
+                     <label>Blood:</label>
                     <select className="form-control" name="blood" {...register("blood")}>
                        <option value="" disabled selected>Blood</option>
                         {blood.map((value,key)=>{

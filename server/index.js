@@ -192,7 +192,6 @@ app.get('/infoPatient/:id',(req,res)=>{
   if(err){
       console.log(err);
   }else{
-      console.log(result[0])
       res.send(result[0])
   }
   })
@@ -250,7 +249,16 @@ app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
   const gender_name=req.body.gender_name;
   const blood=req.body.blood_type;
   const id = req.params.id;
-  const image = req.file ? req.file.filename : null;
+  db.query("select image_path from patients where patients.patient_id=?",[id],(err,data)=>{
+     if(err){
+      return res.json("Didnt fetch image!");
+    }
+    
+      if(data.length>0){
+        const imageFetch=data[0].image_path;
+        const image = req.file ? req.file.filename : imageFetch;
+
+  
    
   db.query("select gender_id from gender where gender_name=?",[gender_name],(err,data)=>{
     if(err){
@@ -282,7 +290,8 @@ app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
 }else{
   return res.json("No matching gender found");
 }
-  })
+  });
+}})
 })
 
 
@@ -418,7 +427,11 @@ app.post('/signup',(req,res)=>{
   const gender=req.body.gender;
   const blood=req.body.blood;
    console.log(req.body)
-    db.query("select email from patients where email=?",[email],(err,data)=>{
+    db.query(` SELECT email FROM patients WHERE email = ?
+                UNION
+                SELECT email FROM doctors WHERE email = ?
+                UNION
+                SELECT email FROM admin WHERE email = ?`,[email,email,email],(err,data)=>{
       if(err){
            return res.json("Error 1");
         }
@@ -434,14 +447,12 @@ app.post('/signup',(req,res)=>{
                 }
                 if(data.length>0){
                       const bloodId=data[0].blood_id;
-                      console.log(bloodId);
                   db.query("select role_id from roles where role_name=?",['patient'],(err,data)=>{
                           if(err){
                                 return res.json("Error 2");
                             }
                             if(data.length>0){
                                   const roleId=data[0].role_id;
-                                  console.log(roleId);
                                       
                         db.query("select status_id from status where status_name=?",['Active'],(err,data)=>{
                             if(err){
@@ -449,7 +460,6 @@ app.post('/signup',(req,res)=>{
                             }
                               if(data.length>0){
                                 const statusId=data[0].status_id;
-                                console.log(statusId);
       
                                   db.query("select gender_id from gender where gender_name=?",[gender],(err,data)=>{
                                       if(err){
@@ -457,7 +467,6 @@ app.post('/signup',(req,res)=>{
                                       }  
                                         if(data.length>0){
                                           const genderId=data[0].gender_id;
-                                                    console.log(genderId);
                                               db.query("INSERT INTO patients(first_name,last_name,email,password,phone,role_id,gender_id,status_id,date_of_birth,blood_id)value(?,?,?,?,?,?,?,?,?,?)",[name,lastname,email,password,phone,roleId,genderId,statusId,birth,bloodId],(err,data)=>{
                                                    if(err){
                                                         return res.json("Error");

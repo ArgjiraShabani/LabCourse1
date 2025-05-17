@@ -28,11 +28,21 @@ import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
 import DoctorPofile from './Dashboards/Doctor/DoctorProfile';
 
 
+
+
+
+
 function Layout() {
-  //const location = useLocation();
   //const hideLayout = location.pathname === '/adminDashboard';
+  function MyProfileWrapper() {
+  const location = useLocation();
+  return <MyProfile key={location.key} />;
+}
+
 
   return (
+    
+
     <div className="d-flex flex-column min-vh-100">
     
       <main className="flex-grow-1">
@@ -50,7 +60,7 @@ function Layout() {
 
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
-          <Route path='/myprofile/:id' element={<MyProfile/>}></Route>
+          <Route path='/myprofile/:id' element={<MyProfileWrapper/>}></Route>
           <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
           <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
           <Route path="/ManageServices/:id" element={<ManageServices />} />

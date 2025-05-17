@@ -36,11 +36,10 @@ function Patient(){
         Swal.fire({
             title: "Are you sure about deleting this patient?",
             text: "You won't be able to revert anymore!",
-            icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#51A485",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Delete"
             }).then((result) => {
             if (result.isConfirmed) {
                 Axios.delete(`http://localhost:3001/deletePatient/${id}`)
