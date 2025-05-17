@@ -99,7 +99,6 @@ function UpdateProfile({id}){
    
 
   const formSubmit=(data)=>{
-  console.log(data)
     const formdata=new FormData();
 
     const file = getValues("file");
@@ -167,7 +166,7 @@ function UpdateProfile({id}){
              </div>
             <div style={{marginBottom:"20px"}}>
               <label>Birthday:</label><br/>
-              <input className="form-control" type="date" name="birth" {...register("birth")}  style={{width:'300px',height:"40px"}}/>
+              <input className="form-control" type="date" name="birth" {...register("birth")} onFocus={(e) => e.target.showPicker && e.target.showPicker()}   style={{width:'300px',height:"40px"}}/>
               <p style={{color:"red"}}>{errors.birth?.message}</p>
 
             </div>

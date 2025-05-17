@@ -37,6 +37,10 @@ function Layout() {
   function MyProfileWrapper() {
   const location = useLocation();
   return <MyProfile key={location.key} />;
+} 
+function MyRegisterPatientWrapper() {
+  const location = useLocation();
+  return <Register key={location.key} />;
 }
 
 
@@ -66,7 +70,7 @@ function Layout() {
           <Route path="/ManageServices/:id" element={<ManageServices />} />
           <Route path='/login' element={<Login/>}></Route>
           <Route path='/patient' element={<Patient/>}></Route>
-          <Route path='/registerPatient' element={<Register/>}></Route>
+          <Route path='/registerPatient' element={<MyRegisterPatientWrapper/>}></Route>
           <Route path="/ManageSchedule/:id" element={<ManageSchedule />} />
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path="/DoctorSchedule" element={<DoctorSchedule />} />

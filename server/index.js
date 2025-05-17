@@ -328,61 +328,76 @@ app.post("/registerPatient",upload.single("image"),(req,res)=>{
   const gender=req.body.gender;
   const blood=req.body.blood;
   const status=req.body.status;
-    const image=req.file.filename
-  db.query("select gender_id from gender where gender_name=?",[gender],(err,data)=>{
-    if(err){
-      return res.json("Didnt fetch gender id!!");
-    }
-    
-      if(data.length>0){
-        const genderId=data[0].gender_id;
-     
-  
-    db.query("select blood_id from blood where blood_type=?",[blood],(err,data)=>{
+  const image = req.file ? req.file.filename : null;
+   db.query(` SELECT email FROM patients WHERE email = ?
+                UNION
+                SELECT email FROM doctors WHERE email = ?
+                UNION
+                SELECT email FROM admin WHERE email = ?`,[email,email,email],(err,data)=>{
       if(err){
-        return res.json("Error");
-      }
-        if(data.length>0){
-          const bloodId=data[0].blood_id;
+           return res.json("Error 1");
+        }
+                    
 
-
-        db.query("select status_id from status where status_name=?",[status],(err,data)=>{
-          if(err){
-            return res.json("Error");
-          }
-            if(data.length>0){
-              const statusId=data[0].status_id;
-
-                      db.query("select role_id from roles where role_name=?",['patient'],(err,data)=>{
-                        if(err){
-                          return res.json("Error");
-                        }
-                          if(data.length>0){
-                            const roleId=data[0].role_id;
-
-            db.query(`insert into patients(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,blood_id,status_id,image_path)value(?, ?, ?, ?, ?, 3, ?, ?, ?, ?,?)`, [name, lastname, email, password, number, birth, genderId, bloodId, statusId,image],(err,data)=>{
+          if(data.length>0){
+            return res.json("This email exists.Please choose another one!")
+          }else{
+          db.query("select gender_id from gender where gender_name=?",[gender],(err,data)=>{
             if(err){
-              return res.json("Error");
+              return res.json("Didnt fetch gender id!!");
             }
-            return res.json("Patient registered successfully");
-          });
-          }else{
-                  return res.json("No matching role found");
-                };
-                });
-               }else{
-                  return res.json("No matching status found");
-                };
-                });
-          }else{
-            return res.json("No matching blood found");
-          };
-          });
-    }else{
-      return res.json("No matching gender found");
-    }
-      })
-    });
+            
+              if(data.length>0){
+                const genderId=data[0].gender_id;
+            
+          
+            db.query("select blood_id from blood where blood_type=?",[blood],(err,data)=>{
+              if(err){
+                return res.json("Error");
+              }
+                if(data.length>0){
+                  const bloodId=data[0].blood_id;
+
+
+                db.query("select status_id from status where status_name=?",[status],(err,data)=>{
+                  if(err){
+                    return res.json("Error");
+                  }
+                    if(data.length>0){
+                      const statusId=data[0].status_id;
+
+                              db.query("select role_id from roles where role_name=?",['patient'],(err,data)=>{
+                                if(err){
+                                  return res.json("Error");
+                                }
+                                  if(data.length>0){
+                                    const roleId=data[0].role_id;
+
+                    db.query(`insert into patients(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,blood_id,status_id,image_path)value(?, ?, ?, ?, ?, 3, ?, ?, ?, ?,?)`, [name, lastname, email, password, number, birth, genderId, bloodId, statusId,image],(err,data)=>{
+                    if(err){
+                      return res.json("Error");
+                    }                       
+                       return res.json("");
+                        
+                  });
+                  }else{
+                          return res.json("No matching role found");
+                        };
+                        });
+                      }else{
+                          return res.json("No matching status found");
+                        };
+                        });
+                  }else{
+                    return res.json("No matching blood found");
+                  };
+                  });
+            }else{
+              return res.json("No matching gender found");
+            }
+              });
+            }});
+            });
 
 app.post('/login',(req,res)=>{
   const sql="SELECT patients.patient_id,patients.email,patients.password,roles.role_name FROM patients inner join roles on patients.role_id=roles.role_id WHERE `email`=? AND `password`=?";
