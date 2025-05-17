@@ -84,7 +84,7 @@ function Register(){
             <Sidebar role={"doctor"}/>
             <div className="container mt-5">
                 <h2 style={{textAlign:"center",marginBottom:"50px"}}>Register Patient</h2>
-                <form  onSubmit={handleClick(submitForm(data))} className="mt-4" style={{borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',padding:"50px",margin:"50px"}}>
+                <form   className="mt-4" style={{borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',padding:"50px",margin:"50px"}}>
                     <div className="mb-3">
                     <label htmlFor="name" className="form-label">Firstname:</label>
                     <input type="text" className="form-control" required onChange={e=>setInfo({...info,first_name:e.target.value})}/>
@@ -146,7 +146,7 @@ function Register(){
                     </select>
                    </div>
                    </div>
-                  <button type="submit" className="form-control" style={{backgroundColor:"#51A485",color:"white",height:"50px"}}>Register</button>
+                  <button type="submit" onClick={handleClick} className="form-control" style={{backgroundColor:"#51A485",color:"white",height:"50px"}}>Register</button>
 
                 </form>
             </div>
