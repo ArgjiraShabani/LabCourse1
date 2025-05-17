@@ -41,10 +41,11 @@ const db = mysql.createConnection({
     host:"localhost",
     //password:"password",
     //password:"mysql123",
-    password:"database",
+    //password:"valjeta1!",
+    password: "mysqldb",
     database:"hospital_management",
     
-    //port: 3307,
+    port: 3307,
    
 
 });
@@ -542,12 +543,14 @@ app.get('/roles',(req,res)=>{
         res.json(results);
     });
 });
-app.get('/gender',(req,res)=>{
-  db.query('SELECT gender_id,gender_name FROM gender',(err,result)=>{
-    if(err){
+app.get('/genderId', (req, res) => {
+  
+  db.query('SELECT * FROM gender', (err, result) => {
+    if (err) {
       console.log(err);
-      return res.status(500).json({error: "Database error"});
+      return res.status(500).json({ error: "Database error" });
     }
+    console.log("GENDER RESULT:", result); // <- Add this
     res.json(result);
   });
 });
@@ -599,22 +602,22 @@ const departmentIdInt = department_Id ? parseInt(department_Id, 10) : null;
 });*/
 app.post("/doctors",userUpload.single('img'),(req,res)=>{
   const q="INSERT INTO doctors (`first_name`,`last_name`,`email`,`password`,`phone`,`role_id`,`date_of_birth`,`gender_id`,`specialization_id` ,`department_Id`,`image_path`) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
-  const gender_id= parseInt(req.body.gender_id);
+  /*const gender_id= parseInt(req.body.gender_id);
   if (isNaN(gender_id)) {
     return res.status(400).json({ error: "Invalid gender" });
-  }
+  }*/
   const values=[
     req.body.first_name,
     req.body.last_name,
     req.body.email,
     req.body.password,
     req.body.phone,
-    parseInt(req.body.role_id),
+    req.body.role_id,
     req.body.date_of_birth,
-    gender_id,
+    req.body.gender_id,
     
-    parseInt(req.body.specialization_id),
-    parseInt(req.body.department_Id),
+    req.body.specialization_id,
+    req.body.department_Id,
     req.file ? req.file.filename : null
 
   ];
@@ -629,9 +632,8 @@ app.post("/doctors",userUpload.single('img'),(req,res)=>{
     
 });
 
-app.put("/updateDoctors/:id",(req,res)=>{
+app.put("/updateDoctors/:id",upload.single('img'),(req,res)=>{
   const doctorId=req.params.id;
-  const q= "UPDATE  doctors SET first_name=?,last_name=?,email=?,password=?,phone=?,role_id=?,date_of_birth=?,gender_id=?,specialization_id=?,department_Id=?,image_path=?  WHERE doctor_id=?";
   const values=[
     req.body.first_name,
     req.body.last_name,
@@ -643,13 +645,20 @@ app.put("/updateDoctors/:id",(req,res)=>{
     req.body.gender_id,
     req.body.specialization_id,
     req.body.department_Id,
-    req.body.image_path
-  ]
+    
+  ];
+  const image_path=req.file?req.file.filename: req.body.image_path;
+  const q= "UPDATE  doctors SET first_name=?,last_name=?,email=?,password=?,phone=?,role_id=?,date_of_birth=?,gender_id=?,specialization_id=?,department_Id=?,image_path=?  WHERE doctor_id=?";
   
-  db.query(q,[...values,doctorId],(err,data)=>{
+  
+  db.query(q,[...values,image_path,doctorId],(err,result)=>{
     if(err) return res.json(err);
+    
+    if(result.affectedRows===0){
+      return res.status(404).json({message: "Doctor not found"});
+    }
     return res.json("Doctor has been updated successfully");
-  })
+  });
   
 });
 app.get('/viewDoctors',(req,res)=>{

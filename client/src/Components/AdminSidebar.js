@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import {TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 
 const Sidebar = ({ role, id }) => {
   const [doctorMenuOpen, setDoctorMenuOpen] = useState(false);
@@ -73,7 +74,7 @@ const Sidebar = ({ role, id }) => {
                   onClick={toggleDoctorMenu}
                   className="nav-link text-white hover-link"
                 >
-                  Doctors {doctorMenuOpen ? "▲" : "▼"}
+                  Doctors {doctorMenuOpen ? <TiArrowSortedUp size={18} color="#fff" /> : <TiArrowSortedDown size={18} color="#fff" />}
                 </div>
                 {doctorMenuOpen && (
                   <ul className="submenu list-unstyled">

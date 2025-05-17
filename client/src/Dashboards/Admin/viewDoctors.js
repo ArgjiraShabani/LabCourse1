@@ -2,7 +2,8 @@ import Sidebar from "../../Components/AdminSidebar";
 import { useState,useEffect } from "react";
 import Axios from 'axios';
 import { Link, useLocation } from "react-router-dom";
-import {FaEdit,FaTrash} from "react-icons/fa";
+import { GoTrash } from "react-icons/go";
+import { FaRegEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
 import withReactContent from 'sweetalert2-react-content';
 
@@ -58,7 +59,7 @@ const ViewDoctors=()=>{
         </div>
         <div style={{flex:1,display: 'flex',justifyContent:'center',alignItems: 'center',padding:'30px'}}>
 
-        <table className="table table-striped table-borderes" style={{
+        <table className="table  table-borderes" style={{
             width: '100%',
              maxWidth: '900px',
               fontSize: '1rem', 
@@ -96,16 +97,16 @@ const ViewDoctors=()=>{
         <td >{doctor.gender_name}</td>
         <td >{doctor.specialization_name}</td>
         <td >{doctor.department_name}</td>
-        <td><Link to='/updateDoctors/:id' className="nav-link text-white hover-link"
-        style={{display: 'inline-block',padding: '2px',background: '#51A485',borderRadius: '5px'}}
-       > <FaEdit size={18} color="#fff" title="Update"/></Link></td>
+        <td><Link to={`/updateDoctors/${doctor.doctor_id}`} className="nav-link text-white hover-link"
+        style={{display: 'inline-block',padding: '2px',background: '#fff',borderRadius: '5px'}}
+       > <FaRegEdit size={18} color="#51A485" title="Update"/></Link></td>
         <td><button onClick={()=>confirmDeletion(doctor.doctor_id)} style={{
-            backgroundColor: '#51A485',
-            color: '#fff',
+            backgroundColor: '#fff',
+            color: '#51A485',
             border: 'none',
             borderRadius: '0px',
             cursor: 'pointer'
-        }}><FaTrash size={18} color="#fff" title="Delete"/></button></td>
+        }}><GoTrash size={18} color="#51A485" title="Delete"/></button></td>
         
       </tr>
 

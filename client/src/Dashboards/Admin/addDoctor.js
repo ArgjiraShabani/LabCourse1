@@ -1,88 +1,111 @@
+
+
 import Sidebar from "../../Components/AdminSidebar";
 import { useState,useEffect } from "react";
 import Axios from 'axios';
-const AdminDoctor=()=>{
+import {useForm} from "react-hook-form";
+import * as yup from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
 
-    const [formData, setFormData] = useState({
-        first_name: '',
-        last_name: '',
-        email: '',
-        password: '',
-        phone: '',
-        role_id: '',
-        date_of_birth: '',
-        gender_id: '',
-        specialization_id: '',
-        department_Id: ''
-        
-        
-    });
-    const [img,setImg]=useState(null);
-    const [options,setOptions]=useState({
-        specializations: [],
-        departments: [],
-        roles: [],
-        gender: []
-    });
+import Swal from "sweetalert2";
+import withReactContent from 'sweetalert2-react-content';
+
+
+function AdminDoctor(){
+    const swal=withReactContent(Swal);
+      
+   
+   const schema = yup.object().shape({
+    first_name: yup.string().required("First name is required"),
+    last_name: yup.string().required("Last name is required"),
+    gender_id: yup.number().typeError("Gender is required").required(),
+    date_of_birth: yup.date().required("Date of birth is required"),
+    phone: yup.string().required("Phone is required"),
+    specialization_id: yup.number().typeError("Specialization is required").required(),
+    department_Id: yup.number().typeError("Department is required").required(),
+    email: yup.string().email("Invalid email").required("Email is required"),
+    password: yup.string().min(8).max(20).required("Password is required"),
+    role_id: yup.number().typeError("Role is required").required()
+});
     
-    const add=(e)=>{
-        e.preventDefault();
-        const data= new FormData();
-        Object.entries(formData).forEach(([key,value])=>{
-            data.append(key,value);
-        });
-        if(img){
-            data.append("img",img);
-        }
-        Axios.post('http://localhost:3001/addDoctor',data)
-        .then((response)=>{
-            console.log("Doctor added:",response.data);
-        })
-        .catch((error)=>{
-            console.log("Error adding doctor:",error);
-        });
-        setFormData({
-            first_name: '',
-            last_name: '',
-            email: '',
-            password: '',
-            phone: '',
-            role_id: '',
-            date_of_birth: '',
-            gender_id: '',
-            specialization_id: '',
-            department_Id: '',
-            
+    const[role,setRole]=useState([]);
+    const[gender,setGender]=useState([]);
+    const[specialization,setSpecialization]=useState([]);
+    const[department,setDepartment]=useState([]);
 
-        });
-        setImg(null);
-    };
-        
+    const[img,setImg]=useState(null);
     useEffect(()=>{
-        const fetchOptions=async()=>{
-            try{
-                const [spectRes,depRes,roleRes,genderRes]=await Promise.all([
-                    fetch('http://localhost:3001/specializations'),
-                    fetch('http://localhost:3001/departments'),
-                    fetch('http://localhost:3001/roles'),
-                    fetch('http://localhost:3001/gender')
-                ]);
-                setOptions({
-                    specializations: await spectRes.json(),
-                    departments: await depRes.json(),
-                    roles: await roleRes.json(),
-                    gender: await genderRes.json()
-                });
-            }catch(error){
-                console.error('Error fetching options:', error);
-            }
-        };
-        fetchOptions();
-        
+        Axios.get('http://localhost:3001/roles').then((response)=>{
+            setRole(response.data);
+        })
+    },[]);
+    useEffect(()=>{
+        Axios.get('http://localhost:3001/genderId').then((response)=>{
+            setGender(response.data);
+        })
 
     },[]);
+    useEffect(()=>{
+        Axios.get('http://localhost:3001/specializations').then((response)=>{
+            setSpecialization(response.data);
+        })
+    },[]);
+    useEffect(()=>{
+        Axios.get('http://localhost:3001/departments').then((response)=>{
+            setDepartment(response.data);
+        })
+    },[]);
+   
+    const {register,handleSubmit,formState: {errors},reset}=useForm({
+        resolver: yupResolver(schema)
+    });
     
-  
+    const onSubmit= async (data)=>{
+        try{
+            
+        const formData= new FormData();
+        const formattedValues = {
+        ...data,
+        date_of_birth: new Date(data.date_of_birth).toISOString().split('T')[0], 
+        };
+
+        
+        Object.entries(formattedValues).forEach(([key,value])=>{
+            formData.append(key,value);
+        });
+        if(img){
+            formData.append("img",img);
+        }
+        Axios.post('http://localhost:3001/doctors',formData).then((response)=>{
+            
+            console.log("Doctor added successfully",response.data);
+            reset();
+            setImg(null);
+
+        })
+        swal({
+            title: "Success!",
+            text: "Your form was submitted successfully.",
+            icon: "success",
+            button: "OK",
+        });
+
+        }catch(error){
+           
+            swal({
+                title: "Error!",
+                text: "Something went wrong.",
+                icon: "error",
+                button: "OK",
+            });
+        };
+       
+
+        
+
+    };
+
+    
     return(
         <>
         <div style={{display: "flex",minHeight: "100vh"}}>
@@ -99,62 +122,65 @@ const AdminDoctor=()=>{
                 maxWidth: "1500px",
                 width: "100%"}}>
                 
-                <form onSubmit={add}>
+                <form onSubmit={handleSubmit(onSubmit) } className="needs-validation">
                     <div className="row">
                         <div className="col-md-6">
                             <div className="mb-3">
-                                <label htmlFor="first_name" className="form-label">Name:</label>
-                                <input type="text" className="form-control w-100" id="first_name" aria-describedby="name"
-                                name="first_name" value={formData.first_name} onChange={(e)=>{
-                                    setFormData({...formData,first_name: e.target.value});
-                                }}/>
+                                <label htmlFor="first_name" className="form-label">First Name:</label>
+                                <input type="text" className={`form-control w-100 ${errors.first_name?'is-invalid': ''}`} id="first_name" aria-describedby="name"
+                                name="first_name" {...register("first_name")} placeholder="First Name"/>
+                                {errors.first_name && (
+                                    <div className="invalid-feedback">{errors.first_name.message}</div>
+                                )}
                             
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="last_name" className="form-label">Last Name:</label>
-                                <input type="text" className="form-control w-100" id="last_name" aria-describedby="lastname"
-                                name="last_name" value={formData.last_name} onChange={(e)=>{
-                                    setFormData({...formData,last_name: e.target.value});
-                                }}/>
+                                <input type="text" className={`form-control w-100 ${errors.last_name?'is-invalid': ''}`} id="last_name" aria-describedby="lastname"
+                                name="last_name" {...register("last_name")} placeholder="Last Name"/>
+                                {errors.last_name && (
+                                    <div className="invalid-feedback">{errors.last_name.message}</div>
+                                )}
                             
-                            </div>
+                                                        </div>
                             <div className="mb-3">
                                 <label htmlFor="gender" className="form-label">Gender:</label>
-                                <select name="gender_id" id="gender" className="form-control w-100" aria-describedby="gender"
-                                value={formData.gender_id}
-                                onChange={(e)=>{
-                                    setFormData({...formData,gender_id: parseInt(e.target.value)});
-                                }} >
-                                    <option value="">Select gender:</option>
-                                    {options.gender.map(g=>(
-                                        <option key={g.gender_id} value={g.gender_id}>{g.gender_name}</option>
+                                <select name="gender_id" id="gender" className={`form-control w-100 ${errors.gender_id?'is-invalid': ''}`} aria-describedby="gender"
+                                {...register("gender_id",{ valueAsNumber: true })} placeholder="Gender"
+                                >
+                                    <option value="">Select gender</option>
+                                    {gender.map(g=>(
+                                        <option key={`gender-${g.gender_id}`} value={g.gender_id}>{g.gender_name}</option>
                                     ))}
                                 </select>
+                                 {errors.gender_id && (
+                                    <div className="invalid-feedback">{errors.gender_id.message}</div>
+                                )}
                                     
                             
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="date_of_birth" className="form-label">Date of birth:</label>
-                                <input type="date" className="form-control w-100" id="date_of_birth" aria-describedby="date_of_birth"
-                                name="date_of_birth" value={formData.date_of_birth} onChange={(e)=>{
-                                    setFormData({...formData,date_of_birth: e.target.value});
-                                }}/>
-                            
+                                <input type="date" className={`form-control w-100 ${errors.date_of_birth?'is-invalid': ''}`} id="date_of_birth" aria-describedby="date_of_birth"
+                                name="date_of_birth" {...register("date_of_birth")}/>
+                                 {errors.date_of_birth && (
+                                    <div className="invalid-feedback">{errors.date_of_birth.message}</div>
+                                )}
                             </div>
                         
                            
                             <div className="mb-3">
                                 <label htmlFor="phone" className="form-label">Phone Number:</label>
-                                <input type="text" className="form-control w-100" id="phone" aria-describedby="phone"
-                               name="phone" value={formData.phone} onChange={(e)=>{
-                                setFormData({...formData,phone: e.target.value});
-                            }}/>
-                            
+                                <input type="text" className={`form-control w-100 ${errors.phone?'is-invalid': ''}`} id="phone" aria-describedby="phone"
+                               name="phone" {...register("phone")} placeholder="Phone Number"/>
+                            {errors.phone && (
+                                    <div className="invalid-feedback">{errors.phone.message}</div>
+                                )}
                             </div>
                            <div className="mb-3">
                                 <label htmlFor="img" className="form-label">Upload image:</label>
-                                <input type="file" className="form-control w-100" id="img" aria-describedby="img"
+                                <input type="file" className="form-control w-100 " id="img" aria-describedby="img"
                                 name="img" onChange={(e)=>{
                                     setImg( e.target.files[0]);
                                 }}/>
@@ -166,59 +192,63 @@ const AdminDoctor=()=>{
                     <div className="col-md-6">
                     <div className="mb-3">
                         <label htmlFor="specialization" className="form-label">Specialization:</label>
-                        <select name="specialization_id" id="specialization" className="form-control w-100" aria-describedby="specialization"
-                        value={formData.specialization_id} onChange={(e)=>{
-                            setFormData({...formData,specialization_id: parseInt(e.target.value)});
-                        }}>
+                        <select name="specialization_id" id="specialization" className={`form-control w-100 ${errors.specialization_id?'is-invalid': ''}`} aria-describedby="specialization"
+                        {...register("specialization_id",{ valueAsNumber: true })}>
                             <option value="">Select Specialization</option>
-                            {options.specializations.map(s=>(
-                                <option key={s.specialization_id} value={s.specialization_id}>{s.specialization_name}</option>
+                            {specialization.map(s=>(
+                                <option key={`specialization-${s.specialization_id}`} value={s.specialization_id}>{s.specialization_name}</option>
                             ))}
                         </select>
+                        {errors.specialization_id && (
+                                    <div className="invalid-feedback">{errors.specialization_id.message}</div>
+                                )}
                         
                        
                     </div>
                     <div className="mb-3">
                         <label htmlFor="department" className="form-label">Department:</label>
-                        <select name="department_Id" id="department" className="form-control w-100" aria-describedby="department"
-                        value={formData.department_Id} onChange={(e)=>{
-                            setFormData({...formData,department_Id: e.target.value});
-                        }}>
+                        <select name="department_Id" id="department" className={`form-control w-100 ${errors.department_Id?'is-invalid': ''}`} aria-describedby="department"
+                        {...register("department_Id",{ valueAsNumber: true })}>
                             <option value="">Select Department</option>
-                            {options.departments.map(d=>(
-                                <option key={d.department_Id} value={d.department_Id}>{d.department_name}</option>
+                            {department.map(d=>(
+                                <option key={`department-${d.department_Id}`} value={d.department_Id}>{d.department_name}</option>
                             ))}
                         </select>
+                        {errors.department_Id && (
+                                    <div className="invalid-feedback">{errors.department_Id.message}</div>
+                                )}
                         
                        
                     </div>
                     <div className="mb-3">
                                 <label htmlFor="email" className="form-label">Email address</label>
-                                <input type="email" className="form-control w-100" id="email" aria-describedby="email"
-                               name="email" value={formData.email} onChange={(e)=>{
-                                setFormData({...formData,email: e.target.value});
-                            }}/>
-                            
+                                <input type="email" className={`form-control w-100 ${errors.email?'is-invalid': ''}`} id="email" aria-describedby="email"
+                               name="email" {...register("email")} placeholder="Email"/>
+                            {errors.email && (
+                                    <div className="invalid-feedback">{errors.email.message}</div>
+                                )}
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="password" className="form-label">Password</label>
-                                <input type="password" className="form-control w-100" id="password"
-                               name="password" value={formData.date_of_birth.password} onChange={(e)=>{
-                                setFormData({...formData,password: e.target.value});
-                            }}/>
+                                <input type="password" className={`form-control w-100 ${errors.password?'is-invalid': ''}`} id="password"
+                               name="password" {...register("password")} placeholder="Password"/>
+                                {errors.password && (
+                                    <div className="invalid-feedback">{errors.password.message}</div>
+                                )}
                             </div>
                             <div className="mb-3">
                             <label htmlFor="role" className="form-label">Role:</label>
-                            <select name="role_id" id="role" className="form-control w-100" aria-describedby="role"
-                            value={formData.role_id} onChange={(e)=>{
-                                setFormData({...formData,role_id: parseInt(e.target.value)});
-                            }} >
+                            <select name="role_id" id="role" className={`form-control w-100 ${errors.role_id?'is-invalid': ''}`} aria-describedby="role"
+                            {...register("role_id",{ valueAsNumber: true })} >
                                 <option value="">Select role</option>
-                                {options.roles.map(r=>(
-                                    <option key={r.role_id} value={r.role_id}>{r.role_name}</option>
+                                {role.map(r=>(
+                                    <option key={`role-${r.role_id}`} value={r.role_id}>{r.role_name}</option>
                                 ))}
                                 
                         </select>
+                         {errors.role_id && (
+                                    <div className="invalid-feedback">{errors.role_id.message}</div>
+                                )}
                         
                        
                     </div>
