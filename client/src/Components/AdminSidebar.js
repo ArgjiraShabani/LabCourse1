@@ -113,7 +113,7 @@ const Sidebar = ({ role, id }) => {
                   to={`/ManageSchedule/${id}`}
                   className="nav-link text-white hover-link"
                 >
-                  Schedule
+                  Standard Schedule
                 </Link>
               </li>
               <li className="nav-item mt-4">

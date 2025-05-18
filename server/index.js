@@ -41,11 +41,11 @@ const db = mysql.createConnection({
     host:"localhost",
     //password:"password",
     //password:"mysql123",
-    //password:"valjeta1!",
-    password: "mysqldb",
+    password:"valjeta1!",
+    //password: "mysqldb",
     database:"hospital_management",
     
-    port: 3307,
+    //port: 3307,
    
 
 });
@@ -771,8 +771,8 @@ app.get('/api/doctors', (req, res) => {
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Gabim gjate marrjes se mjekeve:', err.message);
-      return res.status(500).json({ error: 'Gabim gjate marrjes se mjekeve' });
+      console.error('Error while fetching doctors:', err.message);
+      return res.status(500).json({ error: 'Error while fetching doctors' });
     }
     res.json(results);
   });
@@ -790,8 +790,8 @@ app.get('/api/standardSchedules', (req, res) => {
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Gabim gjatë marrjes së orareve:', err.message);
-      return res.status(500).json({ error: 'Gabim gjatë marrjes së orareve' });
+      console.error('Error while fetching schedules:', err.message);
+      return res.status(500).json({ error: 'Error while fetching schedules' });
     }
     res.json(results);
   });
@@ -802,7 +802,7 @@ app.post('/api/standardSchedules', (req, res) => {
   const { doctor_id, weekday, start_time, end_time } = req.body;
 
   if (!doctor_id || !weekday || !start_time || !end_time) {
-    return res.status(400).json({ error: 'Të dhenat e kerkuara mungojne' });
+    return res.status(400).json({ error: 'The requested data is missing' });
   }
 
   const query = `
@@ -812,10 +812,10 @@ app.post('/api/standardSchedules', (req, res) => {
 
   db.query(query, [doctor_id, weekday, start_time, end_time], (err, result) => {
     if (err) {
-      console.error('Gabim gjatë ruajtjes së orarit:', err.message);
-      return res.status(500).json({ error: 'Gabim gjate ruajtjes se orarit' });
+      console.error('Error while saving the schedule:', err.message);
+      return res.status(500).json({ error: 'Error while saving the schedule' });
     }
-    res.status(201).json({ message: 'Orari u shtua me sukses' });
+    res.status(201).json({ message: 'The schedule was added successfully' });
   });
 });
 
@@ -825,7 +825,7 @@ app.put('/api/standardSchedules/:schedule_id', (req, res) => {
   const { start_time, end_time } = req.body;
 
   if (!start_time || !end_time) {
-    return res.status(400).json({ error: 'Të dhenat e kerkuara mungojne' });
+    return res.status(400).json({ error: 'The requested data is missing' });
   }
 
   const query = `
@@ -836,10 +836,10 @@ app.put('/api/standardSchedules/:schedule_id', (req, res) => {
 
   db.query(query, [start_time, end_time, schedule_id], (err, result) => {
     if (err) {
-      console.error('Gabim gjate perditesimit te orarit:', err.message);
-      return res.status(500).json({ error: 'Gabim gjate perditesimit te orarit' });
+      console.error('Error while updating the schedule:', err.message);
+      return res.status(500).json({ error: 'Error while updating the schedule' });
     }
-    res.json({ message: 'Orari u perditesua me sukses' });
+    res.json({ message: 'The schedule was updated successfully' });
   });
 });
 
@@ -851,10 +851,10 @@ app.delete('/api/standardSchedules/:schedule_id', (req, res) => {
 
   db.query(query, [schedule_id], (err, result) => {
     if (err) {
-      console.error('Gabim gjate fshirjes së orarit:', err.message);
-      return res.status(500).json({ error: 'Gabim gjate fshirjes së orarit' });
+      console.error('Error while deleting the schedule:', err.message);
+      return res.status(500).json({ error: 'Error while deleting the schedule' });
     }
-    res.json({ message: 'Orari u fshi me sukses' });
+    res.json({ message: 'The schedule was deleted successfully' });
   });
 });
 

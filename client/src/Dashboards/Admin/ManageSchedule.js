@@ -7,13 +7,13 @@ const ManageSchedule = () => {
   const [formData, setFormData] = useState({
     doctor_id: "",
     schedule: {
-      Monday: { start_time: "", end_time: "" },
-      Tuesday: { start_time: "", end_time: "" },
-      Wednesday: { start_time: "", end_time: "" },
-      Thursday: { start_time: "", end_time: "" },
-      Friday: { start_time: "", end_time: "" },
-      Saturday: { start_time: "", end_time: "" },
-      Sunday: { start_time: "", end_time: "" },
+      Monday: { start_time: "", end_time: "", schedule_id: null },
+      Tuesday: { start_time: "", end_time: "", schedule_id: null },
+      Wednesday: { start_time: "", end_time: "", schedule_id: null },
+      Thursday: { start_time: "", end_time: "", schedule_id: null },
+      Friday: { start_time: "", end_time: "", schedule_id: null },
+      Saturday: { start_time: "", end_time: "", schedule_id: null },
+      Sunday: { start_time: "", end_time: "", schedule_id: null },
     },
   });
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ const ManageSchedule = () => {
       const res = await axios.get("http://localhost:3001/api/doctors");
       setDoctors(res.data);
     } catch (err) {
-      setError("Gabim me listen e mjekeve");
+      setError("Error fetching the list of doctors");
     }
   };
 
@@ -49,7 +49,7 @@ const ManageSchedule = () => {
       const res = await axios.get("http://localhost:3001/api/standardSchedules");
       setSchedules(res.data);
     } catch (err) {
-      console.error("Gabim gjate marrjes se orareve:", err);
+      console.error("Error fetching schedules:", err);
     }
   };
 
@@ -76,17 +76,25 @@ const ManageSchedule = () => {
       if (!formData.doctor_id) return;
 
       try {
-        const res = await axios.get("http://localhost:3001/api/standardSchedules");
-        const doctorSchedule = res.data.filter(
-          (item) => item.doctor_id === parseInt(formData.doctor_id)
+        const res = await axios.get(
+          `http://localhost:3001/api/standardSchedules/${formData.doctor_id}`
         );
+        const doctorSchedule = res.data;
 
-        const updatedSchedule = { ...formData.schedule };
+        const updatedSchedule = {
+          Monday: { start_time: "", end_time: "", schedule_id: null },
+          Tuesday: { start_time: "", end_time: "", schedule_id: null },
+          Wednesday: { start_time: "", end_time: "", schedule_id: null },
+          Thursday: { start_time: "", end_time: "", schedule_id: null },
+          Friday: { start_time: "", end_time: "", schedule_id: null },
+          Saturday: { start_time: "", end_time: "", schedule_id: null },
+          Sunday: { start_time: "", end_time: "", schedule_id: null },
+        };
 
         doctorSchedule.forEach((entry) => {
           updatedSchedule[entry.weekday] = {
-            start_time: entry.start_time?.slice(0, 5),
-            end_time: entry.end_time?.slice(0, 5),
+            start_time: entry.start_time?.slice(0, 5) || "",
+            end_time: entry.end_time?.slice(0, 5) || "",
             schedule_id: entry.schedule_id,
           };
         });
@@ -96,7 +104,7 @@ const ManageSchedule = () => {
           schedule: updatedSchedule,
         }));
       } catch (err) {
-        console.error("Deshtoi ngarkimi i orarit te mjekut:", err);
+        console.error("Failed to load doctor's schedule:", err);
       }
     };
 
@@ -137,35 +145,35 @@ const ManageSchedule = () => {
 
       await Promise.all(requests);
 
-      alert("Orari u ruajt/perditesua me sukses!");
+      alert("Schedule saved/updated successfully!");
 
       setFormData({
         doctor_id: "",
         schedule: days.reduce((acc, day) => {
-          acc[day] = { start_time: "", end_time: "" };
+          acc[day] = { start_time: "", end_time: "", schedule_id: null };
           return acc;
         }, {}),
       });
 
       fetchSchedules();
     } catch (err) {
-      console.error("Gabim gjate ruajtjes se orarit", err);
-      setError("Gabim gjate ruajtjes se orarit");
+      console.error("Error saving the schedule", err);
+      setError("Error saving the schedule");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteSchedule = async (schedule_id) => {
-    if (!window.confirm("A jeni i sigurt qe deshironi te fshini kete orar?")) return;
+    if (!window.confirm("Are you sure you want to delete this schedule?")) return;
 
     try {
       await axios.delete(`http://localhost:3001/api/standardSchedules/${schedule_id}`);
-      alert("Orari u fshi me sukses!");
+      alert("Schedule deleted successfully!");
       fetchSchedules();
     } catch (err) {
-      console.error("Gabim gjate fshirjes se orarit:", err);
-      setError("Gabim gjate fshirjes se orarit");
+      console.error("Error deleting the schedule:", err);
+      setError("Error deleting the schedule");
     }
   };
 
@@ -173,12 +181,12 @@ const ManageSchedule = () => {
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
       <div className="container mt-4">
-        <h2>Cakto Orarin per Mjekun</h2>
+        <h2>Set Schedule for Doctor</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label>Mjeku:</label>
+            <label>Doctor:</label>
             <select
               name="doctor_id"
               className="form-select"
@@ -186,7 +194,7 @@ const ManageSchedule = () => {
               onChange={handleChange}
               required
             >
-              <option value="">Zgjedh mjekun</option>
+              <option value="">Select a doctor</option>
               {doctors.map((doctor) => (
                 <option key={doctor.id} value={doctor.id}>
                   {doctor.name}
@@ -195,13 +203,13 @@ const ManageSchedule = () => {
             </select>
           </div>
 
-          <h5>Oraret per ditet e javes:</h5>
+          <h5>Schedules for the days of the week:</h5>
           {days.map((day) => (
             <div key={day} className="mb-4 border p-3 rounded">
               <h6>{day}</h6>
               <div className="row">
                 <div className="col-md-6 mb-2">
-                  <label>Ora e fillimit:</label>
+                  <label>Start time:</label>
                   <input
                     type="time"
                     name="start_time"
@@ -211,7 +219,7 @@ const ManageSchedule = () => {
                   />
                 </div>
                 <div className="col-md-6 mb-2">
-                  <label>Ora e mbarimit:</label>
+                  <label>End time:</label>
                   <input
                     type="time"
                     name="end_time"
@@ -229,18 +237,17 @@ const ManageSchedule = () => {
             className="btn btn-success mt-3"
             disabled={loading}
           >
-            {loading ? "Duke ruajtur..." : "Ruaj Orarin"}
+            {loading ? "Saving..." : "Save Schedule"}
           </button>
         </form>
 
         <hr className="my-4" />
-        <h4 className="mb-3">Oraret ekzistuese</h4>
+        <h4 className="mb-3">Standard Schedule</h4>
         <div className="table-responsive">
           <table className="table table-bordered">
             <thead className="table-light">
               <tr>
-                <th>ID</th>
-                <th>Mjeku</th>
+                <th>Doctor</th>
                 {days.map((day) => (
                   <th key={day}>{day}</th>
                 ))}
@@ -251,11 +258,11 @@ const ManageSchedule = () => {
                 schedules
                   .reduce((acc, item) => {
                     let existing = acc.find(
-                      (s) => s.doctor_name === item.doctor_name
+                      (s) => s.doctor_id === item.doctor_id
                     );
                     if (!existing) {
                       existing = {
-                        schedule_id: item.schedule_id,
+                        doctor_id: item.doctor_id,
                         doctor_name: item.doctor_name,
                       };
                       days.forEach((day) => (existing[day] = {}));
@@ -270,25 +277,21 @@ const ManageSchedule = () => {
                   }, [])
                   .map((schedule, idx) => (
                     <tr key={idx}>
-                      <td>{schedule.schedule_id}</td>
                       <td>{schedule.doctor_name}</td>
                       {days.map((day) => (
                         <td key={day}>
-                          {schedule[day]?.start_time ? (
-                            <>
-                              {`${schedule[day].start_time} - ${schedule[day].end_time}`}
-                              <br />
-                              <button
-                                className="btn btn-sm btn-danger mt-1"
-                                onClick={() =>
-                                  handleDeleteSchedule(schedule[day].schedule_id)
-                                }
-                              >
-                                Fshij
-                              </button>
-                            </>
-                          ) : (
-                            "-"
+                          {schedule[day]?.start_time
+                            ? `${schedule[day].start_time} - ${schedule[day].end_time}`
+                            : "-"}
+                          {schedule[day]?.schedule_id && (
+                            <button
+                              className="btn btn-sm btn-danger ms-2"
+                              onClick={() =>
+                                handleDeleteSchedule(schedule[day].schedule_id)
+                              }
+                            >
+                              Delete
+                            </button>
                           )}
                         </td>
                       ))}
@@ -296,9 +299,7 @@ const ManageSchedule = () => {
                   ))
               ) : (
                 <tr>
-                  <td colSpan={days.length + 2} className="text-center">
-                    Nuk ka te dhena
-                  </td>
+                  <td colSpan={days.length + 1}>No schedules recorded</td>
                 </tr>
               )}
             </tbody>
