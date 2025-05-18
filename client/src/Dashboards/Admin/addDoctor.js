@@ -81,27 +81,27 @@ function AdminDoctor(){
         if(img){
             formData.append("img",img);
         }
-        Axios.post('http://localhost:3001/doctors',formData).then((response)=>{
+        const response=await Axios.post('http://localhost:3001/doctors',formData);
             
             console.log("Doctor added successfully",response.data);
             reset();
             setImg(null);
 
-        })
-        swal({
+        
+        await swal.fire({
             title: "Success!",
             text: "Your form was submitted successfully.",
             icon: "success",
-            button: "OK",
+            confirmButtonText: "OK",
         });
 
         }catch(error){
-           
-            swal({
+           console.error("Error submitting form", error);
+            await swal.fire({
                 title: "Error!",
                 text: "Something went wrong.",
                 icon: "error",
-                button: "OK",
+                confirmButtonText: "OK",
             });
         };
        

@@ -128,7 +128,7 @@ const UpdateDoctor=()=>{
                 title: "Error!",
                 text: "Something went wrong.",
                 icon: "error",
-                button: "OK",
+                confirmButtonText: "OK",
             });
        
        
