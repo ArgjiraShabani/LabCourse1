@@ -40,12 +40,12 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    //password:"mysql123",
-    password:"valjeta1!",
-    password: "mysqldb",
+    password:"mysql123",
+    //password:"valjeta1!",
+    //password: "mysqldb",
     database:"hospital_management",
     
-    port: 3307,
+    //port: 3307,
    
 
 });
@@ -877,6 +877,69 @@ app.get('/getPatientInfo/:patient_id',(req,res)=>{
   p.gender_id,g.gender_name`
 
 })
+
+app.get('/api/feedbacks', (req, res) => {
+  const query = `
+    SELECT
+      f.feedback_id,
+      f.message,
+      f.created_at,
+      p.first_name AS patient_first_name,
+      p.last_name AS patient_last_name,
+      d.first_name AS doctor_first_name,
+      d.last_name AS doctor_last_name,
+      CASE
+        WHEN f.patient_id IS NOT NULL THEN 'patient'
+        WHEN f.doctor_id IS NOT NULL THEN 'doctor'
+        ELSE 'unknown'
+      END AS submitted_by
+    FROM feedbacks f
+    LEFT JOIN patients p ON f.patient_id = p.patient_id
+    LEFT JOIN doctors d ON f.doctor_id = d.doctor_id
+    ORDER BY f.created_at DESC
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching feedbacks:', err);
+      res.status(500).json({ error: 'Database error' });
+    } else {
+      const formatted = results.map(row => ({
+        feedback_id: row.feedback_id,
+        message: row.message,
+        created_at: row.created_at,
+        first_name: row.patient_first_name || row.doctor_first_name || 'Unknown',
+        last_name: row.patient_last_name || row.doctor_last_name || 'Unknown',
+        submitted_by: row.submitted_by
+      }));
+
+      res.json(formatted);
+    }
+  });
+});
+
+app.post('/api/feedbacks', (req, res) => {
+  const { message, patient_id, doctor_id } = req.body;
+
+  if ((!patient_id && !doctor_id) || (patient_id && doctor_id)) {
+    return res.status(400).json({
+      error: 'Please provide either patient_id or doctor_id, not both.'
+    });
+  }
+
+  const query = `
+    INSERT INTO feedbacks (message, patient_id, doctor_id)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(query, [message, patient_id || null, doctor_id || null], (err, result) => {
+    if (err) {
+      console.error('Error inserting feedback:', err);
+      return res.status(500).json({ error: 'Database insert error' });
+    }
+    res.status(201).json({ message: 'Feedback inserted successfully' });
+  });
+});
 
     
 app.listen(3001,()=>{
