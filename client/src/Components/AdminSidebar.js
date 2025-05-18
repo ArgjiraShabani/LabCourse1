@@ -116,6 +116,14 @@ const Sidebar = ({ role, id }) => {
                   Standard Schedule
                 </Link>
               </li>
+              <li className="nav-item mb-2">
+                <Link
+                  to={`/Feedbacks/${id}`}
+                  className="nav-link text-white hover-link"
+                >
+                  Feedbacks
+                </Link>
+              </li>
               <li className="nav-item mt-4">
                 <a href="#" className="nav-link text-danger">
                   Log out
