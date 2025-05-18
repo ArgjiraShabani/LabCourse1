@@ -42,10 +42,10 @@ const db = mysql.createConnection({
     //password:"password",
     //password:"mysql123",
     password:"valjeta1!",
-    //password: "mysqldb",
+    password: "mysqldb",
     database:"hospital_management",
     
-    //port: 3307,
+    port: 3307,
    
 
 });
@@ -870,6 +870,13 @@ app.get('/services', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+app.get('/getPatientInfo/:patient_id',(req,res)=>{
+  const patientId=req.body.patient_id;
+  const q=`SELECT p.first_name,p.last_name,
+  p.gender_id,g.gender_name`
+
+})
 
     
 app.listen(3001,()=>{

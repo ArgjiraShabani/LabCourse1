@@ -154,9 +154,12 @@ const Sidebar = ({ role, id }) => {
                 </a>
               </li>
               <li className="nav-item mb-2">
-                <a href="#" className="nav-link text-white hover-link">
+               <Link
+                to="/medicalRecords/:id"
+                  className="nav-link text-white hover-link"
+                >
                   Prescriptions
-                </a>
+                </Link>
               </li>
               <li className="nav-item mb-2">
                <Link

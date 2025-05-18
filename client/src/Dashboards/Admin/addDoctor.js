@@ -6,6 +6,7 @@ import Axios from 'axios';
 import {useForm} from "react-hook-form";
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
+import { IoEyeOff,IoEye } from "react-icons/io5";
 
 import Swal from "sweetalert2";
 import withReactContent from 'sweetalert2-react-content';
@@ -32,6 +33,10 @@ function AdminDoctor(){
     const[gender,setGender]=useState([]);
     const[specialization,setSpecialization]=useState([]);
     const[department,setDepartment]=useState([]);
+    const[show,setShow]=useState(false);
+    const handleClick=()=>{
+        setShow(!show);
+    }
 
     const[img,setImg]=useState(null);
     useEffect(()=>{
@@ -228,10 +233,17 @@ function AdminDoctor(){
                                     <div className="invalid-feedback">{errors.email.message}</div>
                                 )}
                             </div>
-                            <div className="mb-3">
+                            <div className="mb-3" style={{ position: "relative" }}>
                                 <label htmlFor="password" className="form-label">Password</label>
-                                <input type="password" className={`form-control w-100 ${errors.password?'is-invalid': ''}`} id="password"
+                                <input type={show? "text": "password"} className={`form-control w-100 ${errors.password?'is-invalid': ''}`} id="password"
                                name="password" {...register("password")} placeholder="Password"/>
+                               <span onClick={handleClick} 
+                               style={{position: 'absolute',
+                               top: '50%',
+                               right: '8%',
+                               transform: 'translateY(15%)',
+                                cursor: 'pointer',color: '#888'}}>{show? <IoEye/>: <IoEyeOff />}</span>
+                               
                                 {errors.password && (
                                     <div className="invalid-feedback">{errors.password.message}</div>
                                 )}

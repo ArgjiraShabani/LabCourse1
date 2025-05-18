@@ -1,5 +1,6 @@
 import Sidebar from "../../Components/AdminSidebar";
 import { useState,useEffect } from "react";
+import { IoEyeOff,IoEye } from "react-icons/io5";
 
 import Axios from 'axios';
 import { data, useLocation,useNavigate } from "react-router-dom";
@@ -41,6 +42,10 @@ const UpdateDoctor=()=>{
     const {register,handleSubmit,formState: {errors},reset}=useForm({
             resolver: yupResolver(schema)
         });
+    const[show,setShow]=useState(false);
+    const handleClick=()=>{
+        setShow(!show);
+    }
     
     
     useEffect(()=>{
@@ -264,14 +269,21 @@ const UpdateDoctor=()=>{
                                     <div className="invalid-feedback">{errors.email.message}</div>
                                 )}
                             </div>
-                            <div className="mb-3">
-                                <label htmlFor="password" className="form-label">Password</label>
-                                <input type="password" className={`form-control w-100 ${errors.password?'is-invalid': ''}`} id="password"
-                               name="password" {...register("password")} placeholder="Password"/>
-                                {errors.password && (
-                                    <div className="invalid-feedback">{errors.password.message}</div>
-                                )}
-                            </div>
+                            <div className="mb-3" style={{ position: "relative" }}>
+                                                            <label htmlFor="password" className="form-label">Password</label>
+                                                            <input type={show? "text": "password"} className={`form-control w-100 ${errors.password?'is-invalid': ''}`} id="password"
+                                                           name="password" {...register("password")} placeholder="Password"/>
+                                                           <span onClick={handleClick} 
+                                                           style={{position: 'absolute',
+                                                           top: '50%',
+                                                           right: '8%',
+                                                           transform: 'translateY(15%)',
+                                                            cursor: 'pointer',color: '#888'}}>{show? <IoEye/>: <IoEyeOff />}</span>
+                                                           
+                                                            {errors.password && (
+                                                                <div className="invalid-feedback">{errors.password.message}</div>
+                                                            )}
+                                                        </div>
                             <div className="mb-3">
                             <label htmlFor="role" className="form-label">Role:</label>
                             <select name="role_id" id="role" className={`form-control w-100 ${errors.role_id?'is-invalid': ''}`} aria-describedby="role"

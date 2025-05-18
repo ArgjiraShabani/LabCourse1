@@ -26,6 +26,7 @@ import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
 import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
 import DoctorPofile from './Dashboards/Doctor/DoctorProfile';
+import MedicalRecords from './Dashboards/Doctor/MedicalRecords';
 
 
 
@@ -59,6 +60,7 @@ function MyRegisterPatientWrapper() {
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
           <Route path='/viewDoctors' element={<ViewDoctors/>}/>
           <Route path='/doctorProfile/:id' element={<DoctorPofile/>}/>
+          <Route path='/medicalRecords/:id' element={<MedicalRecords/>}/>
           
           
 
