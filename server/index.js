@@ -40,9 +40,10 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    password:"database",
+    //password:"database",
     //password:"valjeta1!",
     //password: "mysqldb",
+    password:"mysql123",
     database:"hospital_management",
     
     //port: 3307,
@@ -885,6 +886,19 @@ app.get('/getPatientInfo/:patient_id',(req,res)=>{
   p.gender_id,g.gender_name`
 
 })
+
+app.get('/doctors/byDepartment/:department_id', (req, res) => {
+    const departmentId = req.params.department_id;
+
+    const sql = "SELECT doctor_id, first_name, last_name FROM doctors WHERE department_id = ?";
+    db.query(sql, [departmentId], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({error: "Database error"});
+        }
+        res.json(results);
+    });
+});
 
 app.get('/api/feedbacks', (req, res) => {
   const query = `

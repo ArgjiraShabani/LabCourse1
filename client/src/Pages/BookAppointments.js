@@ -15,25 +15,42 @@ function BookAppointment() {
 
     useEffect(() => {
         axios.get("http://localhost:3001/services")
-            .then(res => setServices(res.data))
+            .then(res => {
+                console.log("Services fetched:", res.data);
+                setServices(res.data);
+            })
             .catch(err => console.error("Error fetching services:", err));
     }, []);
 
-    useEffect(() => {
-        if (formData.service_id) {
-            axios.get(`http://localhost:3001/doctors/byService/${formData.service_id}`)
-                .then(res => {
-                    console.log("Mjekët e ardhur:", res.data);
-                    setDoctors(res.data);
-                })
-                .catch(err => console.error("Error fetching doctors:", err));
+   useEffect(() => {
+    if (formData.service_id && services.length > 0) {
+        const selectedService = services.find(
+            (service) => parseInt(service.service_id) === parseInt(formData.service_id)
+        );
+
+        if (selectedService && selectedService.department_Id) {
+            axios.get(`http://localhost:3001/doctors/byDepartment/${selectedService.department_Id}`)
+                .then(res => setDoctors(res.data))
+                .catch(err => {
+                    console.error("Error fetching doctors:", err);
+                    setDoctors([]);
+                });
         } else {
-            setDoctors([]); 
+            setDoctors([]);
         }
-    }, [formData.service_id]);
+    } else {
+        setDoctors([]);
+    }
+}, [formData.service_id, services]);
+
+
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === "service_id" || name === "doctor_id" ? parseInt(value) : value
+        }));
     };
 
     const handleSubmit = (e) => {
@@ -60,17 +77,37 @@ function BookAppointment() {
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label>First Name</label>
-                    <input type="text" className="form-control" name="name" onChange={handleChange} required />
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                    />
                 </div>
 
                 <div className="mb-3">
                     <label>Last Name</label>
-                    <input type="text" className="form-control" name="lastname" onChange={handleChange} required />
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="lastname"
+                        value={formData.lastname}
+                        onChange={handleChange}
+                        required
+                    />
                 </div>
 
                 <div className="mb-3">
                     <label>Service</label>
-                    <select className="form-control" name="service_id" onChange={handleChange} required>
+                    <select
+                        className="form-control"
+                        name="service_id"
+                        value={formData.service_id}
+                        onChange={handleChange}
+                        required
+                    >
                         <option value="">Select Service</option>
                         {services.map(service => (
                             <option key={service.service_id} value={service.service_id}>
@@ -82,11 +119,17 @@ function BookAppointment() {
 
                 <div className="mb-3">
                     <label>Doctor</label>
-                    <select className="form-control" name="doctor_id" onChange={handleChange} required>
+                    <select
+                        className="form-control"
+                        name="doctor_id"
+                        value={formData.doctor_id}
+                        onChange={handleChange}
+                        required
+                    >
                         <option value="">Select Doctor</option>
                         {doctors.map(doc => (
                             <option key={doc.doctor_id} value={doc.doctor_id}>
-                                {doc.name} {doc.lastname}
+                                {doc.first_name} {doc.last_name}
                             </option>
                         ))}
                     </select>
@@ -94,12 +137,24 @@ function BookAppointment() {
 
                 <div className="mb-3">
                     <label>Date & Time</label>
-                    <input type="datetime-local" className="form-control" name="appointment_datetime" onChange={handleChange} required />
+                    <input
+                        type="datetime-local"
+                        className="form-control"
+                        name="appointment_datetime"
+                        value={formData.appointment_datetime}
+                        onChange={handleChange}
+                        required
+                    />
                 </div>
 
                 <div className="mb-3">
                     <label>Purpose</label>
-                    <textarea className="form-control" name="purpose" onChange={handleChange} />
+                    <textarea
+                        className="form-control"
+                        name="purpose"
+                        value={formData.purpose}
+                        onChange={handleChange}
+                    />
                 </div>
 
                 <button type="submit" className="btn btn-success">Book Appointment</button>
