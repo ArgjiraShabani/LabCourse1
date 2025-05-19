@@ -75,7 +75,7 @@ function Register(){
     });
 
 
-     const {register,handleSubmit,formState: { errors},getValues}=useForm({
+     const {register,handleSubmit,formState: { errors},getValues,reset}=useForm({
                  resolver:yupResolver(schema),
              });
      
@@ -107,16 +107,14 @@ function Register(){
             formdata.append("last_name", e.lastname);
             formdata.append("email", e.email);
             formdata.append("password", e.password);
-            formdata.append("number", e.number);
+            formdata.append("number", e.phoneNumber);
             formdata.append("birth", e.birth);
             formdata.append("gender", e.gender);
             formdata.append("blood", e.blood);
             formdata.append("status", e.status);
         
          axios.post("http://localhost:3001/registerPatient",formdata).then(res=>{
-             if(res){
-            setError(res.data);
-             }
+             
              if(res.data===""){ 
             Swal.fire({
                 position: "center",
@@ -125,7 +123,10 @@ function Register(){
                 showConfirmButton: false,
                 timer: 2000
                 });
-                navigate(`/registerPatient`);
+                    reset();
+            }else{
+                setError(res.data);
+
             }
         }).catch(err=>{
 
@@ -182,7 +183,8 @@ function Register(){
                     </div>
                     <div className="mb-3">
                     <label htmlFor="photo" className="form-label">Upload Photo:</label>
-                     <input type="file" name="file" className="form-control" {...register("file")} />                     </div>
+                     <input type="file" name="file" className="form-control" {...register("file")} />                     
+                     </div>
                     <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap"}}>
                     <div className="mb-3">
                     <select className="form-control" name="gender" {...register("gender")}>

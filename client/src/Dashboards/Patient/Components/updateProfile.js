@@ -42,23 +42,15 @@ const schema =yup.object().shape({
     });
 
 
-function UpdateProfile({id}){
-  const [info,setInfo]=useState({
-    first_name: "",
-    last_name: "",
-    phone: "",
-    date_of_birth: "",
-    gender_name: "",
-    blood_type: "",
-    file:""
-  });
+function UpdateProfile({id,info,setInfo}){
+ 
   
   const {register,handleSubmit,formState: { errors},setValue,
     reset,getValues}=useForm({
               resolver:yupResolver(schema),
           });
   useEffect(() => {
-    if (info.first_name && info.last_name) {
+    if (info && info.first_name && info.last_name) {
       reset({
         name: info.first_name,
         lastname: info.last_name,
@@ -85,15 +77,7 @@ function UpdateProfile({id}){
       setBlood(response.data);
     })
   },[]);
-  useEffect(()=>{
-      axios.get(`http://localhost:3001/infoPatient/${id}`).then((response)=>{
-        const dateOfBirth = response.data.date_of_birth.split("T")[0];
-        response.data.date_of_birth = dateOfBirth;
-          setInfo(response.data);
-
-      })
-  },[id]);
-
+  
 
   if (!info) {
     return <p>Loading...</p>;
@@ -125,7 +109,6 @@ function UpdateProfile({id}){
                   .then(res=>{
                       const updated = res.data;
                         updated.date_of_birth = updated.date_of_birth.split("T")[0]; // format date
-                        <Info re={info}/>
                         setInfo(res.data); // ✅ This updates the shared state in pa
                     
                   })
@@ -202,7 +185,7 @@ function UpdateProfile({id}){
             </div>
             <div style={{marginBottom:"20px"}}>
               <label>Blood Type:</label><br/>
-              <select  className="form-control" name="blood" {...register("blood")} onChange={e=>setInfo({...info,blood_type:e.target.value})} style={{width:"300px",height:"40px"}}>
+              <select  className="form-control" name="blood" {...register("blood")}  style={{width:"300px",height:"40px"}}>
               {blood.map((value,key)=>{
                 return(
                 <option key={key}>{value.blood_type}</option>

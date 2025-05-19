@@ -40,10 +40,10 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    //password:"database",
+    password:"database",
     //password:"valjeta1!",
     //password: "mysqldb",
-    password:"mysql123",
+    //password:"mysql123",
     database:"hospital_management",
     
     //port: 3307,
@@ -226,7 +226,7 @@ app.put('/updateStatus',(req,res)=>{
     if(err){
       return res.json("Didnt Update Patient!");
     }else{
-      console.log("Updated Patients!");
+        return res.json(data);
     }
   })
 });

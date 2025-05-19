@@ -139,7 +139,7 @@ function SignUp(){
                     </div>
                      <div className="mb-3">
                         <label>Date of Birth:</label>
-                        <input type="date" name='birth' className="form-control"{...register("birth")}/>
+                        <input type="date" name='birth' className="form-control"{...register("birth")} onFocus={(e) => e.target.showPicker && e.target.showPicker()}/>
                     <p style={{color:"red"}}>{errors.birth?.message}</p>
 
                     </div>
