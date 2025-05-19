@@ -13,9 +13,18 @@ function Patient(){
 
     useEffect(()=>{
         Axios.get("http://localhost:3001/patient").then((response)=>{
-            setPatientList(response.data);
-        })
-    },[patientList]);
+              const updatedPatients = response.data.map(patient => {
+                if (patient.date_of_birth) {
+                    patient.date_of_birth = patient.date_of_birth.split("T")[0]; // Fix the date format
+                }
+                return patient;
+            });
+            setPatientList(updatedPatients);
+        }) .catch((error) => {
+            console.error("Error fetching patient list:", error);
+        });
+    },[]);
+       
 
     useEffect(()=>{
         Axios.get("http://localhost:3001/status").then((response)=>{

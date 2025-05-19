@@ -5,7 +5,9 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import * as yup from "yup";
 import {useForm} from "react-hook-form";
-import {yupResolver} from "@hookform/resolvers/yup"
+import {yupResolver} from "@hookform/resolvers/yup";
+import Info from "./UserInfo";
+import MyProfile from "../Pages/MyProfile";
 
 
 const schema =yup.object().shape({
@@ -121,8 +123,11 @@ function UpdateProfile({id}){
             if (result.isConfirmed) {
                  axios.put(`http://localhost:3001/updatePatient/${id}`,formdata)
                   .then(res=>{
-                      navigate(`/myProfile/${id}`);
-                
+                      const updated = res.data;
+                        updated.date_of_birth = updated.date_of_birth.split("T")[0]; // format date
+                        <Info re={info}/>
+                        setInfo(res.data); // ✅ This updates the shared state in pa
+                    
                   })
                   .catch(err=>console.log(err));
                 
@@ -134,7 +139,15 @@ function UpdateProfile({id}){
                 timer: 1100
                 });
             }else{
-              navigate(`/myProfile/${id}`);
+                reset({
+                name: info.first_name,
+                lastname: info.last_name,
+                phoneNumber: info.phone,
+                birth: info.date_of_birth ? info.date_of_birth.split("T")[0] : "", // Make sure the date is formatted
+                gender: info.gender_name,
+                blood: info.blood_type,
+                file: info.file // Ensure the file field is also reset
+              });
             }
             });
    
@@ -143,7 +156,7 @@ function UpdateProfile({id}){
 
   return(
     <>
-        <div style={{marginTop:"20px",borderStyle:"solid",padding:"60px 90px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'}}>
+            <div style={{marginTop:"20px",borderStyle:"solid",padding:"60px 90px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'}}>
           <h1 style={{textAlign:"center",marginBottom:"40px"}}>Update Profile</h1>
           <form className="mt-4" onSubmit={handleSubmit(formSubmit)}>
             <div className="mb-3" style={{marginBottom:"20px"}}>
@@ -203,9 +216,10 @@ function UpdateProfile({id}){
             <div style={{marginBottom:"10px"}}>
               <button  className="form-control" type="submit"  style={{width:"300px",borderColor:"#51A485",backgroundColor:"#51A485",height:"50px",color:"white"}}>UPDATE</button>
             </div>
-          </form>
             
+          </form>
         </div>
+
     </>
   )
 }

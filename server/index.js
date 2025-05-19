@@ -40,7 +40,7 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    password:"mysql123",
+    password:"database",
     //password:"valjeta1!",
     //password: "mysqldb",
     database:"hospital_management",
@@ -282,7 +282,15 @@ app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
             if(err){
               return res.json("Error");
             }
-            return res.json("Patient updated successfully");
+            db.query("SELECT * from patients inner join gender on patients.gender_id=gender.gender_id inner join blood on patients.blood_id=blood.blood_id where patients.patient_id = ?",[id],(err,result)=>{
+              if(err){
+                  console.log(err);
+              }else{
+                console.log(result[0])
+                  res.send(result[0])
+              }
+              })
+            
           });
      }else{
       return res.json("No matching blood found");
