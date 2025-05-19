@@ -21,6 +21,7 @@ import ViewDoctors from './Dashboards/Admin/viewDoctors';
 import ManageSchedule from './Dashboards/Admin/ManageSchedule';
 import SignUp from './Pages/Signup';
 import BookAppointments from './Pages/BookAppointments';
+//import WeeklySchedule from './Dashboards/Admin/WeeklySchedule';
 
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
@@ -78,6 +79,7 @@ function MyRegisterPatientWrapper() {
           <Route path="/DoctorSchedule" element={<DoctorSchedule />} />
           <Route path="/BookAppointments" element={<BookAppointments />} />
 <Route path="/Feedbacks/:id" element={<Feedbacks />} />
+          {/*<Route path="/Feedbacks/:id" element={<Feedbacks />} />*/}
         </Routes>
       </main>
      
