@@ -451,7 +451,7 @@ app.post('/signup',(req,res)=>{
   const birth=req.body.birth;
   const gender=req.body.gender;
   const blood=req.body.blood;
-   console.log(req.body)
+  const image='1746947791225.png';
     db.query(` SELECT email FROM patients WHERE email = ?
                 UNION
                 SELECT email FROM doctors WHERE email = ?
@@ -492,7 +492,7 @@ app.post('/signup',(req,res)=>{
                                       }  
                                         if(data.length>0){
                                           const genderId=data[0].gender_id;
-                                              db.query("INSERT INTO patients(first_name,last_name,email,password,phone,role_id,gender_id,status_id,date_of_birth,blood_id)value(?,?,?,?,?,?,?,?,?,?)",[name,lastname,email,password,phone,roleId,genderId,statusId,birth,bloodId],(err,data)=>{
+                                              db.query("INSERT INTO patients(first_name,last_name,email,password,phone,role_id,gender_id,status_id,date_of_birth,blood_id,image_path)value(?,?,?,?,?,?,?,?,?,?,?)",[name,lastname,email,password,phone,roleId,genderId,statusId,birth,bloodId,image],(err,data)=>{
                                                    if(err){
                                                         return res.json("Error");
                                                       }

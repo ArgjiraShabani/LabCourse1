@@ -89,7 +89,7 @@ function SignUp(){
                                 icon: "success",
                                 title: "You are successfully registered!\nNow please login!",
                                 showConfirmButton: false,
-                                timer: 3300
+                                timer: 2000
                                 });
                navigate('/login');
             }

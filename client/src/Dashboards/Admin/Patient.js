@@ -35,7 +35,19 @@ function Patient(){
 
     function handleClick(s_id,id){
         Axios.put("http://localhost:3001/updateStatus",{status:s_id,id:id}).then(response=>{
-            console.log("Success:", response.data);
+              const updatedList = patientList.map(patient => {
+                if (patient.patient_id === id) {
+                    const statusObj = status.find(s => s.status_id === s_id);
+                    return {
+                        ...patient,
+                        status_id: s_id,
+                        status_name: statusObj ? statusObj.status_name : patient.status_name,
+                    };
+                }
+                return patient;
+            });
+
+            setPatientList(updatedList);
         })
         .catch(error => {
             console.error("Error:", error);
@@ -53,7 +65,8 @@ function Patient(){
             if (result.isConfirmed) {
                 Axios.delete(`http://localhost:3001/deletePatient/${id}`)
                      .then(response=>{
-                        console.log(response.data)
+                        const updatedList = patientList.filter(patient => patient.patient_id !== id);
+                    setPatientList(updatedList);
                          })
                      .catch(error=>{
                          console.error('Not deleted!')
@@ -79,8 +92,8 @@ function Patient(){
         
             <div className="flex-grow-1 p-4">
                 <h1>Patient</h1>
-                <div  style={{display:'flex',flexWrap:"wrap",marginTop:"50px"}}>
-                  <table className="table table-striped">
+                <div className="table-responsive">
+                  <table className="table table-bordered table-hover align-middle text-center">
                     <thead>
                         <tr>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Photo</th>
@@ -102,7 +115,13 @@ function Patient(){
                         return(
                     <tbody> 
                         <tr>
-                        <th scope="row"><img src={`http://localhost:3001/uploads/`+value.image_path} style={{width:"70px"}}/></th>
+                         <th scope="row">
+                            { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} style={{width:"60px"}}/>
+                        ):(
+                           <img src={'http://localhost:3001/uploads/1746947791225.png'} style={{width:"60px"}}/>)}
+                    
+                
+                            </th>
                         <td>{value.patient_id}</td>
                         <td>{value.first_name}</td>
                         <td>{value.last_name}</td>
@@ -130,8 +149,10 @@ function Patient(){
                 </table>
                 </div>
                 </div>
-            </div>
+                </div>
         
+
+
         </>
     )
 }

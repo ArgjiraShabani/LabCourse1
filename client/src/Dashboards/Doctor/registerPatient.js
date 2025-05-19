@@ -123,6 +123,7 @@ function Register(){
                 showConfirmButton: false,
                 timer: 2000
                 });
+                setError("");
                     reset();
             }else{
                 setError(res.data);
