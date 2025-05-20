@@ -7,6 +7,7 @@ const multer = require('multer');
 const path = require('path');
 const { emit } = require("process");
 const { error } = require("console");
+const cron = require('node-cron');
 
 app.use(cors());
 app.use(express.json());
@@ -40,8 +41,8 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    password:"database",
-    //password:"valjeta1!",
+    //password:"database",
+    password:"valjeta1!",
     //password: "mysqldb",
     //password:"mysql123",
     database:"hospital_management",
@@ -963,7 +964,116 @@ app.post('/api/feedbacks', (req, res) => {
   });
 });
 
-    
+cron.schedule('0 23 * * 0', async () => {
+  try {
+    const [doctors] = await db.query('SELECT doctor_id FROM doctors');
+    const [standardSchedules] = await db.query('SELECT * FROM standard_schedules');
+
+    const nextWeek = [];
+    for (let i = 0; i < 7; i++) {
+      const date = moment().add(1, 'weeks').startOf('isoWeek').add(i, 'days').format('YYYY-MM-DD');
+      const weekday = moment(date).format('dddd');
+      nextWeek.push({ weekday, date });
+    }
+
+    for (const doctor of doctors) {
+      for (const day of nextWeek) {
+        const schedule = standardSchedules.find(s =>
+          s.doctor_id === doctor.doctor_id && s.weekday === day.weekday
+        );
+
+        if (schedule) {
+          try {
+            await db.query(
+              `INSERT IGNORE INTO weekly_schedules (doctor_id, date, start_time, end_time, is_custom)
+               VALUES (?, ?, ?, ?, false)`,
+              [doctor.doctor_id, day.date, schedule.start_time, schedule.end_time]
+            );
+          } catch (err) {
+            console.error(`Error inserting schedule for ${doctor.doctor_id} on ${day.date}:`, err);
+          }
+        }
+      }
+    }
+
+    console.log("Weekly schedule generated successfully!");
+} catch (err) {
+  console.error("Error while generating the weekly schedule:", err);
+
+  }
+});
+
+app.get("/api/weeklySchedules", (req, res) => {
+  const query = `
+    SELECT ws.schedule_id, ws.doctor_id, 
+           CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+           ws.date, ws.start_time, ws.end_time, ws.is_custom,
+           DAYNAME(ws.date) as weekday
+    FROM weekly_schedules ws
+    JOIN doctors d ON ws.doctor_id = d.doctor_id
+    ORDER BY ws.doctor_id, ws.date;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error in query /api/weeklySchedules:", err);
+return res.status(500).json({ message: "Error while retrieving existing schedules" });
+
+    }
+    res.json(results);
+  });
+});
+app.post("/api/weeklySchedules", (req, res) => {
+  const { doctor_id, date, start_time, end_time, is_custom } = req.body;
+  const query = `
+    INSERT INTO weekly_schedules (doctor_id, date, start_time, end_time, is_custom)
+    VALUES (?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      start_time = VALUES(start_time),
+      end_time = VALUES(end_time),
+      is_custom = VALUES(is_custom)
+  `;
+  db.query(query, [doctor_id, date, start_time, end_time, is_custom || false], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error while adding the schedule" });
+}
+res.json({ message: "Schedule added successfully", schedule_id: result.insertId });
+
+  });
+});
+
+app.put("/api/weeklySchedules/:scheduleId", (req, res) => {
+  const scheduleId = req.params.scheduleId;
+  const { start_time, end_time, is_custom } = req.body;
+  const query = `
+    UPDATE weekly_schedules
+    SET start_time = ?, end_time = ?, is_custom = ?
+    WHERE schedule_id = ?
+  `;
+  db.query(query, [start_time, end_time, is_custom || false, scheduleId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Error while updating the schedule" });
+}
+res.json({ message: "Schedule updated successfully" });
+
+  });
+});
+
+app.delete("/api/weeklySchedules/:scheduleId", (req, res) => {
+  const scheduleId = req.params.scheduleId;
+  const query = "DELETE FROM weekly_schedules WHERE schedule_id = ?";
+  db.query(query, [scheduleId], (err, result) => {
+    if (err) {
+      console.error(err);
+     return res.status(500).json({ message: "Error while deleting the schedule" });
+}
+res.json({ message: "Schedule deleted successfully" });
+
+  });
+});
+ 
 app.listen(3001,()=>{
     console.log("Hey po punon")
 })

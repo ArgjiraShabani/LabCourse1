@@ -1,8 +1,12 @@
-/*WeeklySchedule.js;
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
-import moment from "moment";
+import {
+  startOfWeek,
+  addDays,
+  format,
+  parseISO,
+} from "date-fns";
 
 const WeeklySchedule = () => {
   const [doctors, setDoctors] = useState([]);
@@ -11,7 +15,6 @@ const WeeklySchedule = () => {
   const [weeklyData, setWeeklyData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [schedules, setSchedules] = useState([]);
 
   const days = [
@@ -25,9 +28,10 @@ const WeeklySchedule = () => {
   ];
 
   const getWeekDates = () => {
-    const startOfWeek = moment().startOf("isoWeek");
+    const today = new Date();
+    const start = startOfWeek(today, { weekStartsOn: 1 }); // Monday
     return Array.from({ length: 7 }, (_, i) =>
-      startOfWeek.clone().add(i, "days").format("YYYY-MM-DD")
+      format(addDays(start, i), "yyyy-MM-dd")
     );
   };
 
@@ -142,8 +146,7 @@ const WeeklySchedule = () => {
   };
 
   const handleDeleteSchedule = async (scheduleId) => {
-    if (!window.confirm("Are you sure you want to delete this schedule?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this schedule?")) return;
 
     try {
       await axios.delete(
@@ -167,7 +170,6 @@ const WeeklySchedule = () => {
 
         <div className="mb-3">
           <label>Select Doctor:</label>
-
           <select
             className="form-select"
             value={selectedDoctor}
@@ -186,11 +188,10 @@ const WeeklySchedule = () => {
           <form onSubmit={(e) => e.preventDefault()}>
             {weekDates.map((date) => (
               <div key={date} className="border p-3 rounded mb-3">
-                <strong>{moment(date).format("dddd, DD MMM YYYY")}</strong>
+                <strong>{format(parseISO(date), "EEEE, dd MMM yyyy")}</strong>
                 <div className="row mt-2">
                   <div className="col-md-6">
                     <label>Start Time:</label>
-
                     <input
                       type="time"
                       className="form-control"
@@ -201,7 +202,7 @@ const WeeklySchedule = () => {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label>End time:</label>
+                    <label>End Time:</label>
                     <input
                       type="time"
                       className="form-control"
@@ -300,4 +301,4 @@ const WeeklySchedule = () => {
   );
 };
 
-export default WeeklySchedule;*/
+export default WeeklySchedule;

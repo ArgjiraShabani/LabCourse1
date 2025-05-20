@@ -116,7 +116,7 @@ const Sidebar = ({ role, id }) => {
                   Standard Schedule
                 </Link>
               </li>
-              {/*<li className="nav-item mb-2">
+              <li className="nav-item mb-2">
                 <Link
                   to={`/WeeklySchedule/${id}`}
                   className="nav-link text-white hover-link"
@@ -124,7 +124,6 @@ const Sidebar = ({ role, id }) => {
                   Weekly Schedule
                 </Link>
               </li>
-*/}
               <li className="nav-item mb-2">
                 <Link
                   to={`/Feedbacks/${id}`}
