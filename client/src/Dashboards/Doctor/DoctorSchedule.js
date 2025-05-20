@@ -9,34 +9,48 @@ const DoctorSchedule = () => {
 
   const doctorId = localStorage.getItem("doctor_id");
 
-  useEffect(() => {
-    if (!doctorId) {
-      setError("Nuk u gjet ID e mjekut të loguar.");
-      return;
-    }
+useEffect(() => {
+  if (!doctorId) {
+    setError("Logged-in doctor's ID was not found.");
+    return;
+  }
+
 
     const fetchSchedule = async () => {
       try {
         const res = await axios.get("http://localhost:3001/api/standardSchedules");
-        const doctorSchedule = res.data.filter(s => s.doctor_id === parseInt(doctorId));
+        const standard = res.data.filter(s => s.doctor_id === parseInt(doctorId));
 
         const formatted = {};
         days.forEach(day => {
-          formatted[day] = { start_time: "-", end_time: "-" };
+          formatted[day] = { start_time: "-", end_time: "-", isException: false };
         });
 
-        doctorSchedule.forEach(item => {
+        standard.forEach(item => {
           formatted[item.weekday] = {
             start_time: item.start_time?.slice(0, 5),
             end_time: item.end_time?.slice(0, 5),
+            isException: false
           };
         });
+        const res2 = await axios.get("http://localhost:3001/api/weeklySchedules");
+        const custom = res2.data.filter(s => s.doctor_id === parseInt(doctorId));
 
-        setSchedule(formatted);
-      } catch (err) {
-        console.error("Gabim gjatë ngarkimit të orarit:", err);
-        setError("Gabim gjatë ngarkimit të orarit.");
-      }
+        custom.forEach(item => {
+          if (item.weekday && formatted[item.weekday]) {
+            formatted[item.weekday] = {
+              start_time: item.start_time?.slice(0, 5),
+              end_time: item.end_time?.slice(0, 5),
+              isException: true
+            };
+          }
+        });
+
+  setSchedule(formatted);
+} catch (err) {
+  console.error("Error while loading schedule:", err);
+  setError("Couldn't load the schedule.");
+}
     };
 
     fetchSchedule();
@@ -47,22 +61,28 @@ const DoctorSchedule = () => {
       <Sidebar role="doctor" />
 
       <div className="flex-grow-1 p-4">
-        <h3>Orari i punës</h3>
+        <h3> Work Schedule</h3>
         {error && <div className="alert alert-danger">{error}</div>}
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>Dita</th>
-              <th>Ora e fillimit</th>
-              <th>Ora e mbarimit</th>
+              <th>Day</th>
+              <th>Start time</th>
+              <th>End time</th>
             </tr>
           </thead>
           <tbody>
             {days.map(day => (
               <tr key={day}>
                 <td>{day}</td>
-                <td>{schedule[day]?.start_time || "-"}</td>
-                <td>{schedule[day]?.end_time || "-"}</td>
+                <td>
+                  {schedule[day]?.start_time || "-"}
+                  {schedule[day]?.isException ? " (exception)" : ""}
+                </td>
+                <td>
+                  {schedule[day]?.end_time || "-"}
+                  {schedule[day]?.isException ? " (exception)" : ""}
+                </td>
               </tr>
             ))}
           </tbody>
