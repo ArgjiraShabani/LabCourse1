@@ -11,7 +11,7 @@ function DoctorPofile({doctor_id}){
     const navigate=useNavigate();
     
     useEffect(()=>{
-        const doctor_id=8;
+       // const doctor_id=8;
        /* if(!doctor_id){
             navigate("/login");
             return;

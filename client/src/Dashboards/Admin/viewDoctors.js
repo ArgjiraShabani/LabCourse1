@@ -3,9 +3,10 @@ import { useState,useEffect } from "react";
 import Axios from 'axios';
 import { Link, useLocation } from "react-router-dom";
 import { GoTrash } from "react-icons/go";
-import { FaRegEdit } from "react-icons/fa";
+import { FaRegEdit,FaRegEye } from "react-icons/fa";
 import Swal from "sweetalert2";
 import withReactContent from 'sweetalert2-react-content';
+import DoctorModal from "./DoctorModal";
 
 
 const ViewDoctors=()=>{
@@ -26,11 +27,20 @@ const ViewDoctors=()=>{
             }
         });
     };
-
+     const [openModal,setOpenModal] = useState(false);
     const [doctorList,setDoctorList]=useState([]);
     useEffect(()=>{
         Axios.get("http://localhost:3001/viewDoctors").then((response)=>{
-            setDoctorList(response.data);
+            const formattedData=response.data.map((doctor)=>{
+                if(doctor.date_of_birth){
+                    return{
+                    ...doctor,date_of_birth: doctor.date_of_birth.split("T")[0],
+                };
+            }
+            return doctor;
+            })
+             
+            setDoctorList(formattedData);
         });
     },[]);
 
@@ -68,19 +78,19 @@ const ViewDoctors=()=>{
               border: '1px solid #D3D3D3'
                }}>
         
-  <thead>
-    <tr>
-      <th scope="col">Id</th>
+  <thead style={{backgroundColor: '#51A485',color: '#fff',padding: '12px 15px'}}>
+    <tr style={{backgroundColor: '#51A485',color: '#fff',padding: '12px 15px'}}>
+      <th scope="col" >Id</th>
       <th scope="col">First Name</th>
-      <th scope="col">Last Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Password</th>
-      <th scope="col">Phone</th>
-      <th scope="col">Role</th>
-      <th scope="col">Date of Birth</th>
+      <th scope="col" >Last Name</th>
+      <th scope="col" >Email</th>
+      <th scope="col" >Password</th>
+      <th scope="col" >Phone</th>
+      <th scope="col" >Role</th>
+      <th scope="col" >Date of Birth</th>
       <th scope="col">Gender</th>
-      <th scope="col">Specialization</th>
-      <th scope="col">Department</th>
+      <th scope="col" >Specialization</th>
+      <th scope="col" >Department</th>
     </tr>
   </thead>
   <tbody>
@@ -97,6 +107,15 @@ const ViewDoctors=()=>{
         <td >{doctor.gender_name}</td>
         <td >{doctor.specialization_name}</td>
         <td >{doctor.department_name}</td>
+        <td><button  style={{
+            backgroundColor: '#fff',
+            color: '#51A485',
+            border: 'none',
+            borderRadius: '0px',
+            cursor: 'pointer'
+        }}  onClick={()=>setOpenModal(true)}><FaRegEye size={18} color="#51A485" title="View full profile"/></button>
+        {openModal && <DoctorModal closeModal={()=>setOpenModal(false)}/>}
+        </td>
         <td><Link to={`/updateDoctors/${doctor.doctor_id}`} className="nav-link text-white hover-link"
         style={{display: 'inline-block',padding: '2px',background: '#fff',borderRadius: '5px'}}
        > <FaRegEdit size={18} color="#51A485" title="Update"/></Link></td>
@@ -107,6 +126,7 @@ const ViewDoctors=()=>{
             borderRadius: '0px',
             cursor: 'pointer'
         }}><GoTrash size={18} color="#51A485" title="Delete"/></button></td>
+
         
       </tr>
 

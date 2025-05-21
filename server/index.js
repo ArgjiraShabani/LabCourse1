@@ -7,6 +7,7 @@ const multer = require('multer');
 const path = require('path');
 const { emit } = require("process");
 const { error } = require("console");
+const bcrypt=require("bcrypt");
 const cron = require('node-cron');
 
 app.use(cors());
@@ -41,13 +42,12 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
-    //password:"database",
+    //password:"mysql123",
     //password:"valjeta1!",
-    //password: "mysqldb",
-    password:"mysql123",
+    password: "mysqldb",
     database:"hospital_management",
     
-    //port: 3307,
+    port: 3307,
    
 
 });
@@ -610,27 +610,41 @@ const departmentIdInt = department_Id ? parseInt(department_Id, 10) : null;
       res.json({message: "Doctor added successfully!"});
 });
 });*/
-app.post("/doctors",userUpload.single('img'),(req,res)=>{
-  const q="INSERT INTO doctors (`first_name`,`last_name`,`email`,`password`,`phone`,`role_id`,`date_of_birth`,`gender_id`,`specialization_id` ,`department_Id`,`image_path`) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+
+app.post("/doctors",userUpload.single('img'),async (req,res)=>{
+  
   /*const gender_id= parseInt(req.body.gender_id);
   if (isNaN(gender_id)) {
     return res.status(400).json({ error: "Invalid gender" });
   }*/
-  const values=[
-    req.body.first_name,
-    req.body.last_name,
-    req.body.email,
-    req.body.password,
-    req.body.phone,
-    req.body.role_id,
-    req.body.date_of_birth,
-    req.body.gender_id,
-    
-    req.body.specialization_id,
-    req.body.department_Id,
-    req.file ? req.file.filename : null
-
-  ];
+ try{
+  const{
+  first_name,
+  last_name,
+  email,
+  password,
+  phone,
+  role_id,
+  date_of_birth,
+  gender_id,
+  specialization_id,
+  department_Id
+ }=req.body;
+  const hashedPassword=await bcrypt.hash(password,13)
+  const q="INSERT INTO doctors (`first_name`,`last_name`,`email`,`password`,`phone`,`role_id`,`date_of_birth`,`gender_id`,`specialization_id` ,`department_Id`,`image_path`) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+ const values=[
+  first_name,
+  last_name,
+  email,
+  hashedPassword,
+  phone,
+  role_id,
+  date_of_birth,
+  gender_id,
+  specialization_id,
+  department_Id,
+  req.file?req.file.filename: null
+ ];
   db.query(q,values,(err,data)=>{
      if (err) {
     console.error("DB INSERT ERROR:", err);
@@ -639,16 +653,33 @@ app.post("/doctors",userUpload.single('img'),(req,res)=>{
    console.log("DB INSERT SUCCESS:", data);
     return res.json("Doctor has been successfully created");
   });
+
+ }catch(error){
+  console.error("Server error:", error);
+  return res.status(500).json({error: "Internal server error"});
+ }
+ 
     
 });
 
-app.put("/updateDoctors/:id",upload.single('img'),(req,res)=>{
+app.put("/updateDoctors/:id",upload.single('img'),async(req,res)=>{
   const doctorId=req.params.id;
+  try{
+     const getDoctor="Select password FROM doctors WHERE doctor_id=?";
+  db.query(getDoctor,[doctorId],async(err,results)=>{
+    if(err) return res.status(500).json({error: err.message});
+    if(results.length===0) return res.status(404).json({message: "doctor not found"});
+    let currentPassword=results[0].password;
+    let savePassword=currentPassword;
+    if(req.body.password && req.body.password.trim() !==""){
+      savePassword=await bcrypt.hash(req.body.password,13)
+    }
+  })
   const values=[
     req.body.first_name,
     req.body.last_name,
     req.body.email,
-    req.body.password,
+    savePassword,
     req.body.phone,
     req.body.role_id,
     req.body.date_of_birth,
@@ -670,6 +701,12 @@ app.put("/updateDoctors/:id",upload.single('img'),(req,res)=>{
     return res.json("Doctor has been updated successfully");
   });
   
+
+  }catch(error){
+    console.error("Update error:",error);
+    return res.status(500).json({error: "Internal server error"});
+  }
+ 
 });
 app.get('/viewDoctors',(req,res)=>{
   const sqlGet=`
@@ -882,11 +919,23 @@ app.get('/services', async (req, res) => {
 });
 
 app.get('/getPatientInfo/:patient_id',(req,res)=>{
-  const patientId=req.body.patient_id;
+  const patientId=req.params.patient_id;
   const q=`SELECT p.first_name,p.last_name,
-  p.gender_id,g.gender_name`
+  p.gender_id,g.gender_name,p.medical_history,p.date_of_birth
+  FROM patients p inner join gender g on p.gender_id=g.gender_id`;
+  db.query(q,[patientId],(err,result)=>{
+    if(err){
+    console.error("Database error:",err);
+    return res.status(500).json({error: "Database error"});
 
-})
+  }
+  if(result.length===0){
+    return res.status(404).json({message: "Patient not found"});
+  }
+  res.json(result[0]);
+  });
+
+});
 
 app.get('/doctors/byDepartment/:department_id', (req, res) => {
     const departmentId = req.params.department_id;

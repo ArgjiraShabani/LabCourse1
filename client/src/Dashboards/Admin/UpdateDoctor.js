@@ -37,6 +37,7 @@ const UpdateDoctor=()=>{
     const[gender,setGender]=useState([]);
     const[specialization,setSpecialization]=useState([]);
     const[department,setDepartment]=useState([]);
+    
     const location=useLocation();
     const doctorId=location.pathname.split("/")[2];
     const {register,handleSubmit,formState: {errors},reset}=useForm({
@@ -57,7 +58,7 @@ const UpdateDoctor=()=>{
                 first_name: data.first_name,
                 last_name: data.last_name,
                 email: data.email,
-                password: data.password,
+                password: "",
                 phone: data.phone,
                 role_id: data.role_id,
                 date_of_birth: data.date_of_birth?data.date_of_birth.slice(0,10): "",
