@@ -9,6 +9,7 @@ const { emit } = require("process");
 const { error } = require("console");
 const bcrypt=require("bcrypt");
 const cron = require('node-cron');
+const bcrypt = require('bcrypt');
 
 app.use(cors());
 app.use(express.json());
@@ -42,6 +43,9 @@ const db = mysql.createConnection({
     user:"root",
     host:"localhost",
     //password:"password",
+    password:"database",
+    //password:"valjeta1!",
+    //password: "mysqldb",
     //password:"mysql123",
     //password:"valjeta1!",
     password: "mysqldb",
@@ -340,6 +344,11 @@ app.post("/registerPatient",upload.single("image"),(req,res)=>{
   const blood=req.body.blood;
   const status=req.body.status;
   const image = req.file ? req.file.filename : null;
+  bcrypt.hash(password, 10, (err, hashedPassword) => {
+  if (err) {
+    console.error('Error hashing password:', err);
+
+  }
    db.query(` SELECT email FROM patients WHERE email = ?
                 UNION
                 SELECT email FROM doctors WHERE email = ?
@@ -384,7 +393,7 @@ app.post("/registerPatient",upload.single("image"),(req,res)=>{
                                   if(data.length>0){
                                     const roleId=data[0].role_id;
 
-                    db.query(`insert into patients(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,blood_id,status_id,image_path)value(?, ?, ?, ?, ?, 3, ?, ?, ?, ?,?)`, [name, lastname, email, password, number, birth, genderId, bloodId, statusId,image],(err,data)=>{
+                    db.query(`insert into patients(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,blood_id,status_id,image_path)value(?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`, [name, lastname, email, hashedPassword, number,roleId, birth, genderId, bloodId, statusId,image],(err,data)=>{
                     if(err){
                       return res.json("Error");
                     }                       
@@ -408,6 +417,7 @@ app.post("/registerPatient",upload.single("image"),(req,res)=>{
             }
               });
             }});
+            });
             });
 
 app.post('/login',(req,res)=>{

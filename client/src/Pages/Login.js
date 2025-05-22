@@ -32,7 +32,8 @@ function Login(){
         navigate(`/doctordashboard`);
       } else if (res.data.role === 'patient') {
         localStorage.setItem("patient_id", res.data.id);
-        navigate(`/patientdashboard/${res.data.id}`);
+        //navigate(`/patientdashboard/${res.data.id}`);
+        navigate(`/${res.data.id}`)
       } else {
         localStorage.setItem("admin_id", res.data.id);
         navigate(`/adminDashboard`);
@@ -50,7 +51,7 @@ function Login(){
         <Navbar/>
         <hr style={{color:"#51A485"}}/>
        <div className="d-flex justify-content-center align-items-center " style={{marginTop:"100px"}}>
-                <div className="p-5 rounded bg-white" style={{ width: '100%', maxWidth: '550px',borderStyle:"solid",borderColor:"white", boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',marginBottom:""}}>
+                <div className="p-5 rounded bg-white" style={{ width: '100%', maxWidth: '650px',borderStyle:"solid",borderColor:"white", boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',marginBottom:""}}>
                     <form onSubmit={handleSubmit(submitForm)}>
                     <h3 className="text-center mb-4">Login</h3>
                      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}

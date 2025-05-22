@@ -22,13 +22,14 @@ import ManageSchedule from './Dashboards/Admin/ManageSchedule';
 import SignUp from './Pages/Signup';
 import BookAppointments from './Pages/BookAppointments';
 import WeeklySchedule from './Dashboards/Admin/WeeklySchedule';
-
+import MedicalStaffPatient from './Dashboards/Patient/Pages/StaffPatient';
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
 import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
 import DoctorPofile from './Dashboards/Doctor/DoctorProfile';
 import MedicalRecords from './Dashboards/Doctor/MedicalRecords';
 import Feedbacks from './Dashboards/Admin/Feedbacks';
+import HomePagePatient from './Dashboards/Patient/Pages/HomePagePatient';
 
 
 
@@ -54,7 +55,9 @@ function MyRegisterPatientWrapper() {
       <main className="flex-grow-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path='/:id' element={<HomePagePatient />}/>
           <Route path="/staff" element={<MedicalStaff />} />
+          <Route path='/staff/:id' element={<MedicalStaffPatient />}/>
           <Route path="/adminDashboard" element={<AdminDashboard />}>
           </Route> 
           <Route path="/doctors" element={<AdminDoctor/>}/>

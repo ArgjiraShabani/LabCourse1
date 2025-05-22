@@ -105,12 +105,12 @@ function SignUp(){
         <>
             <Navbar/>
             <hr style={{color:"#51A485"}}/>
-       <div className="d-flex justify-content-center align-items-center ">
-                <div className="p-5 rounded bg-white" style={{ width: '100%', maxWidth: '550px',borderStyle:"solid",borderColor:"white", boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',marginBottom:"10px"}}>
+       <div className="d-flex justify-content-center " style={{marginBottom:"10px"}}>
+                <div className="p-5 rounded bg-white" style={{ width: '100%', maxWidth: '650px',borderStyle:"solid",borderColor:"white", boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'}}>
                     <form onSubmit={handleSubmit(formSubmit)}>
                     <h3 className="text-center mb-4">Sign Up</h3>
                   {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <div className="mb-3">
+                    <div className="mb-4">
                         <label>Firstname:</label>
                         <input type="text" name='name' className="form-control" {...register("name")}/>
                         <p style={{color:"red"}}>{errors.name?.message}</p>
@@ -148,10 +148,10 @@ function SignUp(){
                         <input type="text" name='phoneNumber' className="form-control"{...register("phoneNumber")} />
                         <p style={{color:"red"}}>{errors.phoneNumber?.message}</p>
                     </div>
-                     <div className="mb-3">
-                        <label>Gender:</label>
+                     <div className="mb-3" style={{display:"flex",justifyContent:"space-between"}}>
+                        <div>
                         <select className="form-control" name="gender" {...register("gender")}>
-                            <option value="" disabled selected>Choose Gender</option>
+                            <option value="" disabled selected>Select Gender</option>
                             {gender.map((value,key)=>{
                                 return(
                                 <option key={key}>{value.gender_name}</option>
@@ -159,12 +159,10 @@ function SignUp(){
                             })}
                         </select>
                         <p style={{color:"red"}}>{errors.gender?.message}</p>
-
-                    </div>
-                    <div className="mb-3">
-                     <label>Blood:</label>
+                        </div>
+                            <div>
                     <select className="form-control" name="blood" {...register("blood")}>
-                       <option value="" disabled selected>Blood</option>
+                       <option value="" disabled selected>Select Blood</option>
                         {blood.map((value,key)=>{
                             return(
                             <option key={key}>{value.blood_type}</option>
@@ -172,7 +170,7 @@ function SignUp(){
                         })}
                     </select>
                      <p style={{color:"red"}}>{errors.blood?.message}</p>
-
+                     </div>
                    </div>
                 
                     <div className="mb-3">

@@ -226,8 +226,8 @@ const Sidebar = ({ role, id }) => {
                 </a>
               </li>
               <li className="nav-item mt-4">
-                <Link to={"/"} className="nav-link text-danger">
-                  Log out
+                <Link to={`/${id}`} className="nav-link text-white">
+                  Home
                 </Link>
               </li>
             </ul>

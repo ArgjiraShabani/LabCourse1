@@ -104,7 +104,7 @@ function Patient(){
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Phone</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Birthday</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
-                        <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Status</th>
+                        <th secope="col" style={{backgroundColor:"#51A485",color:"white",padding:"1px 20px"}}>Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Delete</th>
 

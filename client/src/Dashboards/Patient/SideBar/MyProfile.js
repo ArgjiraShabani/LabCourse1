@@ -45,7 +45,7 @@ const Sidebar = () => {
             <a href="#" className="nav-link text-white hover-link">Message</a>
           </li>
           <li className="nav-item mt-4">
-            <Link to={"/"} className="nav-link text-danger">Log out</Link>
+            <Link to={`/${id}`} className="nav-link text-white">Home</Link>
           </li>
         </ul>
       </div>
