@@ -230,11 +230,7 @@ function HomePage() {
             </div>
           ))}
         </div>
-        <div className="text-center mt-4">
-          <button className="btn px-4 py-2 text-white" style={{ backgroundColor: "#51A485", border: "none" }}>
-            Book Your Appointment
-          </button>
-        </div>
+        
       </section>
 
 
@@ -246,7 +242,7 @@ function HomePage() {
 
           <div className="row g-4">
             <div className="col-lg-6">
-              <div className="bg-white p-4 rounded shadow-sm h-100">
+              <div className="bg-white p-4 rounded shadow-sm h-100" style={{display:"flex",justifyContent:"space-around",alignItems:"center"}}>
                 <div className="mb-4">
                   <h5 style={{ color: "#51A485" }}>Our Location</h5>
                   <p className="mb-0">
@@ -276,9 +272,7 @@ function HomePage() {
                   </p>
                 </div>
 
-                <hr />
-
-                <h5 className="mb-3" style={{ color: "#51A485" }}>
+               {/* <h5 className="mb-3" style={{ color: "#51A485" }}>
                   Leave us a feedback
                 </h5>
                 <form>
@@ -320,7 +314,7 @@ function HomePage() {
                       </button>
                     </div>
                   </div>
-                </form>
+                </form>*/}
               </div>
             </div>
 

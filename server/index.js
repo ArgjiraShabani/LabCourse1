@@ -9,6 +9,7 @@ const { emit } = require("process");
 const { error } = require("console");
 const bcrypt=require("bcrypt");
 const cron = require('node-cron');
+const { ResultWithContextImpl } = require("express-validator/lib/chain");
 
 app.use(cors());
 app.use(express.json());
@@ -998,21 +999,15 @@ app.get('/api/feedbacks', (req, res) => {
   });
 });
 
-app.post('/api/feedbacks', (req, res) => {
-  const { message, patient_id, doctor_id } = req.body;
+app.post('/feedbacks',upload.none(), (req, res) => {
+  const name=req.body.first_name;
+  const lastname=req.body.last_name;
+  const text=req.body.text;
+  const id=req.body.id;
 
-  if ((!patient_id && !doctor_id) || (patient_id && doctor_id)) {
-    return res.status(400).json({
-      error: 'Please provide either patient_id or doctor_id, not both.'
-    });
-  }
+  const query = `INSERT INTO feedbacks (firstname,lastname,feedback_text,patient_id)VALUES (?, ?, ?,?)`;
 
-  const query = `
-    INSERT INTO feedbacks (message, patient_id, doctor_id)
-    VALUES (?, ?, ?)
-  `;
-
-  db.query(query, [message, patient_id || null, doctor_id || null], (err, result) => {
+  db.query(query, [name,lastname,text,id], (err, result) => {
     if (err) {
       console.error('Error inserting feedback:', err);
       return res.status(500).json({ error: 'Database insert error' });

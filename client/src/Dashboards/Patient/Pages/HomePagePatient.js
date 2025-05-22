@@ -9,6 +9,10 @@ import orthopedicsImg from "../../../assets/orthopedic.jpg";
 import gynecologyImg from "../../../assets/gynecology.jpg";
 import NavbarPatient from "../Components/NavbarPatient";
 import { useNavigate, useParams,} from 'react-router-dom'; 
+import Swal from "sweetalert2";
+import * as yup from "yup";
+import {useForm} from "react-hook-form";
+import {yupResolver} from "@hookform/resolvers/yup";
 
 import "../../../App.css";
 import { Link } from "react-router-dom";
@@ -17,7 +21,7 @@ function HomePagePatient() {
   const [services, setServices] = useState([]);
   const [departments, setDepartments] = useState([]);
    const param=useParams();
-        const {id}=param; 
+  const {id}=param; 
 
   useEffect(() => {
     fetchDepartments();
@@ -47,6 +51,43 @@ function HomePagePatient() {
     ...dept,
     services: services.filter(service => service.department_Id === dept.department_Id)
   }));
+
+  const schema =yup.object().shape({
+   firstname:yup.string().required("Firstname is required!")
+           .matches(/^\S+$/, "Firstname cannot contain spaces!"),
+    lastname:yup.string().required("Lastname is required!")
+          .matches(/^\S+$/, "Lastname cannot contain spaces!"),
+    text:yup.string().required("Your message is required!")
+  });
+
+   const {register,handleSubmit,formState: { errors},setValue,
+      reset,getValues}=useForm({
+                resolver:yupResolver(schema),
+            });
+
+
+  function formSubmit(data){
+    const info={
+      first_name:data.firstname,
+      last_name:data.lastname,
+      text:data.text,
+      id:id
+    } 
+    console.log(info)
+   
+      axios.post("http://localhost:3001/feedbacks",info).then(res=>{
+          Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "Your feedback is sent!",
+                        showConfirmButton: false,
+                        timer: 1500
+                        });
+                        reset();
+      }) 
+      .catch(err=>console.log(err));
+
+  }
 
 
   return (
@@ -234,11 +275,7 @@ function HomePagePatient() {
             </div>
           ))}
         </div>
-        <div className="text-center mt-4">
-          <button className="btn px-4 py-2 text-white" style={{ backgroundColor: "#51A485", border: "none" }}>
-            Book Your Appointment
-          </button>
-        </div>
+        
       </section>
 
 
@@ -285,45 +322,24 @@ function HomePagePatient() {
                 <h5 className="mb-3" style={{ color: "#51A485" }}>
                   Leave us a feedback
                 </h5>
-                <form>
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="First Name"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Last Name"
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <textarea
-                        className="form-control"
-                        rows="3"
-                        placeholder="Your Message"
-                        required
-                      ></textarea>
-                    </div>
-                    <div className="col-12">
-                      <button
-                        type="submit"
-                        className="btn w-100 py-2"
-                        style={{
-                          backgroundColor: "#51A485",
-                          color: "white",
-                        }}
-                      >
-                        <i className="bi bi-send-fill me-2"></i> Send Message
-                      </button>
-                    </div>
-                  </div>
+                <form onSubmit={handleSubmit(formSubmit)}>
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <input type="text" className="form-control" name="firstname" placeholder="First Name" {...register("firstname")}  />
+                          <p style={{color:"red"}}>{errors.firstname?.message}</p>
+                        </div>
+                        <div className="col-md-6">
+                          <input type="text"  className="form-control" name="lastname" placeholder="Last Name" {...register("lastname")}  />
+                           <p style={{color:"red"}}>{errors.lastname?.message}</p>
+                        </div>
+                        <div className="col-12">
+                          <textarea className="form-control" rows="3" name="text" placeholder="Your Message" {...register("text")} ></textarea>
+                           <p style={{color:"red"}}>{errors.text?.message}</p>
+                        </div>
+                        <div className="col-12">
+                          <button type="submit" className="btn w-100 py-2" style={{ backgroundColor: "#51A485",  color: "white" }}><i className="bi bi-send-fill me-2"></i> Send Message</button>
+                        </div>
+                      </div>
                 </form>
               </div>
             </div>
