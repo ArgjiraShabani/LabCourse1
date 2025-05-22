@@ -9,7 +9,6 @@ const { emit } = require("process");
 const { error } = require("console");
 const bcrypt=require("bcrypt");
 const cron = require('node-cron');
-const bcrypt = require('bcrypt');
 
 app.use(cors());
 app.use(express.json());
@@ -48,10 +47,9 @@ const db = mysql.createConnection({
     //password: "mysqldb",
     //password:"mysql123",
     //password:"valjeta1!",
-    password: "mysqldb",
     database:"hospital_management",
     
-    port: 3307,
+    //port: 3307,
    
 
 });
