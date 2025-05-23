@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import {TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
+import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 
 const Sidebar = ({ role, id }) => {
   const [doctorMenuOpen, setDoctorMenuOpen] = useState(false);
@@ -74,7 +74,12 @@ const Sidebar = ({ role, id }) => {
                   onClick={toggleDoctorMenu}
                   className="nav-link text-white hover-link"
                 >
-                  Doctors {doctorMenuOpen ? <TiArrowSortedUp size={18} color="#fff" /> : <TiArrowSortedDown size={18} color="#fff" />}
+                  Doctors{" "}
+                  {doctorMenuOpen ? (
+                    <TiArrowSortedUp size={18} color="#fff" />
+                  ) : (
+                    <TiArrowSortedDown size={18} color="#fff" />
+                  )}
                 </div>
                 {doctorMenuOpen && (
                   <ul className="submenu list-unstyled">
@@ -156,30 +161,33 @@ const Sidebar = ({ role, id }) => {
                   Patients
                 </Link>
               </li>
-                  <li className="nav-item mb-2">
+              <li className="nav-item mb-2">
                 <Link
-                to="/DoctorSchedule/"
+                  to="/DoctorSchedule/"
                   className="nav-link text-white hover-link"
                 >
                   Schedule
                 </Link>
               </li>
               <li className="nav-item mb-2">
-                <a href="#" className="nav-link text-white hover-link">
-                  Appointments
-                </a>
+                <Link
+                  to={`/Appointment/${id}`}
+                  className="nav-link text-white hover-link"
+                >
+                  Patient Appointments
+                </Link>
               </li>
               <li className="nav-item mb-2">
-               <Link
-                to="/medicalRecords/:id"
+                <Link
+                  to="/medicalRecords/:id"
                   className="nav-link text-white hover-link"
                 >
                   Prescriptions
                 </Link>
               </li>
               <li className="nav-item mb-2">
-               <Link
-                to={`/doctorProfile/${id}`}
+                <Link
+                  to={`/doctorProfile/${id}`}
                   className="nav-link text-white hover-link"
                 >
                   My Profile
