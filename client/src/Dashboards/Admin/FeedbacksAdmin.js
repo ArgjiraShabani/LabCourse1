@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Sidebar from '../../Components/AdminSidebar';
 import Button from 'react-bootstrap/Button';
+import Swal from 'sweetalert2';
+
 
 
 const FeedbacksAdmin = () => {
@@ -15,14 +17,42 @@ const FeedbacksAdmin = () => {
                   created_at: item.created_at ? item.created_at.split("T")[0] : item.created_at
                 };
               });
-              console.log(formattedData)
             setFeedbacks(formattedData);
         })
         .catch((err)=>{
           console.log(err);
         })
   }, []);
+ 
+function handleDelete(id){
+     Swal.fire({
+            title: "Are you sure about deleting this feedback?",
+            showCancelButton: true,
+            confirmButtonColor: "#51A485",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Delete"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(`http://localhost:3001/deleteFeedback/${id}`)
+                     .then(response=>{
+                        const updatedFeedback = feedbacks.filter(feedback => feedback.feedback_id !== id);
+                    setFeedbacks(updatedFeedback);
+                         })
+                     .catch(error=>{
+                         console.error('Not deleted!')
+                    })
+                
+                Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Feedback has been deleted!",
+                showConfirmButton: false,
+                timer: 1100
+                });
+            }
+            });
 
+}
  
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
@@ -43,14 +73,14 @@ const FeedbacksAdmin = () => {
           <tbody>
               {feedbacks.map((value,key)=>{
                 return(
-                <tr>
+                <tr key={key}>
                   <td>{value.patient_id}</td>
                   <td>{value.first_name}</td>
                   <td>{value.last_name}</td>
                   <td>{value.feedback_text}</td>
                   <td>{value.created_at}</td>
-                  <td>
-                  <Button variant="danger">Delete</Button>
+                  <td style={{display:"flex",justifyContent:"center"}}>
+                  <Button variant="danger" onClick={()=>{handleDelete(value.feedback_id)}}>Delete</Button>
                   </td>
                 </tr>
                 )

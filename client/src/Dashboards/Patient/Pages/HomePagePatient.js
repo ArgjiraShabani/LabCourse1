@@ -327,6 +327,9 @@ function HomePagePatient() {
                         </div>
                       </div>
                 </form>
+              <div className="col-12" style={{marginTop:"10px"}}>
+                   <Link to={`/feedbacksPatient/${id}`} className="btn w-100 py-2" style={{backgroundColor:"#51A485",color:"white"}}>Check my Feedbacks</Link>
+               </div>
               </div>
             </div>
 

@@ -1002,6 +1002,16 @@ app.post('/feedbacks', (req, res) => {
   });
 });
 
+app.delete('/deleteFeedback/:id',(req,res)=>{
+  const id=req.params.id;
+  db.query("DELETE FROM feedbacks WHERE feedback_id=?",[id],(err,result)=>{
+    if(err){
+      return res.json("Error");
+    }else{
+      res.send(result)
+    }
+  })
+})
 
 
 cron.schedule('0 23 * * 0', async () => {
