@@ -53,10 +53,6 @@ function HomePagePatient() {
   }));
 
   const schema =yup.object().shape({
-   firstname:yup.string().required("Firstname is required!")
-           .matches(/^\S+$/, "Firstname cannot contain spaces!"),
-    lastname:yup.string().required("Lastname is required!")
-          .matches(/^\S+$/, "Lastname cannot contain spaces!"),
     text:yup.string().required("Your message is required!")
   });
 
@@ -68,8 +64,6 @@ function HomePagePatient() {
 
   function formSubmit(data){
     const info={
-      first_name:data.firstname,
-      last_name:data.lastname,
       text:data.text,
       id:id
     } 
@@ -324,14 +318,6 @@ function HomePagePatient() {
                 </h5>
                 <form onSubmit={handleSubmit(formSubmit)}>
                       <div className="row g-3">
-                        <div className="col-md-6">
-                          <input type="text" className="form-control" name="firstname" placeholder="First Name" {...register("firstname")}  />
-                          <p style={{color:"red"}}>{errors.firstname?.message}</p>
-                        </div>
-                        <div className="col-md-6">
-                          <input type="text"  className="form-control" name="lastname" placeholder="Last Name" {...register("lastname")}  />
-                           <p style={{color:"red"}}>{errors.lastname?.message}</p>
-                        </div>
                         <div className="col-12">
                           <textarea className="form-control" rows="3" name="text" placeholder="Your Message" {...register("text")} ></textarea>
                            <p style={{color:"red"}}>{errors.text?.message}</p>

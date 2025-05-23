@@ -28,9 +28,9 @@ import Register from './Dashboards/Doctor/registerPatient';
 import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
 import DoctorPofile from './Dashboards/Doctor/DoctorProfile';
 import MedicalRecords from './Dashboards/Doctor/MedicalRecords';
-import Feedbacks from './Dashboards/Admin/Feedbacks';
+import FeedbacksAdmin from './Dashboards/Admin/FeedbacksAdmin';
 import HomePagePatient from './Dashboards/Patient/Pages/HomePagePatient';
-
+import FeedbacksPatient from './Dashboards/Patient/Pages/FeedbackPatient';
 
 
 
@@ -65,7 +65,7 @@ function MyRegisterPatientWrapper() {
           <Route path='/viewDoctors' element={<ViewDoctors/>}/>
           <Route path='/doctorProfile/:id' element={<DoctorPofile/>}/>
           <Route path='/medicalRecords/:id' element={<MedicalRecords/>}/>
-          
+          <Route path='/feedbacksPatient/:id' element={<FeedbacksPatient/>}></Route>
           
 
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
@@ -81,7 +81,7 @@ function MyRegisterPatientWrapper() {
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path="/DoctorSchedule" element={<DoctorSchedule />} />
           <Route path="/BookAppointments" element={<BookAppointments />} />
-<Route path="/Feedbacks/:id" element={<Feedbacks />} />
+          <Route path="/FeedbacksAdmin/" element={<FeedbacksAdmin />} />
           <Route path="/WeeklySchedule/:id" element={<WeeklySchedule />} />
         </Routes>
       </main>

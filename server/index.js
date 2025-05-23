@@ -959,55 +959,41 @@ app.get('/doctors/byDepartment/:department_id', (req, res) => {
     });
 });
 
-app.get('/api/feedbacks', (req, res) => {
-  const query = `
-    SELECT
-      f.feedback_id,
-      f.message,
-      f.created_at,
-      p.first_name AS patient_first_name,
-      p.last_name AS patient_last_name,
-      d.first_name AS doctor_first_name,
-      d.last_name AS doctor_last_name,
-      CASE
-        WHEN f.patient_id IS NOT NULL THEN 'patient'
-        WHEN f.doctor_id IS NOT NULL THEN 'doctor'
-        ELSE 'unknown'
-      END AS submitted_by
-    FROM feedbacks f
-    LEFT JOIN patients p ON f.patient_id = p.patient_id
-    LEFT JOIN doctors d ON f.doctor_id = d.doctor_id
-    ORDER BY f.created_at DESC
-  `;
-
-  db.query(query, (err, results) => {
+app.get('/feedbacksPatient/:id', (req, res) => {
+  const id=req.params.id;
+  const query=`Select feedback_text,created_at from feedbacks where patient_id=?`;
+  db.query(query, [id], (err, result) => {
     if (err) {
-      console.error('Error fetching feedbacks:', err);
-      res.status(500).json({ error: 'Database error' });
-    } else {
-      const formatted = results.map(row => ({
-        feedback_id: row.feedback_id,
-        message: row.message,
-        created_at: row.created_at,
-        first_name: row.patient_first_name || row.doctor_first_name || 'Unknown',
-        last_name: row.patient_last_name || row.doctor_last_name || 'Unknown',
-        submitted_by: row.submitted_by
-      }));
-
-      res.json(formatted);
+      console.error('Error getting feedback:', err);
+      return res.status(500).json({ error: 'Database error' });
     }
+      res.status(200).json(result);
+
   });
 });
 
-app.post('/feedbacks',upload.none(), (req, res) => {
-  const name=req.body.first_name;
-  const lastname=req.body.last_name;
+app.get('/feedbacksAdmin', (req, res) => {
+  const query=`Select * from feedbacks inner join patients on patients.patient_id=feedbacks.patient_id`;
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error('Error getting feedback:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+      res.status(200).json(result);
+
+  });
+});
+
+
+
+
+app.post('/feedbacks', (req, res) => {
   const text=req.body.text;
   const id=req.body.id;
 
-  const query = `INSERT INTO feedbacks (firstname,lastname,feedback_text,patient_id)VALUES (?, ?, ?,?)`;
+  const query = `INSERT INTO feedbacks (feedback_text,patient_id)VALUES (?, ?)`;
 
-  db.query(query, [name,lastname,text,id], (err, result) => {
+  db.query(query, [text,id], (err, result) => {
     if (err) {
       console.error('Error inserting feedback:', err);
       return res.status(500).json({ error: 'Database insert error' });
@@ -1015,6 +1001,8 @@ app.post('/feedbacks',upload.none(), (req, res) => {
     res.status(201).json({ message: 'Feedback inserted successfully' });
   });
 });
+
+
 
 cron.schedule('0 23 * * 0', async () => {
   try {
