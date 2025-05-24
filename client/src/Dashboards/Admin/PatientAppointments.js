@@ -12,7 +12,7 @@ const PatientAppointments = () => {
         setAppointments(response.data);
       })
       .catch((error) => {
-        console.error("Gabim gjatë marrjes së termineve:", error);
+        console.error("Error while retrieving the appointments:", error);
       });
   }, []);
 
@@ -23,8 +23,8 @@ const PatientAppointments = () => {
         setAppointments((prev) => prev.filter((a) => a.id !== appointmentId));
       })
       .catch((err) => {
-        console.error("Gabim gjatë fshirjes së terminit:", err);
-        alert("Nuk u fshi termi.");
+        console.error("Error while deleting the appointment:", err);
+        alert("The appointment was not deleted.");
       });
   };
 
@@ -60,7 +60,11 @@ const PatientAppointments = () => {
                       {appointment.doctor_name ||
                         `${appointment.doctor_firstname} ${appointment.doctor_lastname}`}
                     </td>
-                    <td>{new Date(appointment.appointment_datetime).toLocaleString()}</td>
+                    <td>
+                      {new Date(
+                        appointment.appointment_datetime
+                      ).toLocaleString()}
+                    </td>
                     <td>{appointment.purpose}</td>
                     <td>{appointment.booked_by}</td>
                     <td>{appointment.service_name}</td>

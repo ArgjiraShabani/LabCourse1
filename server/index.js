@@ -46,8 +46,8 @@ const db = mysql.createConnection({
     //password:"database",
     //password:"valjeta1!",
     //password: "mysqldb",
-    password:"mysql123",
-    //password:"valjeta1!",
+    //password:"mysql123",
+    password:"valjeta1!",
     database:"hospital_management",
     
     //port: 3307,
@@ -1124,6 +1124,95 @@ res.json({ message: "Schedule deleted successfully" });
   });
 });
  
+//Patient Appointments (Admin Dashboardd)
+app.get("/all-patient-appointments", (req, res) => {
+  const doctorId = req.query.doctor_id;
+
+  let sql = `
+    SELECT 
+      a.appointment_id AS id,
+      a.name AS patient_name,
+      a.lastname AS patient_lastname,
+      a.appointment_datetime,
+      a.purpose,
+      a.status,
+      CONCAT(p.first_name, ' ', p.last_name) AS booked_by,
+      s.service_name,
+      CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+      d.first_name AS doctor_firstname,
+      d.last_name AS doctor_lastname
+    FROM appointments a
+    LEFT JOIN patients p ON a.patient_id = p.patient_id
+    LEFT JOIN services s ON a.service_id = s.service_id
+    LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+  `;
+
+  const values = [];
+
+  if (doctorId) {
+    sql += ` WHERE a.doctor_id = ?`;
+    values.push(doctorId);
+  }
+
+  sql += ` ORDER BY a.appointment_datetime DESC`;
+
+  db.query(sql, values, (err, results) => {
+    if (err) {
+      console.error("Error while retrieving the appointments:", err);
+return res.status(500).json({ error: "Unable to retrieve the appointments." });
+
+    }
+
+    res.json(results);
+  });
+});
+
+app.put("/all-patient-appointments/:id/status", (req, res) => {
+  const appointmentId = req.params.id;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ error: "Status is missing." });
+
+  }
+  const sql = "UPDATE appointments SET status = ? WHERE appointment_id = ?";
+  db.query(sql, [status, appointmentId], (err, result) => {
+    if (err) {
+      console.error("Error while updating the status:", err);
+return res.status(500).json({ error: "The status was not updated." });
+
+    }
+
+    if (result.affectedRows === 0) {
+  return res.status(404).json({ message: "Appointment not found." });
+}
+
+res.json({ message: "Status updated successfully." });
+
+  });
+});
+
+app.delete("/all-patient-appointments/:id", (req, res) => {
+  const appointmentId = req.params.id;
+
+  const sql = "DELETE FROM appointments WHERE appointment_id = ?";
+
+  db.query(sql, [appointmentId], (err, result) => {
+    if (err) {
+      console.error("Error while deleting the appointment:", err);
+return res.status(500).json({ error: "The appointment was not deleted." });
+
+    }
+
+    if (result.affectedRows === 0) {
+  return res.status(404).json({ message: "Appointment not found." });
+}
+
+res.json({ message: "Appointment deleted successfully." });
+});
+
+});
+
 app.listen(3001,()=>{
     console.log("Hey po punon")
 })
