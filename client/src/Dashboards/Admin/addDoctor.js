@@ -23,6 +23,7 @@ function AdminDoctor(){
     date_of_birth: yup.date().required("Date of birth is required"),
     phone: yup.string().required("Phone is required"),
     specialization_id: yup.number().typeError("Specialization is required").required(),
+    education: yup.string().required("Education is required"),
     department_Id: yup.number().typeError("Department is required").required(),
     email: yup.string().email("Invalid email").required("Email is required"),
     password: yup.string().min(8).max(20).required("Password is required"),
@@ -195,6 +196,14 @@ function AdminDoctor(){
                     </div>
                     
                     <div className="col-md-6">
+                    <div className="mb-3">
+                                <label htmlFor="education" className="form-label">Education</label>
+                                <input type="education" className={`form-control w-100 ${errors.email?'is-invalid': ''}`} id="education" aria-describedby="education"
+                               name="education" {...register("education")} placeholder="Education"/>
+                            {errors.education && (
+                                    <div className="invalid-feedback">{errors.education.message}</div>
+                                )}
+                            </div>
                     <div className="mb-3">
                         <label htmlFor="specialization" className="form-label">Specialization:</label>
                         <select name="specialization_id" id="specialization" className={`form-control w-100 ${errors.specialization_id?'is-invalid': ''}`} aria-describedby="specialization"

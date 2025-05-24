@@ -20,8 +20,9 @@ const UpdateDoctor=()=>{
         specialization_id: yup.number().typeError("Specialization is required").required(),
         department_Id: yup.number().typeError("Department is required").required(),
         email: yup.string().email("Invalid email").required("Email is required"),
-        password: yup.string().min(8).max(20).required("Password is required"),
-        role_id: yup.number().typeError("Role is required").required()
+        password: yup.string().transform((value)=>(value===""? undefined: value)).notRequired().min(8,"Password must be at least 8 characters").max(20).nullable(),
+        role_id: yup.number().typeError("Role is required").required(),
+        education: yup.string().required()
     });
     const navigate=useNavigate();  
 
@@ -60,11 +61,12 @@ const UpdateDoctor=()=>{
                 email: data.email,
                 password: "",
                 phone: data.phone,
-                role_id: data.role_id,
+                role_id: Number(data.role_id),
                 date_of_birth: data.date_of_birth?data.date_of_birth.slice(0,10): "",
-                gender_id: data.gender_id,
-                specialization_id: data.specialization_id,
-                department_Id: data.department_Id,
+                gender_id: Number(data.gender_id),
+                specialization_id: Number(data.specialization_id),
+                department_Id: Number(data.department_Id),
+                education: data.education
                 
                  
             });
@@ -74,7 +76,7 @@ const UpdateDoctor=()=>{
             console.log("Error fetching the doctor",error);
         });
         
-    },[doctorId,reset]);
+    },[doctorId,role,gender,specialization,department,reset]);
 
     useEffect(()=>{
         Axios.get('http://localhost:3001/roles').then((response)=>{
@@ -103,7 +105,11 @@ const UpdateDoctor=()=>{
      try{
         
         const data= new FormData();
-        Object.entries(formValues).forEach(([key,value])=>{
+        const formattedValues = {
+        ...formValues,
+        date_of_birth: new Date(formValues.date_of_birth).toISOString().split('T')[0], 
+        };
+        Object.entries(formattedValues).forEach(([key,value])=>{
             data.append(key,value);
         });
         if(img){
@@ -231,7 +237,16 @@ const UpdateDoctor=()=>{
                             </div>
                     </div>
                     
+                    
                     <div className="col-md-6">
+                        <div className="mb-3">
+                                <label htmlFor="education" className="form-label">Education</label>
+                                <input type="education" className={`form-control w-100 ${errors.email?'is-invalid': ''}`} id="education" aria-describedby="education"
+                               name="education" {...register("education")} placeholder="Education"/>
+                            {errors.education && (
+                                    <div className="invalid-feedback">{errors.education.message}</div>
+                                )}
+                            </div>
                     <div className="mb-3">
                         <label htmlFor="specialization" className="form-label">Specialization:</label>
                         <select name="specialization_id" id="specialization" className={`form-control w-100 ${errors.specialization_id?'is-invalid': ''}`} aria-describedby="specialization"
@@ -273,13 +288,15 @@ const UpdateDoctor=()=>{
                             <div className="mb-3" style={{ position: "relative" }}>
                                                             <label htmlFor="password" className="form-label">Password</label>
                                                             <input type={show? "text": "password"} className={`form-control w-100 ${errors.password?'is-invalid': ''}`} id="password"
-                                                           name="password" {...register("password")} placeholder="Password"/>
+                                                           name="password" {...register("password")} placeholder="Password"
+                                                           style={{paddingRight: '40px'}}
+                                                           />
                                                            <span onClick={handleClick} 
                                                            style={{position: 'absolute',
                                                            top: '50%',
-                                                           right: '8%',
-                                                           transform: 'translateY(15%)',
-                                                            cursor: 'pointer',color: '#888'}}>{show? <IoEye/>: <IoEyeOff />}</span>
+                                                           right: '12px',
+                                                           transform: 'translateY(-50%)',
+                                                            cursor: 'pointer',color: '#888',zIndex: 1}}>{show? <IoEye/>: <IoEyeOff />}</span>
                                                            
                                                             {errors.password && (
                                                                 <div className="invalid-feedback">{errors.password.message}</div>

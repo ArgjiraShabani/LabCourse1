@@ -11,6 +11,7 @@ import DoctorModal from "./DoctorModal";
 
 const ViewDoctors=()=>{
     const swal=withReactContent(Swal);
+    const [selectedDoctor,setSelectedDoctor]=useState(null);
     const confirmDeletion= (id)=>{
         swal.fire({
             title: "Are you sure you want to delete the user?",
@@ -84,11 +85,12 @@ const ViewDoctors=()=>{
       <th scope="col">First Name</th>
       <th scope="col" >Last Name</th>
       <th scope="col" >Email</th>
-      <th scope="col" >Password</th>
-      <th scope="col" >Phone</th>
+      {/*<th scope="col" >Password</th>
+      <th scope="col" >Phone</th>*/}
       <th scope="col" >Role</th>
-      <th scope="col" >Date of Birth</th>
-      <th scope="col">Gender</th>
+      {/*<th scope="col" >Date of Birth</th>
+      <th scope="col">Gender</th>*/}
+      
       <th scope="col" >Specialization</th>
       <th scope="col" >Department</th>
     </tr>
@@ -100,21 +102,24 @@ const ViewDoctors=()=>{
         <td >{doctor.first_name}</td>
         <td >{doctor.last_name}</td>
         <td >{doctor.email}</td>
-        <td >{doctor.password}</td>
-        <td >{doctor.phone}</td>
+        {/*<td >{doctor.password}</td>
+        <td >{doctor.phone}</td>*/}
         <td >{doctor.role_name}</td>
-        <td >{doctor.date_of_birth}</td>
-        <td >{doctor.gender_name}</td>
+        {/*<td >{doctor.date_of_birth}</td>
+        <td >{doctor.gender_name}</td>*/}
+        
         <td >{doctor.specialization_name}</td>
         <td >{doctor.department_name}</td>
-        <td><button  style={{
+       <td><button  style={{
             backgroundColor: '#fff',
             color: '#51A485',
             border: 'none',
             borderRadius: '0px',
             cursor: 'pointer'
-        }}  onClick={()=>setOpenModal(true)}><FaRegEye size={18} color="#51A485" title="View full profile"/></button>
-        {openModal && <DoctorModal closeModal={()=>setOpenModal(false)}/>}
+        }}  onClick={()=>{
+            setSelectedDoctor(doctor.doctor_id);
+            setOpenModal(true)}} ><FaRegEye size={18} color="#51A485" title="View full profile"/></button>
+        {openModal && <DoctorModal doctor_id={selectedDoctor} closeModal={()=>setOpenModal(false)}/>}
         </td>
         <td><Link to={`/updateDoctors/${doctor.doctor_id}`} className="nav-link text-white hover-link"
         style={{display: 'inline-block',padding: '2px',background: '#fff',borderRadius: '5px'}}

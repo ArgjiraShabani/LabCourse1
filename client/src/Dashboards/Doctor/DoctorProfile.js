@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState,useEffect } from "react";
 import {FaUser,FaEnvelope,FaPhone,FaGenderless,FaStethoscope,FaHospital} from "react-icons/fa";
 import { LuCalendarDays } from "react-icons/lu";
+import { PiStudentFill } from "react-icons/pi";
 import Axios from "axios";
 function DoctorPofile({doctor_id}){
     const [doctorData,setDoctorData]=useState([]);
@@ -85,6 +86,7 @@ function DoctorPofile({doctor_id}){
                 <li className="list-group-item"><FaPhone size={18} color="#51A485" title="Phone" className="me-2"/> Phone: {doctorData.phone}</li>
                 <li className="list-group-item"><LuCalendarDays size={18} color="#51A485" title="BirthDay" className="me-2"/> Date of Birth: {doctorData.date_of_birth}</li>
                 <li className="list-group-item"><FaGenderless size={18} color="#51A485" title="Gender" className="me-2"/> Gender: {doctorData.gender_name}</li>
+                <li className="list-group-item"><PiStudentFill size={25} color="#51A485" title="Education" className="me-2"/>Education: {doctorData.education}</li>
                 <li className="list-group-item"><FaStethoscope size={18} color="#51A485" title="Specialization" className="me-2"/>Specialization: {doctorData.specialization_name}</li>
                 <li className="list-group-item"><FaHospital size={18} color="#51A485" title="Gender" className="me-2"/> Department: {doctorData.department_name}</li>
             </ul>

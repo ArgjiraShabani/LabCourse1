@@ -40,8 +40,8 @@ app.use('/userUploads',express.static(path.join(__dirname,'public/userUploads'))
 
 
 const db = mysql.createConnection({
-    user:"root",
-    host:"localhost",
+    host: "localhost",
+    user:"root",    
     //password:"password",
     //password:"database",
     //password:"valjeta1!",
@@ -50,7 +50,6 @@ const db = mysql.createConnection({
     //password:"valjeta1!",
     database:"hospital_management",
     
-    //port: 3307,
    
 
 });
@@ -637,10 +636,11 @@ app.post("/doctors",userUpload.single('img'),async (req,res)=>{
   date_of_birth,
   gender_id,
   specialization_id,
-  department_Id
+  department_Id,
+  education
  }=req.body;
   const hashedPassword=await bcrypt.hash(password,13)
-  const q="INSERT INTO doctors (`first_name`,`last_name`,`email`,`password`,`phone`,`role_id`,`date_of_birth`,`gender_id`,`specialization_id` ,`department_Id`,`image_path`) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+  const q="INSERT INTO doctors (`first_name`,`last_name`,`email`,`password`,`phone`,`role_id`,`date_of_birth`,`gender_id`,`specialization_id` ,`department_Id`,`education`,`image_path`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
  const values=[
   first_name,
   last_name,
@@ -652,6 +652,7 @@ app.post("/doctors",userUpload.single('img'),async (req,res)=>{
   gender_id,
   specialization_id,
   department_Id,
+  education,
   req.file?req.file.filename: null
  ];
   db.query(q,values,(err,data)=>{
@@ -671,20 +672,21 @@ app.post("/doctors",userUpload.single('img'),async (req,res)=>{
     
 });
 
-app.put("/updateDoctors/:id",upload.single('img'),async(req,res)=>{
-  const doctorId=req.params.id;
-  try{
-     const getDoctor="Select password FROM doctors WHERE doctor_id=?";
-  db.query(getDoctor,[doctorId],async(err,results)=>{
-    if(err) return res.status(500).json({error: err.message});
-    if(results.length===0) return res.status(404).json({message: "doctor not found"});
-    let currentPassword=results[0].password;
-    let savePassword=currentPassword;
-    if(req.body.password && req.body.password.trim() !==""){
-      savePassword=await bcrypt.hash(req.body.password,13)
+app.put("/updateDoctors/:id",upload.single('img'),(req,res)=>{
+  
+    const doctorId=req.params.id;
+  db.query("Select password FROM doctors WHERE doctor_id=?",[doctorId],(err,results)=>{
+    if(err){
+      console.error(err);
+      return res.status(500).json({error: "Internal server error"});
     }
-  })
-  const values=[
+    if(results.length===0){
+      return res.status(404).json({message: "Doctor not found"});
+    }
+    let savePassword=results[0].password;
+    const updateDoctor=(hashedPassword)=>{
+      const image_path=req.file?req.file.filename: req.body.image_path;
+    const values=[
     req.body.first_name,
     req.body.last_name,
     req.body.email,
@@ -695,26 +697,45 @@ app.put("/updateDoctors/:id",upload.single('img'),async(req,res)=>{
     req.body.gender_id,
     req.body.specialization_id,
     req.body.department_Id,
+    req.body.education,
+    
     
   ];
-  const image_path=req.file?req.file.filename: req.body.image_path;
-  const q= "UPDATE  doctors SET first_name=?,last_name=?,email=?,password=?,phone=?,role_id=?,date_of_birth=?,gender_id=?,specialization_id=?,department_Id=?,image_path=?  WHERE doctor_id=?";
-  
-  
-  db.query(q,[...values,image_path,doctorId],(err,result)=>{
-    if(err) return res.json(err);
+  const q= `UPDATE  doctors SET first_name=?,last_name=?,email=?,password=?,phone=?,role_id=?,
+  date_of_birth=?,gender_id=?,specialization_id=?,department_Id=?,
+  education=?,image_path=?  WHERE doctor_id=?`;
+
     
+    db.query(q,[...values,image_path,doctorId],(err,result)=>{
+    if(err){
+      console.error(err);
+      return res.status(500).json({error: "Internal server error"});
+    }
     if(result.affectedRows===0){
       return res.status(404).json({message: "Doctor not found"});
     }
-    return res.json("Doctor has been updated successfully");
+  return res.json("Doctor has been updated successfully");
+  });
+}
+  if(req.body.password && req.body.password.trim()!==""){
+    bcrypt.hash(req.body.password, 13, (err,hashed)=>{
+      if(err){
+        console.error(err);
+          return res.status(500).json({error: "Internal server error"});
+        
+      }
+      updateDoctor(hashed);
+    });
+  }else{
+    updateDoctor(savePassword);
+  }
+    
+
   });
   
-
-  }catch(error){
-    console.error("Update error:",error);
-    return res.status(500).json({error: "Internal server error"});
-  }
+   
+  
+  
  
 });
 app.get('/viewDoctors',(req,res)=>{
@@ -728,7 +749,8 @@ app.get('/viewDoctors',(req,res)=>{
     d.date_of_birth,
     g.gender_name,
   s.specialization_name,
-  dep.department_name 
+  dep.department_name ,
+  d.education
   FROM doctors d inner join roles r on d.role_id=r.role_id
    inner join gender g on d.gender_id=g.gender_id
     inner join specialization s on d.specialization_id=s.specialization_id
@@ -775,13 +797,14 @@ app.get("/doctorId/:doctor_id",(req,res)=>{
   g.gender_name,
   d.specialization_id,
 s.specialization_name,
-d.department_id,
+d.department_Id,
 dep.department_name,
+d.education,
 d.image_path
 FROM doctors d inner join roles r on d.role_id=r.role_id
  inner join gender g on d.gender_id=g.gender_id
   inner join specialization s on d.specialization_id=s.specialization_id
- inner join departments dep on d.department_id=dep.department_id
+ inner join departments dep on d.department_Id=dep.department_Id
  WHERE d.doctor_id=?
  `;
  db.query(s,[doctorId],(err,result)=>{
@@ -798,24 +821,7 @@ FROM doctors d inner join roles r on d.role_id=r.role_id
 
 });
 
-/*app.post('/uploadProfileImage/:doctor_id',userUpload.single('profileImage'),
-(req,res)=>{
-  const doctorId=req.params.doctor_id;
 
-  if(!req.file){
-    return res.status(400).json({error: 'No file uploaded'});
-  }
-  const imagePath=`/userUploads/${req.file.filename}`;
-  const sql = `UPDATE doctors SET image_path = ? WHERE doctor_id = ?`;
-  db.query(sql,[imagePath,doctorId],(err,result)=>{
-    if(err){
-      console.log("Database error",err);
-      return res.status(500).json({error: "Database error"});
-    }
-    res.json({message: "Image uploaded successfully",imagePath});
-  });
-
-});*/
 
 
 app.get('/api/doctors', (req, res) => {

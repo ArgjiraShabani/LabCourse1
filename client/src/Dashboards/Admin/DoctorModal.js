@@ -1,6 +1,9 @@
 import axios from "axios";
 import { useState,useEffect } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import {FaUser,FaEnvelope,FaPhone,FaGenderless,FaStethoscope,FaHospital} from "react-icons/fa";
+import { PiStudentFill } from "react-icons/pi";
+import { LuCalendarDays } from "react-icons/lu";
 
 function DoctorModal({doctor_id,closeModal}){
 
@@ -61,7 +64,14 @@ function DoctorModal({doctor_id,closeModal}){
                 <img
                 src={`http://localhost:3001${docInfo.image_path}`}
                 alt={`${docInfo.first_name} ${docInfo.last_name}`}
-                style={{width: '150px',height: '150px',borderRadius: '50%',objectFit: 'cover',border: '3px solidrgb(86, 245, 186)'}}
+                style={{
+                    width: '150px',
+                    height: '150px',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    display: 'block',
+                    margin: '0 auto'
+                    }}
                 />
                 ):(
                     <div
@@ -78,7 +88,7 @@ function DoctorModal({doctor_id,closeModal}){
                     }
 
                     }>
-                        No Image
+                        <FaUser size={60}/>
                 </div>
                 )
                 }
@@ -91,14 +101,32 @@ function DoctorModal({doctor_id,closeModal}){
         
             backgroundColor: '#f8f9fa',
             padding: '1rem'}}>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>First Name: {docInfo.first_name} </li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Last Name:{docInfo.last_name}</li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Birthdate:{docInfo.date_of_birth}</li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Gender: {docInfo.gender_name} </li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Email: {docInfo.email} </li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Password: {docInfo.password} </li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Specialization: {docInfo.specialization_name} </li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Department: {docInfo.department_name} </li>
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <FaUser size={18} color="#51A485" title="Name" className="me-2"/> 
+                    Name: {docInfo.first_name} {docInfo.last_name} </li>
+                
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <LuCalendarDays size={18} color="#51A485" title="BirthDay" className="me-2"/>
+                    Birthdate: {docInfo.date_of_birth}</li>
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <FaGenderless size={18} color="#51A485" title="Gender" className="me-2"/>
+                    Gender:  {docInfo.gender_name} </li>
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <FaEnvelope size={18} color="#51A485" title="Email" className="me-2"/> 
+                    Email:  {docInfo.email} </li>
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <FaPhone size={18} color="#51A485" title="Phone" className="me-2"/> 
+                    Phone Number: {docInfo.phone} </li>
+                {/*<li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Password: {docInfo.password} </li>*/}
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <PiStudentFill size={25} color="#51A485" title="Name" className="me-2"/> 
+                    Education: {docInfo.education} </li>
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <FaStethoscope size={18} color="#51A485" title="Specialization" className="me-2"/>
+                    Specialization:  {docInfo.specialization_name} </li>
+                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
+                    <FaHospital size={18} color="#51A485" title="Gender" className="me-2"/>
+                    Department:  { docInfo.department_name} </li>
 
             </ul>
            
