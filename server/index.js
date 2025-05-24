@@ -46,8 +46,8 @@ const db = mysql.createConnection({
     //password:"database",
     //password:"valjeta1!",
     //password: "mysqldb",
-    //password:"mysql123",
-    password:"valjeta1!",
+    password:"mysql123",
+    //password:"valjeta1!",
     database:"hospital_management",
     
     //port: 3307,
@@ -1211,6 +1211,46 @@ return res.status(500).json({ error: "The appointment was not deleted." });
 res.json({ message: "Appointment deleted successfully." });
 });
 
+});
+
+app.get("/appointments", (req, res) => {
+  const { doctor_id } = req.query;
+
+  if (!doctor_id) {
+    return res.status(400).json({ error: "doctor_id is required" });
+  }
+
+  const query = "SELECT * FROM appointments WHERE doctor_id = ?";
+  db.query(query, [doctor_id], (err, results) => {
+    if (err) {
+      console.error("Error getting appointments:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
+    res.json(results);
+  });
+});
+
+app.put("/appointments/:id/status", (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!status) {
+    return res.status(400).json({ error: "Status is required" });
+  }
+
+  const query = "UPDATE appointments SET status = ? WHERE appointment_id = ?";
+  db.query(query, [status, id], (err, result) => {
+    if (err) {
+      console.error("Error while updating status:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    res.json({ message: "Status was updated successfully" });
+  });
 });
 
 app.listen(3001,()=>{
