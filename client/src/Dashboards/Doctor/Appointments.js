@@ -14,7 +14,7 @@ const Appointment = () => {
     }
 
     axios
-      .get(`http://localhost:3001/appointments?doctor_id=${doctorId}`)
+      .get(`http://localhost:3001/all-patient-appointments?doctor_id=${doctorId}`)
       .then((response) => {
         setAppointments(response.data);
       })
@@ -23,51 +23,83 @@ const Appointment = () => {
       });
   }, []);
 
+  const updateStatus = (appointmentId, newStatus) => {
+    axios
+      .put(`http://localhost:3001/appointments/${appointmentId}/status`, {
+        status: newStatus,
+      })
+      .then(() => {
+        setAppointments((prev) =>
+          prev.map((a) =>
+            a.id === appointmentId ? { ...a, status: newStatus } : a
+          )
+        );
+      })
+      .catch((err) => {
+        console.error("Gabim gjatë përditësimit të statusit:", err);
+        alert("Nuk u përditësua statusi.");
+      });
+  };
+
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="doctor" />
-      <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">List of Appointments</h2>
+      <div className="p-4 flex-grow-1">
+        <h2 className="mb-4">List of Appointments</h2>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300">
-            <thead className="bg-gray-100">
+        <div className="table-responsive">
+          <table className="table table-bordered table-striped">
+            <thead className="table-light">
               <tr>
-                <th className="px-4 py-2 border">ID</th>
-                <th className="px-4 py-2 border">Patient's First Name</th>
-                <th className="px-4 py-2 border">Patient's Last Name</th>
-                <th className="px-4 py-2 border">Date & Time</th>
-                <th className="px-4 py-2 border">Purpose</th>
-                <th className="px-4 py-2 border">Booked By</th>
-                <th className="px-4 py-2 border">Service Name</th>
+                <th>ID</th>
+                <th>Patient's First Name</th>
+                <th>Patient's Last Name</th>
+                <th>Date & Time</th>
+                <th>Purpose</th>
+                <th>Booked By</th>
+                <th>Service Name</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {appointments.length > 0 ? (
-                appointments.map((appointment) => (
-                  <tr key={appointment.id}>
-                    <td className="px-4 py-2 border">{appointment.id}</td>
-                    <td className="px-4 py-2 border">
-                      {appointment.patient_name}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {appointment.patient_lastname}
-                    </td>
-                    <td className="px-4 py-2 border">
-                      {new Date(
-                        appointment.appointment_datetime
-                      ).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-2 border">{appointment.purpose}</td>
-                    <td className="px-4 py-2 border">{appointment.booked_by}</td>
-                    <td className="px-4 py-2 border">
-                      {appointment.service_name}
-                    </td>
-                  </tr>
-                ))
+                appointments.map((appointment) => {
+                  const status = (appointment.status || "pending").toLowerCase().trim();
+
+                  return (
+                    <tr key={appointment.id}>
+                      <td>{appointment.id}</td>
+                      <td>{appointment.patient_name}</td>
+                      <td>{appointment.patient_lastname}</td>
+                      <td>{new Date(appointment.appointment_datetime).toLocaleString()}</td>
+                      <td>{appointment.purpose}</td>
+                      <td>{appointment.booked_by}</td>
+                      <td>{appointment.service_name}</td>
+                      <td className="text-capitalize">{status}</td>
+                      <td>
+                        {status !== "completed" ? (
+                          <button
+                            onClick={() => updateStatus(appointment.id, "completed")}
+                            className="btn btn-success btn-sm"
+                          >
+                            Completed
+                          </button>
+                        ) : (
+                          <button
+                            disabled
+                            className="btn btn-secondary btn-sm"
+                          >
+                            Completed
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-4 py-2 border text-center">
+                  <td colSpan="9" className="text-center">
                     No appointments found.
                   </td>
                 </tr>
@@ -81,4 +113,3 @@ const Appointment = () => {
 };
 
 export default Appointment;
-
