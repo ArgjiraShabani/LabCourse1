@@ -1327,6 +1327,26 @@ app.get("/appointments", (req, res) => {
   });
 });	
 
+app.get("/appointments/bookedSlots", (req, res) => {
+  const { doctor_id, date } = req.query;
+
+  const sql = `
+    SELECT TIME(appointment_datetime) AS time
+    FROM appointments
+    WHERE doctor_id = ? AND DATE(appointment_datetime) = ?
+  `;
+
+  db.query(sql, [doctor_id, date], (err, results) => {
+    if (err) {
+      console.error("Error fetching booked slots:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const bookedTimes = results.map(row => row.time.slice(0, 5));
+    res.json(bookedTimes);
+  });
+});
+
 
 app.listen(3001,()=>{
     console.log("Hey po punon")
