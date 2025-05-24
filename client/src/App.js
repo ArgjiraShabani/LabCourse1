@@ -32,6 +32,7 @@ import FeedbacksAdmin from './Dashboards/Admin/FeedbacksAdmin';
 import HomePagePatient from './Dashboards/Patient/Pages/HomePagePatient';
 import FeedbacksPatient from './Dashboards/Patient/Pages/FeedbackPatient';
 import Appointment from './Dashboards/Doctor/Appointments';
+import PatientAppointments from './Dashboards/Admin/PatientAppointments'
 
 
 
@@ -85,6 +86,7 @@ function MyRegisterPatientWrapper() {
           <Route path="/FeedbacksAdmin/" element={<FeedbacksAdmin />} />
           <Route path="/WeeklySchedule/:id" element={<WeeklySchedule />} />
           <Route path="/Appointment/:id" element={<Appointment />} />
+          <Route path="/PatientAppointments/:id" element={<PatientAppointments/>}/>
         </Routes>
       </main>
      
