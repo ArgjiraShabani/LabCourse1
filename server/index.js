@@ -46,8 +46,8 @@ const db = mysql.createConnection({
     //password:"database",
     //password:"valjeta1!",
     //password: "mysqldb",
-    password:"mysql123",
-    //password:"valjeta1!",
+    //password:"mysql123",
+    password:"valjeta1!",
     database:"hospital_management",
     
    
@@ -1258,6 +1258,75 @@ app.put("/appointments/:id/status", (req, res) => {
     res.json({ message: "Status was updated successfully" });
   });
 });
+
+app.post("/appointments", (req, res) => {
+  const {
+    patient_id,
+    doctor_id,
+    service_id,
+    name,
+    lastname,
+    appointment_datetime,
+    purpose,
+    status
+  } = req.body;
+
+  console.log("Received data:", req.body);
+
+  const sql = `
+    INSERT INTO appointments 
+    (patient_id, doctor_id, service_id, name, lastname, appointment_datetime, purpose, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(sql, [
+    patient_id,
+    doctor_id,
+    service_id,
+    name,
+    lastname,
+    appointment_datetime,
+    purpose,
+    status || 'pending'
+  ], (err, result) => {
+  if (err) {
+    console.error("Error during INSERT:", err);
+    return res.status(500).json({ error: "Error while booking the appointment." });
+  }
+  res.json({ message: "Appointment booked successfully!" });
+});
+
+});
+
+app.get("/appointments", (req, res) => {
+  const doctorId = req.query.doctor_id;
+
+  const sql = `
+    SELECT 
+      a.appointment_id AS id,
+      a.name AS patient_name,
+      a.lastname AS patient_lastname,
+      a.appointment_datetime,
+      a.purpose,
+      CONCAT(p.first_name, ' ', p.last_name) AS booked_by,
+      s.service_name
+    FROM appointments a
+    LEFT JOIN patients p ON a.patient_id = p.patient_id
+    LEFT JOIN services s ON a.service_id = s.service_id
+    WHERE a.doctor_id = ?
+    ORDER BY a.appointment_datetime DESC
+  `;
+
+  db.query(sql, [doctorId], (err, results) => {
+    if (err) {
+      console.error("Error while fetching appointments:", err);
+      return res.status(500).json({ error: "Error while retrieving the data." });
+    }
+
+    res.json(results);
+  });
+});	
+
 
 app.listen(3001,()=>{
     console.log("Hey po punon")
