@@ -1,4 +1,4 @@
-//import doctorRoutes from "./modules/doctor/doctorRoutes.js";
+
 const express=require("express")
 const app=express()
 const mysql=require("mysql2")
@@ -10,6 +10,11 @@ const { error } = require("console");
 const bcrypt=require("bcrypt");
 const cron = require('node-cron');
 const { ResultWithContextImpl } = require("express-validator/lib/chain");
+const doctorRoutes=require('./Routes/doctorRoutes');
+const departmentRoutes=require('./Routes/departmentRoutes');
+const dataRoutes=require('./Routes/dataRoutes');
+const specializationRoutes=require('./Routes/specializationRoutes');
+const db=require('./db');
 
 app.use(cors());
 app.use(express.json());
@@ -25,7 +30,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-
+/*
 const userStorage=multer.diskStorage({
   destination: (req,file,cb)=>{
     cb(null,'public/userUploads');
@@ -35,19 +40,19 @@ const userStorage=multer.diskStorage({
   },
 });
 const userUpload=multer({storage: userStorage});
-app.use('/userUploads',express.static(path.join(__dirname,'public/userUploads')));
+app.use('/userUploads',express.static(path.join(__dirname,'public/userUploads')));*/
 
 
-
+/*
 const db = mysql.createConnection({
     host: "localhost",
     user:"root",    
     //password:"password",
     password:"database",
     //password:"valjeta1!",
-    //password: "mysqldb",
+    password: "mysqldb",
     //password:"mysql123",
-   // password:"valjeta1!",
+    //password:"valjeta1!",
     database:"hospital_management",
     
    
@@ -59,7 +64,7 @@ db.connect((err) => {
     return;
   }
   console.log('Connected to the database');
-});
+});*/
 
 app.get('/staff',(req,res)=>{
     db.query("SELECT doctors.first_name,doctors.last_name,specialization.specialization_name FROM doctors inner join specialization on doctors.specialization_id=specialization.specialization_id",(err,result)=>{
@@ -530,9 +535,14 @@ app.post('/signup',(req,res)=>{
 
 
 
+app.use('/api',doctorRoutes);
+app.use('/api',departmentRoutes);
+app.use('/api',dataRoutes);
+app.use('/api',specializationRoutes);
+app.use('/api',doctorRoutes);
 
 
-
+/*
 
 app.get('/specializations',(req,res)=>{
     db.query('SELECT specialization_id,specialization_name FROM specialization',(err,results)=>{
@@ -571,60 +581,13 @@ app.get('/genderId', (req, res) => {
     console.log("GENDER RESULT:", result); // <- Add this
     res.json(result);
   });
-});
-/*app.post("/addDoctor",userUpload.single('img'),(req,res)=>{
-  console.log('Body:', req.body);
- console.log('File:', req.file);
-  
-  
-  
-  const {
-    first_name,
-    last_name,
-    email,
-    password,
-    phone,
-    role_id,
-    date_of_birth,
-    gender_id,
-    specialization_id,
-    department_Id
-  }=req.body;
-  const roleIdInt = role_id ? parseInt(role_id, 10) : null;
-const genderIdInt = gender_id ? parseInt(gender_id, 10) : null;
-const specializationIdInt = specialization_id ? parseInt(specialization_id, 10) : null;
-const departmentIdInt = department_Id ? parseInt(department_Id, 10) : null;
-
-
-  const image_path = req.file ? req.file.filename : null;
-  db.query("INSERT INTO doctors(first_name,last_name,email,password,phone,role_id,date_of_birth,gender_id,specialization_id ,department_Id,image_path) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-    [first_name,
-     last_name,
-     email,
-     password,
-     phone,
-     roleIdInt,
-     date_of_birth || null,
-     genderIdInt,
-     specializationIdInt,
-     departmentIdInt,
-     image_path || null
-    ],(err,result)=>{
-      if(err){
-        console.log("Error inserting into users",err);
-        return res.status(500).json({error: "Failed to insert user"});
-
-      }
-      res.json({message: "Doctor added successfully!"});
-});
 });*/
 
+
+/*
 app.post("/doctors",userUpload.single('img'),async (req,res)=>{
   
-  /*const gender_id= parseInt(req.body.gender_id);
-  if (isNaN(gender_id)) {
-    return res.status(400).json({ error: "Invalid gender" });
-  }*/
+  
  try{
   const{
   first_name,
@@ -690,7 +653,7 @@ app.put("/updateDoctors/:id",upload.single('img'),(req,res)=>{
     req.body.first_name,
     req.body.last_name,
     req.body.email,
-    savePassword,
+    hashedPassword,
     req.body.phone,
     req.body.role_id,
     req.body.date_of_birth,
@@ -737,7 +700,7 @@ app.put("/updateDoctors/:id",upload.single('img'),(req,res)=>{
   
   
  
-});
+});*/
 app.get('/viewDoctors',(req,res)=>{
   const sqlGet=`
   SELECT d.doctor_id,d.first_name,

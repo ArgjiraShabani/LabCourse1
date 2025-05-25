@@ -41,23 +41,23 @@ function AdminDoctor(){
 
     const[img,setImg]=useState(null);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/roles').then((response)=>{
+        Axios.get('http://localhost:3001/api/roles').then((response)=>{
             setRole(response.data);
         })
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/genderId').then((response)=>{
+        Axios.get('http://localhost:3001/api/gender').then((response)=>{
             setGender(response.data);
         })
 
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/specializations').then((response)=>{
+        Axios.get('http://localhost:3001/api/specializations').then((response)=>{
             setSpecialization(response.data);
         })
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/departments').then((response)=>{
+        Axios.get('http://localhost:3001/api/departments').then((response)=>{
             setDepartment(response.data);
         })
     },[]);
@@ -82,7 +82,7 @@ function AdminDoctor(){
         if(img){
             formData.append("img",img);
         }
-        const response=await Axios.post('http://localhost:3001/doctors',formData);
+        const response=await Axios.post('http://localhost:3001/api/doctors',formData);
             
             console.log("Doctor added successfully",response.data);
             reset();

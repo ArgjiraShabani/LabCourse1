@@ -79,23 +79,23 @@ const UpdateDoctor=()=>{
     },[doctorId,role,gender,specialization,department,reset]);
 
     useEffect(()=>{
-        Axios.get('http://localhost:3001/roles').then((response)=>{
+        Axios.get('http://localhost:3001/api/roles').then((response)=>{
             setRole(response.data);
         })
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/genderId').then((response)=>{
+        Axios.get('http://localhost:3001/api/gender').then((response)=>{
             setGender(response.data);
         })
 
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/specializations').then((response)=>{
+        Axios.get('http://localhost:3001/api/specializations').then((response)=>{
             setSpecialization(response.data);
         })
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/departments').then((response)=>{
+        Axios.get('http://localhost:3001/api/departments').then((response)=>{
             setDepartment(response.data);
         })
     },[]);
@@ -116,7 +116,7 @@ const UpdateDoctor=()=>{
             data.append("img",img);
         }
         const response=await
-        Axios.put(`http://localhost:3001/updateDoctors/${doctorId}`,data);
+        Axios.put(`http://localhost:3001/api/updateDoctors/${doctorId}`,data);
         if(response.data && response.data.success){
                  swal.fire({
             title: "Success!",
