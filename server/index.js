@@ -312,7 +312,16 @@ app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
 }})
 })
 
-
+app.post('/removePhotoPatient/:id',(req,res)=>{
+   const id = req.params.id;
+  db.query("UPDATE patients set image_path= NULL where patient_id=?",[id],(err,result)=>{
+    if(err){
+        return res.status(500).json({ error: "Database error" })
+    }else{
+      res.send(result);
+    }
+  })
+})
 
 app.get('/patient',(req,res)=>{
   db.query("SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name FROM patients inner join gender on patients.gender_id=gender.gender_id inner join status on patients.status_id=status.status_id",(err,result)=>{
@@ -465,7 +474,7 @@ app.post('/signup',(req,res)=>{
   const birth=req.body.birth;
   const gender=req.body.gender;
   const blood=req.body.blood;
-  const image='1746947791225.png';
+  const image=null;
     db.query(` SELECT email FROM patients WHERE email = ?
                 UNION
                 SELECT email FROM doctors WHERE email = ?

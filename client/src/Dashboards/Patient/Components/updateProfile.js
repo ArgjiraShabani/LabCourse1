@@ -10,6 +10,7 @@ import Info from "./UserInfo";
 import MyProfile from "../Pages/MyProfile";
 
 
+
 const schema =yup.object().shape({
  name:yup.string().required("Firstname is required!")
  .matches(/^\S+$/, "Firstname cannot contain spaces!"),
@@ -43,7 +44,7 @@ const schema =yup.object().shape({
 
 
 function UpdateProfile({id,info,setInfo}){
- 
+
   
   const {register,handleSubmit,formState: { errors},setValue,
     reset,getValues}=useForm({
@@ -111,16 +112,16 @@ function UpdateProfile({id,info,setInfo}){
                         updated.date_of_birth = updated.date_of_birth.split("T")[0]; // format date
                         setInfo(res.data); // ✅ This updates the shared state in pa
                     
+                       Swal.fire({
+                          position: "center",
+                          icon: "success",
+                          title: "Your data have been updated!",
+                          showConfirmButton: false,
+                          timer: 1200
+                          });
                   })
                   .catch(err=>console.log(err));
                 
-                Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Your data have been updated!",
-                showConfirmButton: false,
-                timer: 1100
-                });
             }else{
                 reset({
                 name: info.first_name,
@@ -139,7 +140,7 @@ function UpdateProfile({id,info,setInfo}){
 
   return(
     <>
-            <div style={{marginTop:"20px",borderStyle:"solid",padding:"60px 90px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'}}>
+            <div style={{marginTop:"5px",borderStyle:"solid",padding:"60px 90px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'}}>
           <h1 style={{textAlign:"center",marginBottom:"40px"}}>Update Profile</h1>
           <form className="mt-4" onSubmit={handleSubmit(formSubmit)}>
             <div className="mb-3" style={{marginBottom:"20px"}}>

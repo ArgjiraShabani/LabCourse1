@@ -1,25 +1,55 @@
 
 import { useState,useEffect } from "react";
-import Axios from "axios";
 import { LuCalendarDays } from "react-icons/lu";
 import {FaUser,FaEnvelope,FaTint,FaUserCircle ,FaPhone,FaGenderless,FaStethoscope,FaHospital,FaBirthdayCake} from "react-icons/fa";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 
 
-function Info({info}){
+
+function Info({id,info,setInfo}){
    
-    
+
     if (!info) {
         return <p>Loading profile...</p>;
       }
+    
+    function removePhoto(){
+        Swal.fire({
+            title: "Are you sure about removing your photo?",
+            showCancelButton: true,
+            confirmButtonColor: "#51A485",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Update"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                    axios.post(`http://localhost:3001/removePhotoPatient/${id}`).then((response)=>{
+                    setInfo(prevInfo => ({ ...prevInfo, image_path: null }));
+                        Swal.fire({
+                                    position: "center",
+                                    icon: "success",
+                                    title: "Your profile photo is removed!",
+                                    showConfirmButton: false,
+                                    timer: 1200
+                                    });
+                    })
+                    .catch((err)=>{
+                        console.log(err);
+                    })
+
+            }})
+            .catch(err=>console.log(err));
+    }
      
 
 
   return (
    <>
    
-   <div style={{marginTop:"60px",borderStyle:"solid",padding:'70px 110px',borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'}}>
+   <div style={{marginTop:"20px",borderStyle:"solid",padding:'70px 110px',borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'}}>
       {info.image_path ? (
+        <>
         <div
                     style={{
 
@@ -40,6 +70,10 @@ function Info({info}){
                     }>
         <img src={`http://localhost:3001/uploads/${info.image_path}`} alt="My Photo" style={{width:"200px",paddingBottom:"50px"}}/>
          </div>
+         <div style={{display:"flex",justifyContent:"center"}}>
+         <button className="form-control" type="submit" onClick={removePhoto} style={{width:"300px",borderColor:"#51A485",backgroundColor:"#51A485",height:"50px",color:"white"}}>Remove photo</button>
+         </div>
+         </>
         ):(<div
                     style={{
 
@@ -58,7 +92,7 @@ function Info({info}){
                     }
 
                     }>
-                        <img src={'http://localhost:3001/uploads/1746947791225.png'} style={{width:"350px",height: '200px',}}/>
+                        <img src={'http://localhost:3001/uploads/1748181746097.jpg'} style={{width:"350px",height: '200px',}}/>
                 </div>)}
     <br/>
     <div style={{display:"flex"}}><FaUserCircle size={18} color="#51A485" title="Name" className="me-2"/><h5>Firstname:<b> {info.first_name}</b></h5></div>

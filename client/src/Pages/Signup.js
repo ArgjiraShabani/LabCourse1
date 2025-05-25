@@ -145,7 +145,7 @@ function SignUp(){
                     </div>
                     <div className="mb-3">
                         <label>Phone Number</label>
-                        <input type="text" name='phoneNumber' className="form-control"{...register("phoneNumber")} />
+                        <input type="tel" name='phoneNumber' className="form-control"{...register("phoneNumber")} />
                         <p style={{color:"red"}}>{errors.phoneNumber?.message}</p>
                     </div>
                      <div className="mb-3" style={{display:"flex",justifyContent:"space-between"}}>

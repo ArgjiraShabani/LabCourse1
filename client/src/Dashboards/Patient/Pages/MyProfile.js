@@ -5,6 +5,7 @@ import Info from '../Components/UserInfo';
 import UpdateProfile from '../Components/updateProfile';
 import { useState,useEffect } from "react";
 import Sidebar from '../../../Components/AdminSidebar';
+import { set } from 'react-hook-form';
 
 
 const MyProfile = () => {
@@ -29,7 +30,7 @@ const MyProfile = () => {
       <div className="flex-grow-1 p-4">
         <h2>Patient Profile</h2>
         <div style={{display:'flex',justifyContent:"space-around",flexWrap:'wrap'}}>
-        <Info info={info}/>
+        <Info info={info} id={id} setInfo={setInfo}/>
         <UpdateProfile id={id} info={info} setInfo={setInfo}/>
         </div>
       </div>
