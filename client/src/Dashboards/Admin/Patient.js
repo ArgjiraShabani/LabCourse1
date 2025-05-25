@@ -85,15 +85,13 @@ function Patient(){
     }
 
     return(
-        <>
+        
         <div className="d-flex" style={{ minHeight: '100vh' }}>
         
             <Sidebar role='admin'/>
-        
             <div className="flex-grow-1 p-4">
-                <h1>Patient</h1>
-                <div className="table-responsive">
-                  <table className="table table-bordered table-hover align-middle text-center">
+                <h1 className="mb-4">Patient</h1>
+                  <table className="table table-bordered">
                     <thead>
                         <tr>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Photo</th>
@@ -104,7 +102,7 @@ function Patient(){
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Phone</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Birthday</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
-                        <th secope="col" style={{backgroundColor:"#51A485",color:"white",padding:"1px 20px"}}>Status</th>
+                        <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Delete</th>
 
@@ -149,11 +147,10 @@ function Patient(){
                 </table>
                 </div>
                 </div>
-                </div>
         
 
 
-        </>
+        
     )
 }
 

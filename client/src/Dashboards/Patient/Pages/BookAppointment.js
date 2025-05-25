@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
+import axios from "axios";
+import { useNavigate, useParams,} from 'react-router-dom'; 
+
 
 function BookAppointment() {
   const [services, setServices] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
+     const navigate = useNavigate();
+      const param=useParams();
+      const {id}=param; 
+  
 
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
@@ -151,69 +157,71 @@ function BookAppointment() {
     setSelectedTimeSlot(e.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  
+  
 
-    const patient_id = localStorage.getItem("patient_id");
-    if (!patient_id) {
-      alert("You must be logged in to book an appointment.");
-      return;
-    }
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
-    if (!selectedDate || !selectedTimeSlot) {
-      alert("Please select a date and time slot.");
-      return;
-    }
+        const patient_id = localStorage.getItem("patient_id");
+        if (!patient_id) {
+            alert("You must be logged in to book an appointment.");
+            return;
+        }
 
-    const appointment_datetime = `${selectedDate}T${selectedTimeSlot}`;
+        if (!selectedDate || !selectedTimeSlot) {
+            alert("Please select a date and time slot.");
+            return;
+        }
 
-    axios
-      .post("http://localhost:3001/appointments", {
-        ...formData,
-        appointment_datetime,
-        patient_id: parseInt(patient_id),
-        status: "pending",
-      })
-      .then((res) => {
-        alert(res.data.message || "Appointment booked successfully!");
-        setFormData({
-          name: "",
-          lastname: "",
-          service_id: "",
-          doctor_id: "",
-          purpose: "",
-        });
-        setSelectedDate("");
-        setSelectedTimeSlot("");
-        setAvailableSlots([]);
-      })
-      .catch((err) => {
-        console.error("Error while booking:", err);
-        alert("Booking failed. Please try again.");
-      });
-  };
+        const appointment_datetime = `${selectedDate}T${selectedTimeSlot}`;
+
+        axios.post("http://localhost:3001/appointments", {
+            ...formData,
+            appointment_datetime,
+            patient_id: parseInt(patient_id),
+            status: "pending"
+        })
+            .then(res => {
+                alert(res.data.message || "Appointment booked successfully!");
+                setFormData({
+                    name: "",
+                    lastname: "",
+                    service_id: "",
+                    doctor_id: "",
+                    purpose: ""
+                });
+                setSelectedDate("");
+                setSelectedTimeSlot("");
+                setAvailableSlots([]);
+            })
+            .catch(err => {
+                console.error("Error while booking:", err);
+                alert("Booking failed. Please try again.");
+            });
+    };
 
   const today = new Date();
   const maxDate = new Date();
   maxDate.setDate(today.getDate() + 7);
 
-  return (
-    <div className="d-flex" style={{ minHeight: "100vh" }}>
-      <Sidebar role="patient" />
-      <div className="container mt-5">
-        <h2>Book Appointment</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label>First Name</label>
-            <input
-              type="text"
-              className="form-control"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+    return (
+      <div className="d-flex" style={{ minHeight: '100vh' }}>
+      <Sidebar role="patient" id={id} />
+        <div className="container mt-5">
+            <h2>Book Appointment</h2>
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                    <label>First Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
 
           <div className="mb-3">
             <label>Last Name</label>

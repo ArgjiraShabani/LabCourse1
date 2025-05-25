@@ -57,7 +57,7 @@ function handleDelete(id){
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
-      <div className="container mt-4">
+      <div className="flex-grow-1 p-4">
         <h3 className="mb-4" style={{ color: '#51A485' }}>Feedbacks</h3>
         <table className="table table-bordered">
           <thead >

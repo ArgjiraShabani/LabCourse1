@@ -1,5 +1,5 @@
 import axios from "axios";
-import Sidebar from "../SideBar/MyProfile";
+import Sidebar from "../../../Components/AdminSidebar";
 import { useState,useEffect } from "react";
 import { useParams } from "react-router-dom";
 
@@ -27,20 +27,15 @@ function FeedbacksPatient(){
 
    return(
     <>
-     <div className="container-fluid">
-      <div className="row">
-        {/* Sidebar column */}
-        <div className="col-12 col-md-3">
-          <Sidebar />
-        </div>
-
-        {/* Main content column */}
-        <div className="col-12 col-md-9 mt-4 mt-md-0">
-          <table className="table table-striped table-bordered">
-            <thead className="table-primary">
+      <div className="d-flex" style={{ minHeight: "100vh" }}>
+        <Sidebar role="patient" id={id} />
+        <div className="flex-grow-1 p-4">
+          <h3 className="mb-4" style={{ color: '#51A485' }}>My Feedbacks</h3>
+          <table className="table table-bordered">
+            <thead>
               <tr>
-                <th>Message</th>
-                <th>Date</th>
+                <th style={{ backgroundColor: '#51A485', color: 'white' }}>Message</th>
+                <th style={{ backgroundColor: '#51A485', color: 'white' }}>Date</th>
               </tr>
             </thead>
             <tbody>
@@ -61,7 +56,7 @@ function FeedbacksPatient(){
           </table>
         </div>
       </div>
-    </div>
+
     </>
    )
 }

@@ -39,15 +39,6 @@ import PatientAppointments from './Dashboards/Admin/PatientAppointments'
 
 function Layout() {
   //const hideLayout = location.pathname === '/adminDashboard';
-  function MyProfileWrapper() {
-  const location = useLocation();
-  return <MyProfile key={location.key} />;
-} 
-function MyRegisterPatientWrapper() {
-  const location = useLocation();
-  return <Register key={location.key} />;
-}
-
 
   return (
     
@@ -72,13 +63,13 @@ function MyRegisterPatientWrapper() {
 
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
-          <Route path='/myprofile/:id' element={<MyProfileWrapper/>}></Route>
+          <Route path='/myprofile/:id' element={<MyProfile/>}></Route>
           <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
           <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
           <Route path="/ManageServices/:id" element={<ManageServices />} />
           <Route path='/login' element={<Login/>}></Route>
           <Route path='/patient' element={<Patient/>}></Route>
-          <Route path='/registerPatient' element={<MyRegisterPatientWrapper/>}></Route>
+          <Route path='/registerPatient' element={<Register/>}></Route>
           <Route path="/ManageSchedule/:id" element={<ManageSchedule />} />
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path="/DoctorSchedule" element={<DoctorSchedule />} />

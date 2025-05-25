@@ -1,10 +1,10 @@
 import React from 'react';
-import Sidebar from "../../Patient/SideBar/MyProfile";
 import { useNavigate, useParams,} from 'react-router-dom'; 
 import axios from 'axios';
 import Info from '../Components/UserInfo';
 import UpdateProfile from '../Components/updateProfile';
 import { useState,useEffect } from "react";
+import Sidebar from '../../../Components/AdminSidebar';
 
 
 const MyProfile = () => {
@@ -25,7 +25,7 @@ const MyProfile = () => {
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh' }}>
-      <Sidebar />
+      <Sidebar role='patient' id={id} />
       <div className="flex-grow-1 p-4">
         <h2>Patient Profile</h2>
         <div style={{display:'flex',justifyContent:"space-around",flexWrap:'wrap'}}>
