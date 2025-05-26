@@ -33,11 +33,11 @@ const schema =yup.object().shape({
       birth: yup
         .string()
         .test('is-valid-date', 'Date is required!', value => value !== "" && !isNaN(Date.parse(value)))
-        .transform(value => value === "" ? null : value) // Convert empty string to null
+        .transform(value => value === "" ? null : value)
         .required("Date is required!")
          .test("max-date", "Date cannot be in the future!", (value) => {
             const parsedDate = new Date(value);
-            return parsedDate <= new Date(); // Check if the parsed date is not in the future
+            return parsedDate <= new Date();
         }),
                 
     });
@@ -109,8 +109,8 @@ function UpdateProfile({id,info,setInfo}){
                  axios.put(`http://localhost:3001/updatePatient/${id}`,formdata)
                   .then(res=>{
                       const updated = res.data;
-                        updated.date_of_birth = updated.date_of_birth.split("T")[0]; // format date
-                        setInfo(res.data); // ✅ This updates the shared state in pa
+                        updated.date_of_birth = updated.date_of_birth.split("T")[0];
+                        setInfo(res.data);
                     
                        Swal.fire({
                           position: "center",
@@ -127,10 +127,10 @@ function UpdateProfile({id,info,setInfo}){
                 name: info.first_name,
                 lastname: info.last_name,
                 phoneNumber: info.phone,
-                birth: info.date_of_birth ? info.date_of_birth.split("T")[0] : "", // Make sure the date is formatted
+                birth: info.date_of_birth ? info.date_of_birth.split("T")[0] : "",
                 gender: info.gender_name,
                 blood: info.blood_type,
-                file: info.file // Ensure the file field is also reset
+                file: info.file 
               });
             }
             });
@@ -168,7 +168,7 @@ function UpdateProfile({id,info,setInfo}){
 
             </div>
              <div style={{marginBottom:"20px"}}>
-              <label>Photo:</label><br/>
+              <label>Profile Photo:</label><br/>
               <input className="form-control" type="file" name="file" style={{width:'300px',height:"40px"}} {...register("file")}/>
 
             </div>

@@ -939,7 +939,7 @@ app.get('/doctors/byDepartment/:department_id', (req, res) => {
 
 app.get('/feedbacksPatient/:id', (req, res) => {
   const id=req.params.id;
-  const query=`Select feedback_text,created_at from feedbacks where patient_id=?`;
+  const query=`Select feedback_text,created_at,feedback_id from feedbacks where patient_id=?`;
   db.query(query, [id], (err, result) => {
     if (err) {
       console.error('Error getting feedback:', err);
@@ -951,7 +951,7 @@ app.get('/feedbacksPatient/:id', (req, res) => {
 });
 
 app.get('/feedbacksAdmin', (req, res) => {
-  const query=`Select * from feedbacks inner join patients on patients.patient_id=feedbacks.patient_id`;
+  const query=`Select * from feedbacks inner join patients on patients.patient_id=feedbacks.patient_id where feedbacks.is_deleted=FALSE`;
   db.query(query, (err, result) => {
     if (err) {
       console.error('Error getting feedback:', err);
@@ -983,6 +983,17 @@ app.post('/feedbacks', (req, res) => {
 app.delete('/deleteFeedback/:id',(req,res)=>{
   const id=req.params.id;
   db.query("DELETE FROM feedbacks WHERE feedback_id=?",[id],(err,result)=>{
+    if(err){
+      return res.json("Error");
+    }else{
+      res.send(result)
+    }
+  })
+})
+
+app.patch('/updateFeedback/:id',(req,res)=>{
+  const id=req.params.id;
+  db.query("update feedbacks set is_deleted=TRUE where feedback_id=?",[id],(err,result)=>{
     if(err){
       return res.json("Error");
     }else{

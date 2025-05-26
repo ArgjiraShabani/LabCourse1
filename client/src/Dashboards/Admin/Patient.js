@@ -15,7 +15,9 @@ function Patient(){
         Axios.get("http://localhost:3001/patient").then((response)=>{
               const updatedPatients = response.data.map(patient => {
                 if (patient.date_of_birth) {
-                    patient.date_of_birth = patient.date_of_birth.split("T")[0]; // Fix the date format
+                    patient.date_of_birth = patient.date_of_birth.split("T")[0];
+                     const [year, month, day] = patient.date_of_birth.split("-");
+                     patient.date_of_birth = `${month}-${day}-${year}`;
                 }
                 return patient;
             });
@@ -90,7 +92,7 @@ function Patient(){
         
             <Sidebar role='admin'/>
             <div className="flex-grow-1 p-4">
-                <h1 className="mb-4">Patient</h1>
+                <h3 className="mb-4">Patients</h3>
                   <table className="table table-bordered">
                     <thead>
                         <tr>
@@ -102,21 +104,22 @@ function Patient(){
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Phone</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Birthday</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
-                        <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Status</th>
+                        <th secope="col" style={{backgroundColor:"#51A485",color:"white",width:"100px"}}>Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Delete</th>
 
 
                         </tr>
                     </thead>
-                    {patientList.map((value,key)=>{
+                    {patientList.length>0 ? (patientList.map((value,key)=>{
                         return(
                     <tbody> 
                         <tr>
                          <th scope="row">
                             { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} style={{width:"60px"}}/>
                         ):(
-                           <img src={'http://localhost:3001/uploads/1746947791225.png'} style={{width:"60px"}}/>)}
+                           <img src={'http://localhost:3001/uploads/1748263645152.png'} style={{width:"60px"}}/>
+                           )}
                     
                 
                             </th>
@@ -141,7 +144,11 @@ function Patient(){
                         </tr>
                         </tbody>
                         )
-                        })
+                        })):(
+                            <tr className="text-center">
+                                <td colSpan="11">No patients found!</td>
+                            </tr>
+                        )
                             }
                 
                 </table>

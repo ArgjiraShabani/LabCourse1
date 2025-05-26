@@ -15,6 +15,10 @@ function Info({id,info,setInfo}){
         return <p>Loading profile...</p>;
       }
     
+    const datePart = info.date_of_birth.split("T")[0];
+    const [year, month, day] = datePart.split("-");
+    const formattedDate = `${month}-${day}-${year}`;
+    
     function removePhoto(){
         Swal.fire({
             title: "Are you sure about removing your photo?",
@@ -56,43 +60,37 @@ function Info({id,info,setInfo}){
                         width: '200px',
                         height: '195px',
                         borderRadius: '50%',
-                        lineHeight: '150px',
-                        textAlign: 'center',
-                        fontSize: '16px',
-                        color: '#555',
                         margin: '0 auto',
                         display:"flex",
                         justifyContent:"center",
                         alignItems:"center",
-                        fontSize:"20px"
+                        overflow: 'hidden',
                     }
 
                     }>
-        <img src={`http://localhost:3001/uploads/${info.image_path}`} alt="My Photo" style={{width:"200px",paddingBottom:"50px"}}/>
+        <img src={`http://localhost:3001/uploads/${info.image_path}`} alt="My Photo" style={{width:"100%",height:"100%",objectFit:"cover",marginBottom:"10px"}}/>
          </div>
          <div style={{display:"flex",justifyContent:"center"}}>
-         <button className="form-control" type="submit" onClick={removePhoto} style={{width:"300px",borderColor:"#51A485",backgroundColor:"#51A485",height:"50px",color:"white"}}>Remove photo</button>
+         <button className="form-control" type="submit" onClick={removePhoto} style={{width:"300px",borderColor:"#51A485",backgroundColor:"#51A485",height:"40px",color:"white"}}>Remove photo</button>
          </div>
          </>
         ):(<div
                     style={{
 
-                        width: '200px',
+                         width: '200px',
                         height: '195px',
                         borderRadius: '50%',
-                        lineHeight: '150px',
-                        textAlign: 'center',
-                        fontSize: '16px',
-                        color: '#555',
                         margin: '0 auto',
                         display:"flex",
                         justifyContent:"center",
                         alignItems:"center",
-                        fontSize:"20px"
+                        overflow: 'hidden',
+    
+                       
                     }
 
                     }>
-                        <img src={'http://localhost:3001/uploads/1748181746097.jpg'} style={{width:"350px",height: '200px',}}/>
+                        <img src={'http://localhost:3001/uploads/1748263645152.png'} style={{width:"100%",height:"100%",objectFit:"cover",marginBottom:"10px"}}/>
                 </div>)}
     <br/>
     <div style={{display:"flex"}}><FaUserCircle size={18} color="#51A485" title="Name" className="me-2"/><h5>Firstname:<b> {info.first_name}</b></h5></div>
@@ -105,7 +103,7 @@ function Info({id,info,setInfo}){
     <hr/>
     <div style={{display:"flex"}}><FaGenderless size={18} color="#51A485" title="Gender" className="me-2"/><h5>Gender:<b> {info.gender_name}</b></h5></div>
     <hr/>
-    <div style={{display:"flex"}}><FaBirthdayCake size={18} color="#51A485" title="Birth" className="me-2"/><h5>Birthday:<b> {info.date_of_birth}</b></h5></div>
+    <div style={{display:"flex"}}><FaBirthdayCake size={18} color="#51A485" title="Birth" className="me-2"/><h5>Birthday:<b> {formattedDate}</b></h5></div>
     <hr/>
     <div style={{display:"flex"}}><FaTint size={18} color="#51A485" title="Blood Type" className="me-2"/><h5>Blood Type:<b> {info.blood_type}</b> </h5></div>
     </div>

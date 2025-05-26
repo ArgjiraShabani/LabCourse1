@@ -11,12 +11,18 @@ const FeedbacksAdmin = () => {
 
   useEffect(() => {
     axios.get('http://localhost:3001/feedbacksAdmin').then((response)=>{
-      const formattedData = response.data.map(item => {
-                return {
-                  ...item,
-                  created_at: item.created_at ? item.created_at.split("T")[0] : item.created_at
-                };
-              });
+       const formattedData = response.data.map(item => {
+        if (item.created_at) {
+          const datePart = item.created_at.split("T")[0];
+          const [year, month, day] = datePart.split("-");
+          const formattedDate = `${month}-${day}-${year}`;
+          return {
+            ...item,
+            created_at: formattedDate
+          };
+        }
+        return item;
+      });
             setFeedbacks(formattedData);
         })
         .catch((err)=>{
@@ -33,22 +39,23 @@ function handleDelete(id){
             confirmButtonText: "Delete"
             }).then((result) => {
             if (result.isConfirmed) {
-                axios.delete(`http://localhost:3001/deleteFeedback/${id}`)
+                axios.patch(`http://localhost:3001/updateFeedback/${id}`)
                      .then(response=>{
                         const updatedFeedback = feedbacks.filter(feedback => feedback.feedback_id !== id);
                     setFeedbacks(updatedFeedback);
-                         })
-                     .catch(error=>{
-                         console.error('Not deleted!')
-                    })
-                
-                Swal.fire({
+                      Swal.fire({
                 position: "center",
                 icon: "success",
-                title: "Feedback has been deleted!",
+                title: "Feedback has been removed!",
                 showConfirmButton: false,
                 timer: 1100
                 });
+                         })
+                     .catch(error=>{
+                         console.error('Not removed!')
+                    })
+                
+              
             }
             });
 
@@ -58,10 +65,10 @@ function handleDelete(id){
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
       <div className="flex-grow-1 p-4">
-        <h3 className="mb-4" style={{ color: '#51A485' }}>Feedbacks</h3>
+        <h3 className="mb-4">Feedbacks</h3>
         <table className="table table-bordered">
           <thead >
-            <tr style={{ backgroundColor: '#51A485', color: 'white' }}>
+            <tr>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Patient ID</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>First Name</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Last Name</th>
@@ -71,7 +78,7 @@ function handleDelete(id){
             </tr>
           </thead>
           <tbody>
-              {feedbacks.map((value,key)=>{
+              {feedbacks.length>0 ? (feedbacks.map((value,key)=>{
                 return(
                 <tr key={key}>
                   <td>{value.patient_id}</td>
@@ -84,7 +91,11 @@ function handleDelete(id){
                   </td>
                 </tr>
                 )
-              })}
+              })):(
+                <tr>
+                  <td colSpan="6" className='text-center'>No feedbacks found!</td>
+                </tr>
+              )}
           </tbody>
         </table>
       </div>

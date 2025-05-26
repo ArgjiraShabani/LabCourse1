@@ -105,7 +105,7 @@ const Sidebar = ({ role, id }) => {
 
               <li className="nav-item mb-2">
                 <Link to="/patient" className="nav-link text-white hover-link">
-                  All Patients
+                Patients
                 </Link>
               </li>
               <li className="nav-item mb-2">
@@ -234,7 +234,7 @@ const Sidebar = ({ role, id }) => {
                   to={`/feedbacksPatient/${id}`}
                   className="nav-link text-white hover-link"
                 >
-                  Feedbacks
+                  My Feedbacks
                 </Link>
               </li>
               <li className="nav-item mb-2">

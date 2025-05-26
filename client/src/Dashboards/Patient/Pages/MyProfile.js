@@ -28,7 +28,7 @@ const MyProfile = () => {
     <div className="d-flex" style={{ minHeight: '100vh' }}>
       <Sidebar role='patient' id={id} />
       <div className="flex-grow-1 p-4">
-        <h2>Patient Profile</h2>
+        <h3>Patient Profile</h3>
         <div style={{display:'flex',justifyContent:"space-around",flexWrap:'wrap'}}>
         <Info info={info} id={id} setInfo={setInfo}/>
         <UpdateProfile id={id} info={info} setInfo={setInfo}/>
