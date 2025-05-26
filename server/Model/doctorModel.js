@@ -70,10 +70,66 @@ const updateDoctorById=(doctorId,doctorData,callback)=>{
    db.query(query,values,callback);
 };
 
+const getAllDoctors=(callback)=>{
+    const sqlGet=` SELECT d.doctor_id,d.first_name,
+    d.last_name,
+    d.email,
+    d.password,
+    d.phone,
+    r.role_name,
+    d.date_of_birth,
+    g.gender_name,
+  s.specialization_name,
+  dep.department_name ,
+  d.education
+  FROM doctors d inner join roles r on d.role_id=r.role_id
+   inner join gender g on d.gender_id=g.gender_id
+    inner join specialization s on d.specialization_id=s.specialization_id
+   inner join departments dep on d.department_id=dep.department_id`;
+   db.query(sqlGet,callback);
+};
+const deleteDoctor=(doctorId,callback)=>{
+    const sqlDel="DELETE FROM doctors WHERE doctor_id=?";
+    db.query(sqlDel,[doctorId],callback);
+};
+
+const getDoctorById=(doctorId,callback)=>{
+    const sql=`SELECT d.doctor_id,d.first_name,
+  d.last_name,
+  d.email,
+  d.password,
+  d.phone,
+  d.role_id,
+  r.role_name,
+  d.date_of_birth,
+  d.gender_id,
+  g.gender_name,
+  d.specialization_id,
+s.specialization_name,
+d.department_Id,
+dep.department_name,
+d.education,
+d.image_path
+FROM doctors d inner join roles r on d.role_id=r.role_id
+ inner join gender g on d.gender_id=g.gender_id
+  inner join specialization s on d.specialization_id=s.specialization_id
+ inner join departments dep on d.department_Id=dep.department_Id
+ WHERE d.doctor_id=?
+ `;
+
+ db.query(sql,[doctorId],callback);
+};
+
+
+
+
 
 module.exports={
     createDoctor,
     getDocPasswordById,
     updateDoctorById,
+    getAllDoctors,
+    deleteDoctor,
+    getDoctorById,
     
 };

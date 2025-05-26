@@ -548,7 +548,8 @@ app.use('/api',doctorRoutes);
 app.use('/api',departmentRoutes);
 app.use('/api',dataRoutes);
 app.use('/api',specializationRoutes);
-app.use('/api',doctorRoutes);
+
+
 
 
 /*
@@ -709,7 +710,7 @@ app.put("/updateDoctors/:id",upload.single('img'),(req,res)=>{
   
   
  
-});*/
+});
 app.get('/viewDoctors',(req,res)=>{
   const sqlGet=`
   SELECT d.doctor_id,d.first_name,
@@ -791,7 +792,7 @@ FROM doctors d inner join roles r on d.role_id=r.role_id
   res.json(result[0]);
  });
 
-});
+});*/
 
 
 

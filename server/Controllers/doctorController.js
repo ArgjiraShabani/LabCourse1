@@ -1,6 +1,10 @@
 const bcrypt=require('bcrypt');
 const {createDoctor} = require('../Model/doctorModel');
-const {getDocPasswordById,updateDoctorById}=require('../Model/doctorModel');
+const {getDocPasswordById,updateDoctorById,getAllDoctors,
+    deleteDoctor,getDoctorById
+}=require('../Model/doctorModel');
+const { json } = require('body-parser');
+
 
 
 const createDoctorHandler=async(req,res)=>{
@@ -104,11 +108,53 @@ const updateDoctorHandler=(req,res)=>{
     });
 };
 
+const getAllDoctorsHandlers=(req,res)=>{
+    getAllDoctors((err,results)=>{
+        if(err){
+            console.error('Database error:',err);
+            return res.status(500).json({error: 'Database error'});
+        }
+        res.json(results);
+    });
+};
+
+const deleteDoctorHandler=(req,res)=>{
+    const doctorId=req.params.doctor_id;
+
+    deleteDoctor(doctorId,(err,result)=>{
+        if(err){
+            console.error("Database error:",err);
+            return res.status(500).json({error: "Database error"});
+        }
+        if(result.affectedRows===0){
+            return res.status(404).json({message: "Doctor not found"});
+        }
+        res.json({message: "Doctor deleted successfully"});
+    });
+};
+
+const getDoctorByIdHandler=(req,res)=>{
+    const doctorId=req.params.doctor_id;
+
+    getDoctorById(doctorId,(err,results)=>{
+        if(err){
+            console.error("Database error:" , err);
+            return res.status(500).json({error: "Database error"});
+        }
+        if(results.length===0){
+            return res.status(404).json({message: "Doctor not found"});
+        }
+        res.json(results[0]);
+    });
+};
 
 
 module.exports={
     createDoctorHandler,
     updateDoctorHandler,
+    getAllDoctorsHandlers,
+    deleteDoctorHandler,
+    getDoctorByIdHandler,
     
 };
   

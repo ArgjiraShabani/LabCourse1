@@ -51,7 +51,7 @@ const UpdateDoctor=()=>{
     
     
     useEffect(()=>{
-        Axios.get(`http://localhost:3001/doctorId/${doctorId}`)
+        Axios.get(`http://localhost:3001/api/doctorId/${doctorId}`)
         .then((response)=>{
             const data=response.data;
             console.log("Fetched data:",data);

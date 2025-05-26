@@ -17,7 +17,7 @@ function DoctorPofile({doctor_id}){
             navigate("/login");
             return;
         }*/
-        Axios.get(`http://localhost:3001/doctorId/${doctor_id}`)
+        Axios.get(`http://localhost:3001/api/doctorId/${doctor_id}`)
         .then((response)=>{
             const birthDate=response.data.date_of_birth.split("T")[0];
             response.data.date_of_birth=birthDate;
