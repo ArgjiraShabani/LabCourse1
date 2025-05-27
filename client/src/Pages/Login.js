@@ -35,8 +35,8 @@ function Login(){
         //navigate(`/patientdashboard/${res.data.id}`);
         navigate(`/${res.data.id}`)
       } else {
-        localStorage.setItem("admin_id", res.data.id);
-        navigate(`/adminDashboard`);
+      localStorage.setItem("admin_id", res.data.id);
+        navigate(`/adminDashboard/${res.data.id}`);
       }
 
     } else {

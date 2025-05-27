@@ -1331,6 +1331,97 @@ app.get("/appointments/bookedSlots", (req, res) => {
   });
 });
 
+app.get("/my-appointments", (req, res) => {
+  const patientId = req.query.patient_id;
+
+  if (!patientId) {
+    return res.status(400).json({ error: "patient_id is required" });
+  }
+
+  const sql = `
+    SELECT 
+      a.appointment_id AS id,
+      a.name AS patient_name,
+      a.lastname AS patient_lastname,
+      a.appointment_datetime,
+      a.purpose,
+      s.service_name,
+      d.first_name AS doctor_firstname,
+      d.last_name AS doctor_lastname
+    FROM appointments a
+    LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+    LEFT JOIN services s ON a.service_id = s.service_id
+    WHERE a.patient_id = ?
+    ORDER BY a.appointment_datetime DESC
+  `;
+
+  db.query(sql, [patientId], (err, results) => {
+    if (err) {
+      console.error("Error while retrieving appointments:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    res.json(results);
+  });
+});
+
+app.delete("/my-appointments/:id", (req, res) => {
+  const appointmentId = req.params.id;
+
+  const sql = "DELETE FROM appointments WHERE appointment_id = ?";
+
+  db.query(sql, [appointmentId], (err, result) => {
+    if (err) {
+      console.error("Error while deleting appointment:", err);
+      return res.status(500).json({ error: "Failed to delete appointment" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    res.json({ message: "Appointment deleted successfully" });
+  });
+});
+
+app.put("/my-appointments/:id", (req, res) => {
+  const appointmentId = req.params.id;
+  const { name, lastname, purpose } = req.body;
+  const patientId = req.query.patient_id;
+
+  if (!name || !lastname || !purpose || !patientId) {
+    return res.status(400).json({ error: "All fields and patient_id are required" });
+  }
+
+  const checkSql = `SELECT * FROM appointments WHERE appointment_id = ? AND patient_id = ?`;
+
+  db.query(checkSql, [appointmentId, patientId], (err, result) => {
+    if (err) {
+      console.error("Error checking appointment ownership:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    if (result.length === 0) {
+      return res.status(403).json({ error: "Unauthorized or appointment not found" });
+    }
+
+    const updateSql = `
+      UPDATE appointments 
+      SET name = ?, lastname = ?, purpose = ?
+      WHERE appointment_id = ? AND patient_id = ?
+    `;
+
+    db.query(updateSql, [name, lastname, purpose, appointmentId, patientId], (err, result) => {
+      if (err) {
+        console.error("Error updating appointment:", err);
+        return res.status(500).json({ error: "Failed to update appointment" });
+      }
+
+      res.json({ message: "Appointment updated successfully" });
+    });
+  });
+});
+
 
 app.listen(3001,()=>{
     console.log("Hey po punon")
