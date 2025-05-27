@@ -33,7 +33,7 @@ import HomePagePatient from './Dashboards/Patient/Pages/HomePagePatient';
 import FeedbacksPatient from './Dashboards/Patient/Pages/FeedbackPatient';
 import Appointment from './Dashboards/Doctor/Appointments';
 import PatientAppointments from './Dashboards/Admin/PatientAppointments';
-{/*import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';*/}
+import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';
 
 
 
@@ -80,7 +80,7 @@ function Layout() {
           <Route path="/PatientAppointments/:id" element={<PatientAppointments/>}/>
 
 
-          {/*<Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>*/}
+          <Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>
         </Routes>
       </main>
      

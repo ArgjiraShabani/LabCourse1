@@ -205,14 +205,14 @@ const Sidebar = ({ role, id }) => {
           <>
             <h4 className="text-center mb-4">Patient Dashboard</h4>
             <ul className="nav flex-column">
-              <li className="nav-item mb-2">
+              {/*<li className="nav-item mb-2">
                 <Link
                   to={`/patientdashboard/${id}`}
                   className="nav-link text-white  hover-link"
                 >
                   Dashboard
                 </Link>
-              </li>
+              </li>*/}
               <li className="nav-item mb-2">
                 <Link
                   to={`/myAppointment/${id}`}

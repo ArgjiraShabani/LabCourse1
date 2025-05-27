@@ -1,7 +1,9 @@
-/*import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+
 
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -11,6 +13,9 @@ const MyAppointments = () => {
     lastname: "",
     purpose: "",
   });
+  const param=useParams();
+ const {id}=param; 
+
 
   const navigate = useNavigate();
   const patientId = localStorage.getItem("patient_id");
@@ -101,7 +106,7 @@ const MyAppointments = () => {
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
-      <Sidebar role="patient" />
+      <Sidebar role="patient" id={id} />
       <div className="container py-4 flex-grow-1">
         <h2 className="mb-4 fw-bold">My Appointments</h2>
 
@@ -221,4 +226,4 @@ const MyAppointments = () => {
   );
 };
 
-export default MyAppointments;*/
+export default MyAppointments;
