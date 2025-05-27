@@ -22,12 +22,21 @@ function BookAppointment() {
     purpose: "",
   });
 
-  // Funksion për të gjetur datën e së dielës që vjen (nëse sot është dielë, merr sot)
+
   function getNextSunday(date) {
-    const day = date.getDay(); // 0 = dielë
-    const diff = day === 0 ? 0 : 7 - day;
-    const nextSunday = new Date(date);
-    nextSunday.setDate(date.getDate() + diff);
+    const now = new Date(date);
+    const day = now.getDay();
+    const hour = now.getHours();
+
+    let diff;
+    if (day === 0 && hour >= 23) {
+      diff = 7;
+    } else {
+      diff = day === 0 ? 0 : 7 - day;
+    }
+
+    const nextSunday = new Date(now);
+    nextSunday.setDate(now.getDate() + diff);
     return nextSunday;
   }
 
@@ -85,12 +94,14 @@ function BookAppointment() {
 
         const custom = customRes.data.find(
           (s) =>
-            s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
+            s.doctor_id === parseInt(formData.doctor_id) &&
+            s.weekday === weekday
         );
 
         const standard = standardRes.data.find(
           (s) =>
-            s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
+            s.doctor_id === parseInt(formData.doctor_id) &&
+            s.weekday === weekday
         );
 
         const schedule = custom || standard;
@@ -123,15 +134,20 @@ function BookAppointment() {
         const allSlots = generateSlots(schedule.start_time, schedule.end_time);
 
         try {
-          const res = await axios.get("http://localhost:3001/appointments/bookedSlots", {
-            params: {
-              doctor_id: formData.doctor_id,
-              date: selectedDate,
-            },
-          });
+          const res = await axios.get(
+            "http://localhost:3001/appointments/bookedSlots",
+            {
+              params: {
+                doctor_id: formData.doctor_id,
+                date: selectedDate,
+              },
+            }
+          );
 
           const bookedSlots = res.data;
-          const freeSlots = allSlots.filter((slot) => !bookedSlots.includes(slot));
+          const freeSlots = allSlots.filter(
+            (slot) => !bookedSlots.includes(slot)
+          );
 
           setAvailableSlots(freeSlots);
         } catch (err) {
@@ -152,7 +168,9 @@ function BookAppointment() {
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === "service_id" || name === "doctor_id" ? parseInt(value) : value,
+        name === "service_id" || name === "doctor_id"
+          ? parseInt(value)
+          : value,
     }));
   };
 
