@@ -1422,6 +1422,37 @@ app.put("/my-appointments/:id", (req, res) => {
   });
 });
 
+app.get('/api/admin/stats', (req, res) => {
+  const stats = {};
+
+  const queries = [
+    { key: 'roles', query: 'SELECT COUNT(*) AS count FROM roles' },
+    { key: 'patients', query: 'SELECT COUNT(*) AS count FROM patients' },
+    { key: 'doctors', query: 'SELECT COUNT(*) AS count FROM doctors' },
+    { key: 'departments', query: 'SELECT COUNT(*) AS count FROM departments' },
+    { key: 'appointments', query: 'SELECT COUNT(*) AS count FROM appointments' },
+    { key: 'results', query: 'SELECT COUNT(*) AS count FROM results' }
+  ];
+
+  let completed = 0;
+
+  queries.forEach((item) => {
+    db.query(item.query, (err, result) => {
+      if (err) {
+        console.error(`Error while executing the query for ${item.key}:`, err);
+return res.status(500).json({ error: 'Error while retrieving statistics' });
+
+      }
+
+      stats[item.key] = result[0].count;
+      completed++;
+
+      if (completed === queries.length) {
+        res.json(stats);
+      }
+    });
+  });
+});
 
 app.listen(3001,()=>{
     console.log("Hey po punon")
