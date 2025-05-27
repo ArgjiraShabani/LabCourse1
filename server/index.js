@@ -433,8 +433,8 @@ app.post("/registerPatient",upload.single("image"),(req,res)=>{
             });
 
 app.post('/login',(req,res)=>{
-  const sql="SELECT patients.patient_id,patients.email,patients.password,roles.role_name FROM patients inner join roles on patients.role_id=roles.role_id WHERE `email`=? AND `password`=?";
-  db.query(sql,[req.body.email,req.body.password],(err,data)=>{
+  const sql="SELECT patients.patient_id,patients.email,patients.password,roles.role_name FROM patients inner join roles on patients.role_id=roles.role_id inner join status on status.status_id=patients.status_id WHERE `email`=? AND `password`=? AND status.status_name=?";
+  db.query(sql,[req.body.email,req.body.password,'active'],(err,data)=>{
       if(err){
       return res.json("Error");
       }

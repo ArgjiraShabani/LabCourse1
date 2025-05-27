@@ -36,25 +36,52 @@ function Patient(){
 
 
     function handleClick(s_id,id){
-        Axios.put("http://localhost:3001/updateStatus",{status:s_id,id:id}).then(response=>{
-              const updatedList = patientList.map(patient => {
-                if (patient.patient_id === id) {
-                    const statusObj = status.find(s => s.status_id === s_id);
-                    return {
-                        ...patient,
-                        status_id: s_id,
-                        status_name: statusObj ? statusObj.status_name : patient.status_name,
-                    };
-                }
-                return patient;
-            });
+        Swal.fire({
+            title: "Are you sure about changing status?",
+            showCancelButton: true,
+            confirmButtonColor: "#51A485",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Change"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                Axios.put("http://localhost:3001/updateStatus",{status:s_id,id:id}).then(response=>{
+                    const updatedList = patientList.map(patient => {
+                        if (patient.patient_id === id) {
+                            const statusObj = status.find(s => s.status_id === s_id);
+                            return {
+                                ...patient,
+                                status_id: s_id,
+                                status_name: statusObj ? statusObj.status_name : patient.status_name,
+                            };
+                        }
+                        return patient;
+                    });
 
-            setPatientList(updatedList);
-        })
-        .catch(error => {
-            console.error("Error:", error);
-          });
-        }
+                        setPatientList(updatedList);
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Status has been changed!",
+                            showConfirmButton: false,
+                            timer: 1100
+                            });
+
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                        });
+                        
+                        }else{
+                            Swal.fire({
+                            position: "center",
+                            icon: "error",
+                            title: "Status has not been changed!",
+                            showConfirmButton: false,
+                            timer: 1100
+                            });
+                        }
+    })
+}
     function handleDelete(id){
         Swal.fire({
             title: "Are you sure about deleting this patient?",
@@ -130,7 +157,7 @@ function Patient(){
                         <td>{value.phone}</td>
                         <td>{value.date_of_birth}</td>
                         <td>{value.gender_name}</td>
-                        <td>{value.status_name}</td>
+                        <td style={{ color: value.status_name.toLowerCase() === 'inactive' ? 'red' : 'green' }}>{value.status_name}</td>
                         <td>
                             {status.map((val,key)=>{
                                 return(

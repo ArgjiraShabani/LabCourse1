@@ -3,11 +3,11 @@ const db = mysql.createConnection({
     host: "localhost",
     user:"root",    
     //password:"password",
-    //password:"database",
+    password:"database",
     //password:"valjeta1!",
     //password: "mysqldb",
     //password:"mysql123",
-    password:"valjeta1!",
+    //password:"valjeta1!",
     database:"hospital_management",
     
    
