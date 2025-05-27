@@ -32,7 +32,8 @@ import FeedbacksAdmin from './Dashboards/Admin/FeedbacksAdmin';
 import HomePagePatient from './Dashboards/Patient/Pages/HomePagePatient';
 import FeedbacksPatient from './Dashboards/Patient/Pages/FeedbackPatient';
 import Appointment from './Dashboards/Doctor/Appointments';
-import PatientAppointments from './Dashboards/Admin/PatientAppointments'
+import PatientAppointments from './Dashboards/Admin/PatientAppointments';
+{/*import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';*/}
 
 
 
@@ -51,8 +52,7 @@ function Layout() {
           <Route path='/:id' element={<HomePagePatient />}/>
           <Route path="/staff" element={<MedicalStaff />} />
           <Route path='/staff/:id' element={<MedicalStaffPatient />}/>
-          <Route path="/adminDashboard" element={<AdminDashboard />}>
-          </Route> 
+          <Route path="/adminDashboard/:id" element={<AdminDashboard />} />
           <Route path="/doctors" element={<AdminDoctor/>}/>
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
           <Route path='/viewDoctors' element={<ViewDoctors/>}/>
@@ -78,6 +78,9 @@ function Layout() {
           <Route path="/WeeklySchedule/:id" element={<WeeklySchedule />} />
           <Route path="/Appointment/:id" element={<Appointment />} />
           <Route path="/PatientAppointments/:id" element={<PatientAppointments/>}/>
+
+
+          {/*<Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>*/}
         </Routes>
       </main>
      

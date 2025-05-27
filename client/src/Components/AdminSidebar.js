@@ -210,7 +210,15 @@ const Sidebar = ({ role, id }) => {
                   to={`/patientdashboard/${id}`}
                   className="nav-link text-white  hover-link"
                 >
-                  My Appointment
+                  Dashboard
+                </Link>
+              </li>
+              <li className="nav-item mb-2">
+                <Link
+                  to={`/myAppointment/${id}`}
+                  className="nav-link text-white  hover-link"
+                >
+                  My Appointments
                 </Link>
               </li>
               <li className="nav-item mb-2">
