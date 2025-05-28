@@ -83,7 +83,7 @@ function DoctorSpecializations(){
         
   <thead style={{backgroundColor: '#51A485',color: '#fff',padding: '12px 15px'}}>
     <tr style={{backgroundColor: '#51A485',color: '#fff',padding: '12px 15px'}}>
-      <th scope="col" >Id</th>
+      <th scope="col" >Specialization Id</th>
       <th scope="col">Specialization Name</th>
       
     </tr>

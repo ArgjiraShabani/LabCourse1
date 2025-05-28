@@ -1,28 +1,42 @@
 import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
-import Axios from "axios";
-function Modal({closeModal,patient_id,doctor_id}){
+
+import axios from "axios";
+function Modal({closeModal,patient_id,doctor_id,appointment_id,formData,setFormData,file,setFile,readOnly,onSubmitSuccess}){
 
 
     const[patientInfo,setPatientInfo]=useState({});
-    const[formData,setFormData]=useState({
+    /*const[formData,setFormData]=useState({
+        first_name: "",
+        last_name: "",
         symptoms: "",
         diagnose: "",
         alergies: "",
         result_text: "",
     });
-    const[file,setFile]=useState(null);
+    const[file,setFile]=useState(null);*/
     useEffect(()=>{
-        Axios.get(`http://localhost:3001/getPatientInfo/${patient_id}`)
-        .then((response)=>{
-            const birthDate=response.data.date_of_birth.split("T")[0];
-            response.data.date_of_birth=birthDate;
-            setPatientInfo(response.data);
-        })
-        .catch((error)=>{
-            console.error("Error fetching user",error);
-        });
-    },[patient_id]);
+        const fetchReport=async()=>{
+            try{
+                const response=await axios.get(`http://localhost:3001/getReports/${patient_id}/${doctor_id}/${appointment_id}`);
+                if(response.data && !formData.first_name){
+                    setFormData({
+                        first_name: response.data.first_name,
+                        last_name: response.data.last_name,
+                        symptoms: response.data.symptoms,
+                        diagnose: response.data.diagnose,
+                        alergies: response.data.alergies,
+                        result_text: response.data.result_text,
+                    });
+                }
+            }catch(error){
+                console.error("Error fetching report:",error);
+            }
+        };
+        if(patient_id && doctor_id && appointment_id){
+            fetchReport();
+        }
+    },[patient_id,doctor_id,appointment_id]);
 
     const handleChange=(e)=>{
         setFormData({...formData,[e.target.id]: e.target.value});
@@ -35,6 +49,9 @@ function Modal({closeModal,patient_id,doctor_id}){
         const data=new FormData();
         data.append('doctor_id',doctor_id)
         data.append("patient_id",patient_id);
+        data.append("appointment_id",appointment_id);
+        data.append("first_name",formData.first_name);
+        data.append("last_name",formData.last_name)
         data.append("symptoms",formData.symptoms);
         data.append("diagnose",formData.diagnose);
         data.append("alergies",formData.alergies);
@@ -47,8 +64,8 @@ function Modal({closeModal,patient_id,doctor_id}){
 
         
 
-        const response=await Axios.post(
-            `http://localhost:3001/api/reports/${patient_id}`,
+        const response=await axios.post(
+            `http://localhost:3001/api/reports/${patient_id}/${doctor_id}`,
             data,
             {
                 headers: {
@@ -56,13 +73,17 @@ function Modal({closeModal,patient_id,doctor_id}){
                 },
             }
         );
-        alert("Medical Report sent by email successfully!");
+        alert("Medical Report created successfully!");
+        if(onSubmitSuccess){
+            onSubmitSuccess(patient_id);
+        }
+        closeModal();
         
 
         
     }catch(error){
-        console.error("Error sending form",error);
-        alert("Failed to send medical report");
+        console.error("Error submitting form",error);
+        alert("Failed to submit medical report");
     }
 }
 
@@ -107,7 +128,7 @@ function Modal({closeModal,patient_id,doctor_id}){
             color: '#51A485',
             zIndex: 10,
             }}/>
-            <ul className="list-group list-group-flush" 
+            {/*<ul className="list-group list-group-flush" 
             style={{
            
             width: '100%',
@@ -120,13 +141,30 @@ function Modal({closeModal,patient_id,doctor_id}){
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Birthdate: {patientInfo.date_of_birth}</li>
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Gender: {patientInfo.gender_name}</li>
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Medical History: {patientInfo.medical_history}</li>
-            </ul>
-            <form className="container mt-4" style={{width: '100%'}}>
+            </ul>*/}
+            <form className="container mt-4" style={{width: '100%'}} onSubmit={handleSubmit}>
+            <div className="row mb-3">
+            <label htmlFor="first_name" className="form-label">First Name:</label>
+            <div className="col-sm-10">
+                <input type="text" className="form-control" id="first_name"
+                value={formData.first_name} onChange={handleChange} readOnly={readOnly} />
+            </div>
+            </div>
+            <div className="row mb-3">
+            <label htmlFor="last_name" className="form-label">Last Name:</label>
+            <div className="col-sm-10">
+                <input type="text" className="form-control" id="last_name"
+                value={formData.last_name} onChange={handleChange} readOnly={readOnly} />
+            </div>
+            </div>
+
+
+               
                 <div className="row mb-3">
                 <label for="symptoms" className="form-label">Symptoms:</label>
                 <div className="col-sm-10">
                 <input type="text" className="form-control" id="symptoms" aria-describedby="symptoms"
-                value={formData.symptoms} onChange={handleChange}/>
+                value={formData.symptoms} onChange={handleChange} readOnly={readOnly}/>
                 </div>
 
 
@@ -135,7 +173,7 @@ function Modal({closeModal,patient_id,doctor_id}){
                 <label for="diagnose" className="form-label">Diagnose:</label>
                 <div className="col-sm-10">
                 <input type="text" className="form-control" id="diagnose"
-                value={formData.diagnose} onChange={handleChange}/>
+                value={formData.diagnose} onChange={handleChange} readOnly={readOnly}/>
                 </div>
 
                 </div>
@@ -143,7 +181,7 @@ function Modal({closeModal,patient_id,doctor_id}){
                 <label className="form-label" for="alergies">Alergies:</label>
                 <div className="col-sm-10">
                     <input type="text" className="form-control" id="alergies"
-                    value={formData.alergies} onChange={handleChange}/>
+                    value={formData.alergies} onChange={handleChange} readOnly={readOnly}/>
                 </div>
 
 
@@ -153,7 +191,7 @@ function Modal({closeModal,patient_id,doctor_id}){
                  <label className="form-label" for="description">Description:</label>
                 <div className="col-sm-10">
                  <input type="text" className="form-control" id="result_text"
-                 value={formData.result_text} onChange={handleChange}/>
+                 value={formData.result_text} onChange={handleChange} readOnly={readOnly}/>
                 </div>
 
 
@@ -161,16 +199,21 @@ function Modal({closeModal,patient_id,doctor_id}){
                 <div className="row mb-3 ">
                 <div className="col-sm-10">
                  <input type="file" className="form-control" id="attachment"
-                 onChange={handleFileChange}/>
+                 onChange={handleFileChange} readOnly={readOnly}/>
                 </div>
 
 
                 </div>
+                {!readOnly &&(
+                    <>
 
-                <button type="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Submit</button>
-                <button type="submit" className="btn " style={{backgroundColor: '#51A485',color: '#fff',width: '100px'}}>Send by email</button>
-               <button type="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Print</button>
-            </form>
+                <button type="submit" name="action" value="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Submit</button>
+                <button type="submit" name="action" value="email" className="btn " style={{backgroundColor: '#51A485',color: '#fff',width: '100px'}}>Send by email</button>
+                </>
+
+                )}
+              
+                </form>
             </div>
             </div>
             </>

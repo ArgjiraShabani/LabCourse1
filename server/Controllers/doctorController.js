@@ -3,6 +3,7 @@ const {createDoctor} = require('../Model/doctorModel');
 const {getDocPasswordById,updateDoctorById,getAllDoctors,
     deleteDoctor,getDoctorById
 }=require('../Model/doctorModel');
+const {getPatientAppointments} =require('../Model/patientModel');
 const { json } = require('body-parser');
 
 
@@ -148,6 +149,16 @@ const getDoctorByIdHandler=(req,res)=>{
     });
 };
 
+const getAppointments=(req,res)=>{
+    const doctorId=req.params.doctor_id;
+    getPatientAppointments(doctorId,(err,results)=>{
+        if(err){
+            return res.status(500).json({error: "Database error"});
+        }
+        res.json({patients: results});
+    });
+};
+
 
 module.exports={
     createDoctorHandler,
@@ -155,6 +166,7 @@ module.exports={
     getAllDoctorsHandlers,
     deleteDoctorHandler,
     getDoctorByIdHandler,
+    getAppointments,
     
 };
   

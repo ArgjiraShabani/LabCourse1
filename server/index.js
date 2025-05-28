@@ -983,11 +983,12 @@ app.get('/services', async (req, res) => {
   }
 });
 
-app.get('/getPatientInfo/:patient_id',(req,res)=>{
+/*app.get('/getPatientInfo/:patient_id',(req,res)=>{
   const patientId=req.params.patient_id;
   const q=`SELECT p.first_name,p.last_name,
   p.gender_id,g.gender_name,p.medical_history,p.date_of_birth
-  FROM patients p inner join gender g on p.gender_id=g.gender_id`;
+  FROM patients p inner join gender g on p.gender_id=g.gender_id
+  WHERE p.patient_id=?`;
   db.query(q,[patientId],(err,result)=>{
     if(err){
     console.error("Database error:",err);
@@ -1000,7 +1001,7 @@ app.get('/getPatientInfo/:patient_id',(req,res)=>{
   res.json(result[0]);
   });
 
-});
+});*/
 
 app.get('/doctors/byDepartment/:department_id', (req, res) => {
     const departmentId = req.params.department_id;
