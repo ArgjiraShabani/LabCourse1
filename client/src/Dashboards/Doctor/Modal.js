@@ -1,10 +1,17 @@
 import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
 import Axios from "axios";
-function Modal({closeModal,patient_id}){
+function Modal({closeModal,patient_id,doctor_id}){
 
 
-    const[patientInfo,setPatientInfo]=useState([]);
+    const[patientInfo,setPatientInfo]=useState({});
+    const[formData,setFormData]=useState({
+        symptoms: "",
+        diagnose: "",
+        alergies: "",
+        result_text: "",
+    });
+    const[file,setFile]=useState(null);
     useEffect(()=>{
         Axios.get(`http://localhost:3001/getPatientInfo/${patient_id}`)
         .then((response)=>{
@@ -16,6 +23,48 @@ function Modal({closeModal,patient_id}){
             console.error("Error fetching user",error);
         });
     },[patient_id]);
+
+    const handleChange=(e)=>{
+        setFormData({...formData,[e.target.id]: e.target.value});
+    };
+    const handleFileChange=(e)=>{
+        setFile(e.target.files[0]);
+    };
+    const handleSubmit= async (e)=>{
+        e.preventDefault();
+        const data=new FormData();
+        data.append('doctor_id',doctor_id)
+        data.append("patient_id",patient_id);
+        data.append("symptoms",formData.symptoms);
+        data.append("diagnose",formData.diagnose);
+        data.append("alergies",formData.alergies);
+        data.append("result_text",formData.result_text);
+
+        if(file) data.append("attachment",file);
+
+        try{
+            
+
+        
+
+        const response=await Axios.post(
+            `http://localhost:3001/api/reports/${patient_id}`,
+            data,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
+        );
+        alert("Medical Report sent by email successfully!");
+        
+
+        
+    }catch(error){
+        console.error("Error sending form",error);
+        alert("Failed to send medical report");
+    }
+}
 
     
     return(
@@ -76,7 +125,8 @@ function Modal({closeModal,patient_id}){
                 <div className="row mb-3">
                 <label for="symptoms" className="form-label">Symptoms:</label>
                 <div className="col-sm-10">
-                <input type="text" className="form-control" id="symptoms" aria-describedby="symptoms"/>
+                <input type="text" className="form-control" id="symptoms" aria-describedby="symptoms"
+                value={formData.symptoms} onChange={handleChange}/>
                 </div>
 
 
@@ -84,14 +134,16 @@ function Modal({closeModal,patient_id}){
                 <div className="row mb-3">
                 <label for="diagnose" className="form-label">Diagnose:</label>
                 <div className="col-sm-10">
-                <input type="text" className="form-control" id="diagnose"/>
+                <input type="text" className="form-control" id="diagnose"
+                value={formData.diagnose} onChange={handleChange}/>
                 </div>
 
                 </div>
                 <div className="row mb-3 ">
                 <label className="form-label" for="alergies">Alergies:</label>
                 <div className="col-sm-10">
-                    <input type="text" className="form-control" id="alergies"/>
+                    <input type="text" className="form-control" id="alergies"
+                    value={formData.alergies} onChange={handleChange}/>
                 </div>
 
 
@@ -100,14 +152,16 @@ function Modal({closeModal,patient_id}){
                 <div className="row mb-3 ">
                  <label className="form-label" for="description">Description:</label>
                 <div className="col-sm-10">
-                 <input type="text" className="form-control" id="description"/>
+                 <input type="text" className="form-control" id="result_text"
+                 value={formData.result_text} onChange={handleChange}/>
                 </div>
 
 
                 </div>
                 <div className="row mb-3 ">
                 <div className="col-sm-10">
-                 <input type="file" className="form-control" id="results"/>
+                 <input type="file" className="form-control" id="attachment"
+                 onChange={handleFileChange}/>
                 </div>
 
 

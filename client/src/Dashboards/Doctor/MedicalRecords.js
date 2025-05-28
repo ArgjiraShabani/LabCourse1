@@ -4,6 +4,7 @@ import Modal from "./Modal";
 function MedicalRecords(){
 
     const [openModal,setOpenModal] = useState(false);
+    
 
     return(
        <>
@@ -22,7 +23,7 @@ function MedicalRecords(){
           }} onClick={()=>{
         setOpenModal(true);
        }}>Write prescription</button>
-       {openModal && <Modal closeModal={()=>setOpenModal(false)}/>}
+       {openModal && <Modal closeModal={()=>setOpenModal(false)} />}
         </div>
         </div>
 

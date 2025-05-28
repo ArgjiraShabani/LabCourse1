@@ -29,7 +29,7 @@ function Login(){
 
       if (res.data.role === 'doctor') {
         localStorage.setItem("doctor_id", res.data.id);
-        navigate(`/doctordashboard`);
+        navigate(`/doctordashboard/${res.data.id}`);
       } else if (res.data.role === 'patient') {
         localStorage.setItem("patient_id", res.data.id);
         //navigate(`/patientdashboard/${res.data.id}`);

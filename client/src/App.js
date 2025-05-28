@@ -18,6 +18,7 @@ import ManageDepartments from './Dashboards/Admin/manageDepartments';
 import ManageServices from './Dashboards/Admin/manageServices';
 import UpdateDoctor from './Dashboards/Admin/UpdateDoctor';
 import ViewDoctors from './Dashboards/Admin/viewDoctors';
+import DoctorSpecializations from './Dashboards/Admin/doctorSpecializations';
 import ManageSchedule from './Dashboards/Admin/ManageSchedule';
 import SignUp from './Pages/Signup';
 import BookAppointments from './Pages/BookAppointments';
@@ -26,7 +27,7 @@ import MedicalStaffPatient from './Dashboards/Patient/Pages/StaffPatient';
 import Patient from './Dashboards/Admin/Patient';
 import Register from './Dashboards/Doctor/registerPatient';
 import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
-import DoctorPofile from './Dashboards/Doctor/DoctorProfile';
+import DoctorProfile from './Dashboards/Doctor/DoctorProfile';
 import MedicalRecords from './Dashboards/Doctor/MedicalRecords';
 import FeedbacksAdmin from './Dashboards/Admin/FeedbacksAdmin';
 import HomePagePatient from './Dashboards/Patient/Pages/HomePagePatient';
@@ -56,12 +57,13 @@ function Layout() {
           <Route path="/doctors" element={<AdminDoctor/>}/>
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
           <Route path='/viewDoctors' element={<ViewDoctors/>}/>
-          <Route path='/doctorProfile/:id' element={<DoctorPofile/>}/>
+          <Route path='/doctorSpecializations' element={<DoctorSpecializations/>}/>
+          <Route path='/doctorProfile/:doctor_id' element={<DoctorProfile/>}/>
           <Route path='/medicalRecords/:id' element={<MedicalRecords/>}/>
           <Route path='/feedbacksPatient/:id' element={<FeedbacksPatient/>}></Route>
           
 
-          <Route path="/doctordashboard" element={<DoctorDashboard/>} />
+          <Route path="/doctordashboard/:doctor_id" element={<DoctorDashboard/>} />
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
           <Route path='/myprofile/:id' element={<MyProfile/>}></Route>
           <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>

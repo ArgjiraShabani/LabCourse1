@@ -53,7 +53,7 @@ const createDoctorHandler=async(req,res)=>{
 };
 
 const updateDoctorHandler=(req,res)=>{
-    const doctorId=req.params.id;
+    const doctorId=req.params.doctor_id;
 
     getDocPasswordById(doctorId,(err,results)=>{
         if(err){

@@ -5,8 +5,8 @@ const db = mysql.createConnection({
     //password:"password",
     //password:"database",
     //password:"valjeta1!",
-    //password: "mysqldb",
-    password:"mysql123",
+    password: "mysqldb",
+    //password:"mysql123",
     //password:"valjeta1!",
     database:"hospital_management",
     

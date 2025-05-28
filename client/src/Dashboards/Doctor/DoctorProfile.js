@@ -1,22 +1,25 @@
 import Sidebar from "../../Components/AdminSidebar";
-import { useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import { useState,useEffect } from "react";
 import {FaUser,FaEnvelope,FaPhone,FaGenderless,FaStethoscope,FaHospital} from "react-icons/fa";
 import { LuCalendarDays } from "react-icons/lu";
 import { PiStudentFill } from "react-icons/pi";
 import Axios from "axios";
-function DoctorPofile({doctor_id}){
+function DoctorProfile(){
+
+    
     const [doctorData,setDoctorData]=useState([]);
     
 
     const navigate=useNavigate();
     
     useEffect(()=>{
-       // const doctor_id=8;
-       /* if(!doctor_id){
+        const doctor_id=localStorage.getItem("doctor_id");
+       
+        if(!doctor_id){
             navigate("/login");
             return;
-        }*/
+        }
         Axios.get(`http://localhost:3001/api/doctorId/${doctor_id}`)
         .then((response)=>{
             const birthDate=response.data.date_of_birth.split("T")[0];
@@ -26,7 +29,7 @@ function DoctorPofile({doctor_id}){
         .catch((error)=>{
             console.error("Error fetching doctor data",error);
      } );
-    },[doctor_id]);
+    },[navigate]);
 
     if(!doctorData){
         return <div>Loading profile...</div>;
@@ -101,4 +104,4 @@ function DoctorPofile({doctor_id}){
 
 
 }
-export default DoctorPofile;
+export default DoctorProfile;

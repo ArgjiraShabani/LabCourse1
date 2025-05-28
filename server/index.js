@@ -14,6 +14,7 @@ const doctorRoutes=require('./Routes/doctorRoutes');
 const departmentRoutes=require('./Routes/departmentRoutes');
 const dataRoutes=require('./Routes/dataRoutes');
 const specializationRoutes=require('./Routes/specializationRoutes');
+const reportRoutes=require('./Routes/reportRoutes');
 const db=require('./db');
 
 app.use(cors());
@@ -548,6 +549,7 @@ app.use('/api',doctorRoutes);
 app.use('/api',departmentRoutes);
 app.use('/api',dataRoutes);
 app.use('/api',specializationRoutes);
+app.use('/api',reportRoutes);
 
 
 

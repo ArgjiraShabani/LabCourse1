@@ -99,6 +99,14 @@ const Sidebar = ({ role, id }) => {
                         View Doctors
                       </Link>
                     </li>
+                    <li className="nav-item mb-2">
+                      <Link
+                        to="/doctorSpecializations"
+                        className="nav-link text-white hover-link"
+                      >
+                        Doctor Specializations
+                      </Link>
+                    </li>
                   </ul>
                 )}
               </li>

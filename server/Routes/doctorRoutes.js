@@ -18,7 +18,7 @@ const userStorage=multer.diskStorage({
 const userUpload=multer({storage: userStorage});
 
 router.post('/doctors',userUpload.single('img'),createDoctorHandler);
-router.put('/updateDoctors/:id',userUpload.single('img'),updateDoctorHandler);
+router.put('/updateDoctors/:doctor_id',userUpload.single('img'),updateDoctorHandler);
 router.get('/viewDoctors',getAllDoctorsHandlers);
 router.delete('/deleteDoctor/:doctor_id',deleteDoctorHandler);
 router.get('/doctorId/:doctor_id',getDoctorByIdHandler);
