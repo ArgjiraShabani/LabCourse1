@@ -146,6 +146,14 @@ const Sidebar = ({ role, id }) => {
                   Feedbacks
                 </Link>
               </li>
+              <li className="nav-item mb-2">
+                <Link
+                  to={`/updateData/`}
+                  className="nav-link text-white hover-link"
+                >
+                  Update Data
+                </Link>
+              </li>
               <li className="nav-item mt-4">
                 <a href="#" className="nav-link text-danger">
                   Log out

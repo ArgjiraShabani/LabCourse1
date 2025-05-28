@@ -35,7 +35,7 @@ import FeedbacksPatient from './Dashboards/Patient/Pages/FeedbackPatient';
 import Appointment from './Dashboards/Doctor/Appointments';
 import PatientAppointments from './Dashboards/Admin/PatientAppointments';
 import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';
-
+import UpdateData from './Dashboards/Admin/UpdateData';
 
 
 
@@ -61,7 +61,7 @@ function Layout() {
           <Route path='/doctorProfile/:doctor_id' element={<DoctorProfile/>}/>
           <Route path='/medicalRecords/:id' element={<MedicalRecords/>}/>
           <Route path='/feedbacksPatient/:id' element={<FeedbacksPatient/>}></Route>
-          
+          <Route path='updateData' element={<UpdateData/>}></Route>
 
           <Route path="/doctordashboard/:doctor_id" element={<DoctorDashboard/>} />
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>

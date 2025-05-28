@@ -209,7 +209,7 @@ app.get('/infoPatient/:id',(req,res)=>{
 });
 
 app.get('/gender',(req,res)=>{
-  db.query('Select gender_name from gender',(err,data)=>{
+  db.query('Select * from gender',(err,data)=>{
     if(err){
       return res.json("You did not fetch Gender!");
     }else{
@@ -217,6 +217,42 @@ app.get('/gender',(req,res)=>{
     }
   })
 });
+
+app.post('/addGender',(req,res)=>{
+  const gender=req.body.gender;
+  db.query('INSERT INTO gender(gender_name) values(?) ',[gender],(error,data)=>{
+     if(error){
+      return res.json("You did not add Gender!");
+    }else{
+      res.send(data);
+    }
+  })
+});
+
+app.post('/addRole',(req,res)=>{
+  const role=req.body.role;
+  db.query('INSERT INTO roles(role_name) values(?) ',[role],(error,data)=>{
+     if(error){
+      return res.json("You did not add Role!");
+    }else{
+      res.send(data);
+    }
+  })
+});
+
+app.post('/addBlood',(req,res)=>{
+  const blood=req.body.blood;
+  db.query('INSERT INTO blood(blood_type) values(?) ',[blood],(error,data)=>{
+     if(error){
+      return res.json("You did not add Blood!");
+    }else{
+      res.send(data);
+    }
+  })
+})
+
+
+
 
 app.get('/status',(req,res)=>{
   db.query('Select * from status',(err,data)=>{
@@ -243,7 +279,7 @@ app.put('/updateStatus',(req,res)=>{
 
 
 app.get('/blood',(req,res)=>{
-  db.query('Select blood_type from blood',(err,data)=>{
+  db.query('Select * from blood',(err,data)=>{
     if(err){
       return res.json("You did not fetch Blood!");
     }else{
@@ -543,7 +579,46 @@ app.post('/signup',(req,res)=>{
 }})
 });
 
+app.get('/roles',(req,res)=>{
+    db.query('SELECT role_id,role_name FROM  roles',(err,results)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).json({error: "Database error"});
+        }
+        res.json(results);
+    });
+});
 
+app.delete('/deleteData',(req,res)=>{
+  const id=req.body.id;
+  const name=req.body.nameData;
+ 
+  db.query('DELETE FROM roles WHERE role_id=? AND role_name=?',[id,name],(err,result)=>{
+        if(err){
+            return res.status(500).json({error: "Database error"});
+        }
+        if(result.affectedRows===0){
+          db.query('DELETE FROM gender WHERE gender_id=? AND gender_name=?',[id,name],(err,result)=>{
+            if(err){
+              return res.status(500).json({error: "Database error"});
+            }
+           if(result.affectedRows===0){
+               db.query('DELETE FROM blood WHERE blood_id=? AND blood_type=?',[id,name],(err,result)=>{
+                  if(err){
+                    return res.status(500).json({error: "Database error"});
+                  }else{
+                  res.json(result);
+                  }
+               })
+              }else{
+                   res.json(result);
+              }
+          })
+      }else{
+        res.json(result);
+      }
+    });
+});
 
 app.use('/api',doctorRoutes);
 app.use('/api',departmentRoutes);
