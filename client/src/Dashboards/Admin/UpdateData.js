@@ -23,12 +23,20 @@ function UpdateData(){
   handleSubmit: handleSubmitRole,
   formState: { errors: errorsRole },
   reset: resetRole,
-  setValue,
+  setValueRole,
+  getValuesRole
 } = useForm({
   resolver: yupResolver(yup.object().shape({
     role: yup.string().required("This field is required!"),
   })),
 });
+ useEffect(() => {
+    if (role && role.role_name) {
+      resetRole({
+       role:role.role_name
+      });
+    }
+  }, [role, resetRole]);
 
 const {
   register: registerGender,

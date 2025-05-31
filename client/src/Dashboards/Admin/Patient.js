@@ -129,7 +129,7 @@ function Patient(){
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Lastname</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Email</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Phone</th>
-                        <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Birthday</th>
+                        <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Date of birth</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white",width:"100px"}}>Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>

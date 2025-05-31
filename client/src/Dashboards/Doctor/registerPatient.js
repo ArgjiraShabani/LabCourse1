@@ -49,6 +49,9 @@ const schema =yup.object().shape({
             const parsedDate = new Date(value);
             return parsedDate <= new Date(); // Check if the parsed date is not in the future
         }),
+        confirmedPassword: yup.string()
+                    .required('Confirm password is required!')
+                    .oneOf([yup.ref('password'), null], 'Passwords must match!'), 
                 
     });
 
@@ -172,13 +175,20 @@ function Register(){
                     <input type="password" name="password" className="form-control" {...register("password")} />
                      <p style={{color:"red"}}>{errors.password?.message}</p>
                     </div>
+                    <div className="mb-3">
+                        <label>Confirme Password:</label>
+                        <input type="password" name='confirmedPassword' className="form-control" {...register("confirmedPassword")}/>
+                         <p style={{color:"red"}}>{errors.confirmedPassword?.message}</p>
+
+                    </div>
                      <div className="mb-3">
                     <label htmlFor="email" className="form-label">Phone Number:</label>
                     <input type="text" name="phoneNumber" className="form-control" {...register("phoneNumber")} />
                     <p style={{color:"red"}}>{errors.phoneNumber?.message}</p>
                     </div>
+                
                     <div className="mb-3">
-                    <label  className="form-label">Birthday:</label>
+                    <label  className="form-label">Date of Birth:</label>
                     <input type="date" name="birth" className="form-control" {...register("birth")} onFocus={(e) => e.target.showPicker && e.target.showPicker()} />
                     <p style={{color:"red"}}>{errors.birth?.message}</p>            
                     </div>

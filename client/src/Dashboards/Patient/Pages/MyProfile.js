@@ -6,7 +6,7 @@ import UpdateProfile from '../Components/updateProfile';
 import { useState,useEffect } from "react";
 import Sidebar from '../../../Components/AdminSidebar';
 import { set } from 'react-hook-form';
-
+import UpdatePassword from '../Components/updatePassword';
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -32,6 +32,7 @@ const MyProfile = () => {
         <div style={{display:'flex',justifyContent:"space-around",flexWrap:'wrap'}}>
         <Info info={info} id={id} setInfo={setInfo}/>
         <UpdateProfile id={id} info={info} setInfo={setInfo}/>
+        <UpdatePassword id={id}/>
         </div>
       </div>
     </div>

@@ -578,6 +578,28 @@ app.post('/signup',(req,res)=>{
                   });
 }})
 });
+app.patch('/changePassword',(req,res)=>{
+  const oldPassword=req.body.oldPassword;
+  const newPassword=req.body.password;
+  const id=req.body.id;
+  db.query('SELECT patients.password,patients.first_name FROM patients WHERE patients.password=? AND patients.patient_id=?',[oldPassword,id],(err,result)=>{
+    if(err){
+      console.log(err);
+    }else{
+      if(result.length>0){
+        db.query('UPDATE patients SET patients.password=? WHERE patients.patient_id=?',[newPassword,id],(err,result)=>{
+          if(err){
+            console.log(err);
+          }else{
+            res.json("Changed");
+          }
+        })
+      }else{
+        res.json("Old password is wrong!");
+      }
+    }
+  })
+});
 
 app.get('/roles',(req,res)=>{
     db.query('SELECT role_id,role_name FROM  roles',(err,results)=>{
