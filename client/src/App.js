@@ -50,7 +50,7 @@ function Layout() {
       <main className="flex-grow-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path='/:id' element={<HomePagePatient />}/>
+          <Route path='/homePagePatient/:id' element={<HomePagePatient />}/>
           <Route path="/staff" element={<MedicalStaff />} />
           <Route path='/staff/:id' element={<MedicalStaffPatient />}/>
           <Route path="/adminDashboard/:id" element={<AdminDashboard />} />

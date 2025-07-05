@@ -64,16 +64,17 @@ function handleDelete(id){
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
-      <div className="flex-grow-1 p-4">
-        <h3 className="mb-4">Feedbacks</h3>
-        <table className="table table-bordered">
+      <div className="container py-4 flex-grow-1">
+        <h3 className="mb-3">Feedbacks</h3>
+      <div className="table-responsive">
+        <table className="table table-bordered table-hover align-middle">
           <thead >
             <tr>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Patient ID</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>First Name</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Last Name</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Message</th>
-              <th style={{ backgroundColor: '#51A485', color: 'white',width:"100px" }}>Date</th>
+              <th style={{ backgroundColor: '#51A485', color: 'white',width:"200px" }}>Date</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Delete</th>
             </tr>
           </thead>
@@ -98,8 +99,10 @@ function handleDelete(id){
               )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
+    
   );
 };
 

@@ -225,7 +225,7 @@ const {
       <Sidebar role="admin" />
       <div className="container py-4 flex-grow-1">
       
- <div className="container mt-4">
+ <div className="container py-4 flex-grow-1">
       <label>Add Role:</label>
       <form className="d-flex" onSubmit={handleSubmitRole(handleAddRole)}>
       
@@ -241,9 +241,10 @@ const {
           <button type="submit" style={{backgroundColor:"#51A485",borderColor:"white",height:"50px",color:"white",borderRadius:"7px"}}>Add</button>
 
       </form>
+      
     </div>
         <div className="table-responsive" style={{marginTop:"10px"}}>
-          <table className="table table-bordered table-hover align-middle">
+          <table className="table table-bordered table-hover align-middle" style={{minWidth:"700px"}}>
             <thead className="table-light">
               <tr>
                 <th style={{backgroundColor:"#51A485",color:"white"}}>Role</th>
@@ -299,7 +300,7 @@ const {
       </form>
     </div>
     <div className="table-responsive" style={{marginTop:"10px"}}>
-          <table className="table table-bordered table-hover align-middle">
+          <table className="table table-bordered table-hover align-middle" style={{minWidth:"700px"}}>
             <thead className="table-light">
               <tr>
                 <th style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
@@ -356,7 +357,7 @@ const {
       </form>
     </div>
         <div className="table-responsive" style={{marginTop:"10px"}}>
-          <table className="table table-bordered table-hover align-middle">
+          <table className="table table-bordered table-hover align-middle" style={{minWidth:"700px"}}>
             <thead className="table-light">
               <tr>
                 <th style={{backgroundColor:"#51A485",color:"white"}}>Blood</th>

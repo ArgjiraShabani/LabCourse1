@@ -66,7 +66,7 @@ function UpdatePassword({id,info,setInfo}){
     return(
      <>
         
-            <div style={{marginTop:"5px",borderStyle:"solid",padding:"60px 90px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'}}>
+            <div style={{marginTop:"5px",borderStyle:"solid",padding:"60px 110px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'}}>
           <h1 style={{textAlign:"center",marginBottom:"40px"}}>Change Password</h1>
           <form className="mt-4" onSubmit={handleSubmit(changePassword)}>
             <p style={{color:"red",fontSize:"17px"}}>{error}</p>

@@ -12,11 +12,12 @@ function MedicalStaff(){
 
     const [staffList,setstaffList]=useState([]);
 
+
     useEffect(()=>{
         Axios.get("http://localhost:3001/staff").then((response)=>{
             setstaffList(response.data);
         })
-    },[staffList])
+    },[])
 
     return(
         <>
@@ -25,15 +26,15 @@ function MedicalStaff(){
             <div class="container my-4">
                 <h1 class="text-center display-4" style={{color:"#51A485",marginTop:"50px",fontWeight:"bold"}}> Medical Staff</h1>
             </div>
-            <div style={{display:"flex",justifyContent:"space-around",margin:"100px",flexWrap:"wrap",gap:"100px",}}>
+            <div style={{display:"flex",justifyContent:"center",padding:"20px",flexWrap:"wrap",gap:"40px",}}>
                  {staffList.map((val,key)=>{
                         return(
                             <>
                             <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
-                             <img src="https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png" class="card-img-top" alt="..." style={{height:"270px"}}/>
+                             <img src={val.image_path ? `http://localhost:3001/uploads/${val.image_path}`: "https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png"} class="card-img-top" alt="..." style={{height:"270px"}}/>
                              <div class="card-body">
-                                 <p>Name: {val.first_name}</p>
-                                 <p>LastName: {val.last_name}</p>
+                                 <p>Firstname: {val.first_name}</p>
+                                 <p>Lastname: {val.last_name}</p>
                                  <p>Specialization: {val.specialization_name}</p>
                              </div>
                              </div> 

@@ -242,7 +242,7 @@ function HomePage() {
 
           <div className="row g-4">
             <div className="col-lg-6">
-              <div className="bg-white p-4 rounded shadow-sm h-100" style={{display:"flex",justifyContent:"space-around",alignItems:"center"}}>
+              <div className="bg-white p-4 rounded shadow-sm h-100">
                 <div className="mb-4">
                   <h5 style={{ color: "#51A485" }}>Our Location</h5>
                   <p className="mb-0">
@@ -271,50 +271,6 @@ function HomePage() {
                     +355 33 456 789 / +383 33 122 333
                   </p>
                 </div>
-
-               {/* <h5 className="mb-3" style={{ color: "#51A485" }}>
-                  Leave us a feedback
-                </h5>
-                <form>
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="First Name"
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Last Name"
-                        required
-                      />
-                    </div>
-                    <div className="col-12">
-                      <textarea
-                        className="form-control"
-                        rows="3"
-                        placeholder="Your Message"
-                        required
-                      ></textarea>
-                    </div>
-                    <div className="col-12">
-                      <button
-                        type="submit"
-                        className="btn w-100 py-2"
-                        style={{
-                          backgroundColor: "#51A485",
-                          color: "white",
-                        }}
-                      >
-                        <i className="bi bi-send-fill me-2"></i> Send Message
-                      </button>
-                    </div>
-                  </div>
-                </form>*/}
               </div>
             </div>
 

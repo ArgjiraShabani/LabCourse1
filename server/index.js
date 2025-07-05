@@ -68,7 +68,7 @@ db.connect((err) => {
 });*/
 
 app.get('/staff',(req,res)=>{
-    db.query("SELECT doctors.first_name,doctors.last_name,specialization.specialization_name FROM doctors inner join specialization on doctors.specialization_id=specialization.specialization_id",(err,result)=>{
+    db.query("SELECT doctors.first_name,doctors.last_name,doctors.image_path,specialization.specialization_name FROM doctors inner join specialization on doctors.specialization_id=specialization.specialization_id",(err,result)=>{
     if(err){
         console.log(err);
     }else{

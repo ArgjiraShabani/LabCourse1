@@ -118,9 +118,10 @@ function Patient(){
         <div className="d-flex" style={{ minHeight: '100vh' }}>
         
             <Sidebar role='admin'/>
-            <div className="flex-grow-1 p-4">
-                <h3 className="mb-4">Patients</h3>
-                  <table className="table table-bordered">
+            <div className="container py-4 flex-grow-1">
+                <h3 className="mb-3">Patients</h3>
+               <div className="table-responsive">
+                 <table className="table table-bordered table-hover align-middle">
                     <thead>
                         <tr>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Photo</th>
@@ -128,7 +129,7 @@ function Patient(){
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Firstname</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Lastname</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Email</th>
-                        <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Phone</th>
+                        <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Phone</th>
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Date of birth</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white",width:"100px"}}>Status</th>
@@ -138,9 +139,10 @@ function Patient(){
 
                         </tr>
                     </thead>
+                    <tbody> 
                     {patientList.length>0 ? (patientList.map((value,key)=>{
                         return(
-                    <tbody> 
+                    
                         <tr>
                          <th scope="row">
                             { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} style={{width:"60px"}}/>
@@ -169,7 +171,7 @@ function Patient(){
                             <Button variant="danger" onClick={()=>{handleDelete(value.patient_id)}}>Delete</Button>
                         </td>
                         </tr>
-                        </tbody>
+                       
                         )
                         })):(
                             <tr className="text-center">
@@ -177,11 +179,11 @@ function Patient(){
                             </tr>
                         )
                             }
-                
+                 </tbody>
                 </table>
                 </div>
                 </div>
-        
+        </div>
 
 
         

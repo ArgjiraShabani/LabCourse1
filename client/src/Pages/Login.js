@@ -24,7 +24,7 @@ function Login(){
        const submitForm = (event) => {
   axios.post('http://localhost:3001/login', event).then(res => {
     if (res.data.message === 'Success') {
-    
+      
       localStorage.setItem("role", res.data.role);
 
       if (res.data.role === 'doctor') {
@@ -33,7 +33,7 @@ function Login(){
       } else if (res.data.role === 'patient') {
         localStorage.setItem("patient_id", res.data.id);
         //navigate(`/patientdashboard/${res.data.id}`);
-        navigate(`/${res.data.id}`)
+        navigate(`/homePagePatient/${res.data.id}`)
       } else {
       localStorage.setItem("admin_id", res.data.id);
         navigate(`/adminDashboard/${res.data.id}`);

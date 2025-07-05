@@ -65,14 +65,15 @@ function FeedbacksPatient(){
     <>
       <div className="d-flex" style={{ minHeight: "100vh" }}>
         <Sidebar role="patient" id={id} />
-        <div className="flex-grow-1 p-4">
-          <h3 className="mb-4">My Feedbacks</h3>
-          <table className="table table-bordered">
+        <div className="container py-4 flex-grow-1">
+          <h3 className="mb-3">My Feedbacks</h3>
+          <div className="table-responsive">
+          <table className="table table-bordered table-hover align-middle" style={{minWidth:"400px"}}>
             <thead>
               <tr>
                 <th style={{ backgroundColor: '#51A485', color: 'white' }}>Message</th>
-                <th style={{ backgroundColor: '#51A485', color: 'white' }}>Date</th>
-                <th style={{ backgroundColor: '#51A485', color: 'white',display:"flex",justifyContent:"center" }}>Delete</th>
+                <th style={{ backgroundColor: '#51A485', color: 'white'}}>Date</th>
+                <th style={{ backgroundColor: '#51A485', color: 'white' }}>Delete</th>
               </tr>
             </thead>
             <tbody> 
@@ -99,6 +100,7 @@ function FeedbacksPatient(){
 
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
