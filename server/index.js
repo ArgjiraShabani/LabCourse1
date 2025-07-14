@@ -1,6 +1,5 @@
 
 const express=require("express")
-const app=express()
 const mysql=require("mysql2")
 const cors=require("cors");
 const multer = require('multer');
@@ -16,9 +15,25 @@ const dataRoutes=require('./Routes/dataRoutes');
 const specializationRoutes=require('./Routes/specializationRoutes');
 const reportRoutes=require('./Routes/reportRoutes');
 const db=require('./db');
+const cookieParser = require("cookie-parser");
+const loginRoutes = require("./Routes/auth");
+const router = require("./Routes/protectedRoutes");
+const app=express()
 
-app.use(cors());
+
+
+
+app.use(cors({
+  origin: 'http://localhost:3000', // ✅ Your React app origin
+  credentials: true               // ✅ Allow cookies
+}));
+
 app.use(express.json());
+app.use(cookieParser());
+ app.use(loginRoutes);
+ app.use("/", router); 
+
+
 app.use('/uploads', express.static('public/uploads'));
 
 const storage = multer.diskStorage({
@@ -502,6 +517,7 @@ app.post('/login',(req,res)=>{
 }});
 });
 
+
 app.post('/signup',(req,res)=>{
   const name=req.body.name;
   const lastname=req.body.lastname;
@@ -611,36 +627,69 @@ app.get('/roles',(req,res)=>{
     });
 });
 
-app.delete('/deleteData',(req,res)=>{
+app.delete('/deleteDataGender',(req,res)=>{
   const id=req.body.id;
   const name=req.body.nameData;
  
-  db.query('DELETE FROM roles WHERE role_id=? AND role_name=?',[id,name],(err,result)=>{
-        if(err){
-            return res.status(500).json({error: "Database error"});
-        }
-        if(result.affectedRows===0){
           db.query('DELETE FROM gender WHERE gender_id=? AND gender_name=?',[id,name],(err,result)=>{
             if(err){
               return res.status(500).json({error: "Database error"});
             }
            if(result.affectedRows===0){
-               db.query('DELETE FROM blood WHERE blood_id=? AND blood_type=?',[id,name],(err,result)=>{
-                  if(err){
-                    return res.status(500).json({error: "Database error"});
-                  }else{
-                  res.json(result);
-                  }
-               })
+               res.json("This gender does not exist!")
               }else{
                    res.json(result);
               }
           })
-      }else{
-        res.json(result);
-      }
+     
     });
-});
+  
+  app.delete('/deleteDataBlood',(req,res)=>{
+  const id=req.body.id;
+  const name=req.body.nameData;
+ 
+          db.query('DELETE FROM blood WHERE blood_id=? AND blood_type=?',[id,name],(err,result)=>{
+            if(err){
+              return res.status(500).json({error: "Database error"});
+            }
+           if(result.affectedRows===0){
+               res.json("This blood does not exist!")
+              }else{
+                   res.json(result);
+              }
+          })
+     
+    });
+
+app.put('/updateDataBlood',(req,res)=>{
+  const id=req.body.id;
+  const newValue=req.body.newValue;
+  db.query('UPDATE blood SET blood_type=? WHERE blood_id=?',[newValue,id],(err,result)=>{
+     if(err){
+              return res.status(500).json({error: "Database error"});
+            }
+           if(result.affectedRows===0){
+               res.json("This blood does not exist!")
+              }else{
+                   res.json(result);
+              }
+          })
+  });
+
+  app.put('/updateDataGender',(req,res)=>{
+  const id=req.body.id;
+  const newValue=req.body.newValue;
+  db.query('UPDATE gender SET gender_name=? WHERE gender_id=?',[newValue,id],(err,result)=>{
+     if(err){
+              return res.status(500).json({error: "Database error"});
+            }
+           if(result.affectedRows===0){
+               res.json("This gender does not exist!")
+              }else{
+                   res.json(result);
+              }
+          })
+  });
 
 app.use('/api',doctorRoutes);
 app.use('/api',departmentRoutes);

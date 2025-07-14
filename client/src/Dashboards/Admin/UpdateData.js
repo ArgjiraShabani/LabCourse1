@@ -16,6 +16,10 @@ function UpdateData(){
     const [blood,setBlood]=useState([]);
     const [role,setRole]=useState([]);
     const [gender,setGender]=useState([]);
+    const [editingBlood, setEditingBlood] = useState({});
+    const [editingGender, setEditingGender] = useState({});
+
+
     
 
     const {
@@ -84,7 +88,7 @@ const {
        fetchBlood();
     },[]);
 
-   function fetchRoles(){
+  /* function fetchRoles(){
      axios.get("http://localhost:3001/roles").then((response)=>{
             console.log(response.data);
             setRole(response.data);
@@ -94,10 +98,10 @@ const {
       };
   useEffect(()=>{
         fetchRoles();
-    },[]);
+    },[]);*/
 
 
-    function handleDelete(id,nameData){
+    function handleDeleteGender(id,nameData){
       
       const data={
         id:id,
@@ -112,7 +116,40 @@ const {
              }).then((result) => {
                 if (result.isConfirmed) {
       
-                        axios.delete("http://localhost:3001/deleteData",{ data: data }).then((response)=>{
+                        axios.delete("http://localhost:3001/deleteDataGender",{ data: data }).then((response)=>{
+                          
+                          Swal.fire({
+                                                      position: "center",
+                                                      icon: "success",
+                                                      title: "Status has been changed!",
+                                                      showConfirmButton: false,
+                                                      timer: 1100
+                                                      }); 
+                                  fetchGender();
+                                                          
+                        }).catch((error)=>{
+                          console.log(error);
+                        })
+                  }
+                  })
+     };
+
+function handleDeleteBlood(id,nameData){
+      
+      const data={
+        id:id,
+        nameData:nameData
+      }
+       Swal.fire({
+            title: "Are you sure about deleting?",
+            showCancelButton: true,
+            confirmButtonColor: "#51A485",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Delete"
+             }).then((result) => {
+                if (result.isConfirmed) {
+      
+                        axios.delete("http://localhost:3001/deleteDataBlood",{ data: data }).then((response)=>{
                           
                           Swal.fire({
                                                       position: "center",
@@ -122,27 +159,75 @@ const {
                                                       timer: 1100
                                                       }); 
                                   fetchBlood();
-                                  fetchGender();
-                                  fetchRoles();                         
+                                                          
                         }).catch((error)=>{
                           console.log(error);
                         })
                   }
                   })
-     }
+     };
 
 
-    function handleEditRole(id,name){
+
     
+     function handleEditBlood(id) {
+        const updatedValue = editingBlood[id];
+        if (!updatedValue || updatedValue.trim() === "") return;
 
-    } 
+        axios
+          .put("http://localhost:3001/updateDataBlood", {
+            id: id,
+            newValue: updatedValue,
+          })
+          .then(() => {
+            Swal.fire({
+              position: "center",
+              icon: "success",
+              title: "Blood updated successfully!",
+              showConfirmButton: false,
+              timer: 1100,
+            });
+            fetchBlood();
+            setEditingBlood((prev) => {
+              const updated = { ...prev };
+              delete updated[id];
+              return updated;
+            });
+          })
+          .catch((error) => console.log(error));
+      };
 
-    function handleEdit(){
+      function handleEditGender(id) {
+        const updatedValue = editingGender[id];
+        if (!updatedValue || updatedValue.trim() === "") return;
 
-    }
+        axios
+          .put("http://localhost:3001/updateDataGender", {
+            id: id,
+            newValue: updatedValue,
+          })
+          .then(() => {
+            Swal.fire({
+              position: "center",
+              icon: "success",
+              title: "Gender updated successfully!",
+              showConfirmButton: false,
+              timer: 1100,
+            });
+            fetchGender();
+            setEditingGender((prev) => {
+              const updated = { ...prev };
+              delete updated[id];
+              return updated;
+            });
+          })
+          .catch((error) => console.log(error));
+      };
 
 
-    function handleAddRole(event){
+
+
+    /*function handleAddRole(event){
       
       Swal.fire({
             title: "Are you sure about adding?",
@@ -168,7 +253,7 @@ const {
                       })
                 }
     })
-  }
+  }*/
     function handleAddGender(event){
        Swal.fire({
             title: "Are you sure about adding?",
@@ -193,7 +278,8 @@ const {
                       })
                     }
                   })
-    }
+    };
+
     function handleAddBlood(event){
       Swal.fire({
             title: "Are you sure about adding?",
@@ -225,7 +311,7 @@ const {
       <Sidebar role="admin" />
       <div className="container py-4 flex-grow-1">
       
- <div className="container py-4 flex-grow-1">
+ {/*<div className="container py-4 flex-grow-1">
       <label>Add Role:</label>
       <form className="d-flex" onSubmit={handleSubmitRole(handleAddRole)}>
       
@@ -279,7 +365,7 @@ const {
                 })}
             </tbody>
           </table>
-        </div>
+        </div>*/}
       <div className="container mt-4">
       <label>Add Gender:</label>
       <form className="d-flex" onSubmit={handleSubmitGender(handleAddGender)} >
@@ -287,7 +373,7 @@ const {
         <input
           type="text"
           className="form-control me-2"
-          placeholder="Enter text"
+          placeholder="Enter gender"
           aria-label="Text input"
           name='gender'
           {...registerGender("gender")}
@@ -311,24 +397,30 @@ const {
             <tbody>
                 {gender.map((value,key)=>{
                     return(
-                        <tr>
+                        <tr key={key}>
                     <td>{value.gender_name}</td>
                     <td>
                        <form className="d-flex">
                              <input
+                             key={value.gender_id + "-" + value.gender_name}
                                 type="text"
                                 className="form-control me-2"
-                                placeholder="Enter text"
                                 aria-label="Text input"
-                                name='blood'
-                                
+                                name='gender'
+                                value={editingGender[value.gender_id] ?? value.gender_name}
+                                onChange={(e) =>
+                                  setEditingGender((prev) => ({
+                                    ...prev,
+                                    [value.gender_id]: e.target.value,
+                                  }))
+                                }                                
                             
                               />
-                       <Button className="btn btn-secondary" onClick={()=>{handleEdit(value.gender_id,value.gender_name)}}>Update</Button>
+                       <Button className="btn btn-secondary" onClick={()=>{handleEditGender(value.gender_id)}}>Update</Button>
                       </form>
                     </td>
                     <td>
-                        <Button variant="danger" onClick={()=>{handleDelete(value.gender_id,value.gender_name)}}>Delete</Button>
+                        <Button variant="danger" onClick={()=>{handleDeleteGender(value.gender_id,value.gender_name)}}>Delete</Button>
 
                     </td>
                     </tr>
@@ -345,7 +437,7 @@ const {
         <input
           type="text"
           className="form-control me-2"
-          placeholder="Enter text"
+          placeholder="Enter Blood"
           aria-label="Text input"
           name='blood'
           {...registerBlood("blood")}
@@ -375,17 +467,22 @@ const {
                              <input
                                 type="text"
                                 className="form-control me-2"
-                                placeholder="Enter text"
                                 aria-label="Text input"
                                 name='blood'
-                                
+                                value={editingBlood[value.blood_id] ?? value.blood_type}
+                                onChange={(e) =>
+                                  setEditingBlood((prev) => ({
+                                    ...prev,
+                                    [value.blood_id]: e.target.value,
+                                  }))
+                                }
                             
                               />
-                       <Button className="btn btn-secondary" onClick={()=>{handleEdit(value.blood_id,value.blood_type)}}>Update</Button>
+                       <Button className="btn btn-secondary" onClick={()=>{handleEditBlood(value.blood_id)}}>Update</Button>
                       </form>
                     </td>
                     <td>
-                        <Button variant="danger" onClick={()=>{handleDelete(value.blood_id,value.blood_type)}}>Delete</Button>
+                        <Button variant="danger" onClick={()=>{handleDeleteBlood(value.blood_id,value.blood_type)}}>Delete</Button>
 
                     </td>
                     </tr>

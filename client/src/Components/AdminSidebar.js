@@ -267,7 +267,7 @@ const Sidebar = ({ role, id }) => {
                 </a>
               </li>
               <li className="nav-item mt-4">
-                <Link to={`/${id}`} className="nav-link text-white">
+                <Link to={`/homePagePatient/${id}`} className="nav-link text-white">
                   Home
                 </Link>
               </li>
