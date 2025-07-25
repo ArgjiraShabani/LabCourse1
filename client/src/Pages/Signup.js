@@ -67,12 +67,12 @@ function SignUp(){
 
 
   useEffect(()=>{
-    axios.get('http://localhost:3001/blood').then((response)=>{
+    axios.get('http://localhost:3001/api/blood').then((response)=>{
       setBlood(response.data);
     })
   },[]);
     useEffect(()=>{
-        axios.get('http://localhost:3001/gender').then((response)=>{
+        axios.get('http://localhost:3001/api/gender').then((response)=>{
             setGender(response.data);
         }).catch(error => {
             console.error("Error:", error);

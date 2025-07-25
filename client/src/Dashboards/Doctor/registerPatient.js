@@ -84,17 +84,17 @@ function Register(){
      
 
      useEffect(()=>{
-    axios.get('http://localhost:3001/gender').then((response)=>{
+    axios.get('http://localhost:3001/api/gender').then((response)=>{
       setGender(response.data);
     })
   },[]);
    useEffect(()=>{
-    axios.get('http://localhost:3001/blood').then((response)=>{
+    axios.get('http://localhost:3001/api/blood').then((response)=>{
       setBlood(response.data);
     })
   },[]);
   useEffect(()=>{
-        axios.get("http://localhost:3001/status").then((response)=>{
+        axios.get("http://localhost:3001/api/status").then((response)=>{
             setStatus(response.data);
         })
     },[]);
@@ -116,7 +116,7 @@ function Register(){
             formdata.append("blood", e.blood);
             formdata.append("status", e.status);
         
-         axios.post("http://localhost:3001/registerPatient",formdata).then(res=>{
+         axios.post("http://localhost:3001/patient/registerPatient",formdata).then(res=>{
              
              if(res.data===""){ 
             Swal.fire({

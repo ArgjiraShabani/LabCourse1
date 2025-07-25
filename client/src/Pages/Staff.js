@@ -8,13 +8,14 @@ import { useState,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 function MedicalStaff(){
-    
+    console.log("hello")
 
     const [staffList,setstaffList]=useState([]);
 
 
     useEffect(()=>{
-        Axios.get("http://localhost:3001/staff").then((response)=>{
+        Axios.get("http://localhost:3001/api/staff").then((response)=>{
+            console.log(response.data)
             setstaffList(response.data);
         })
     },[])

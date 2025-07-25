@@ -120,7 +120,12 @@ FROM doctors d inner join roles r on d.role_id=r.role_id
  db.query(sql,[doctorId],callback);
 };
 
-
+const getStaff=(callback)=>{
+    const sql=`SELECT doctors.first_name,doctors.last_name,doctors.image_path,specialization.specialization_name
+     FROM doctors inner join specialization 
+     on doctors.specialization_id=specialization.specialization_id`;
+    db.query(sql,callback);
+}
 
 
 
@@ -131,5 +136,6 @@ module.exports={
     getAllDoctors,
     deleteDoctor,
     getDoctorById,
+    getStaff,
     
 };

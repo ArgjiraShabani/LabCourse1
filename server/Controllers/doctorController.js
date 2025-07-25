@@ -1,7 +1,7 @@
 const bcrypt=require('bcrypt');
 const {createDoctor} = require('../Model/doctorModel');
 const {getDocPasswordById,updateDoctorById,getAllDoctors,
-    deleteDoctor,getDoctorById
+    deleteDoctor,getDoctorById,getStaff
 }=require('../Model/doctorModel');
 const {getPatientAppointments} =require('../Model/patientModel');
 const { json } = require('body-parser');
@@ -158,6 +158,19 @@ const getAppointments=(req,res)=>{
         res.json({patients: results});
     });
 };
+const getStaffHandler=(req,res)=>{
+    getStaff((err,results)=>{
+        if(err){
+            console.error('Database error:',err);
+            return res.status(500).json({error: 'Database error'});
+        }
+        res.json(results);
+    });
+};
+
+
+
+
 
 
 module.exports={
@@ -167,6 +180,7 @@ module.exports={
     deleteDoctorHandler,
     getDoctorByIdHandler,
     getAppointments,
+    getStaffHandler,
     
 };
   

@@ -15,7 +15,7 @@ function NavbarPatient(){
     
   <div className="container-fluid">
     <div className="d-flex flex-column">
-    <Link to={`/${id}`} className="navbar-brand " href="/Pages/HomePage" style={{ fontSize: '30px' }}>CareWave </Link>
+    <Link to={`/homePagePatient/${id}`} className="navbar-brand " href="/Dashboards/Patient/Components/HomePagePatient" style={{ fontSize: '30px' }}>CareWave </Link>
     <p style={{ marginTop: 0, paddingTop: 0, lineHeight: 1, fontSize: '19px' }}>Hospital</p>
     </div>
     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

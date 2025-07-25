@@ -13,7 +13,7 @@ function MedicalStaffPatient(){
     const [staffList,setstaffList]=useState([]);
 
     useEffect(()=>{
-        Axios.get("http://localhost:3001/staff").then((response)=>{
+        Axios.get("http://localhost:3001/api/staff").then((response)=>{
             setstaffList(response.data);
         })
     },[staffList])
@@ -25,7 +25,7 @@ function MedicalStaffPatient(){
             <div class="container my-4">
                 <h1 class="text-center display-4" style={{color:"#51A485",marginTop:"50px",fontWeight:"bold"}}> Medical Staff</h1>
             </div>
-            <div style={{display:"flex",justifyContent:"space-around",margin:"100px",flexWrap:"wrap",gap:"100px",}}>
+            <div style={{display:"flex",justifyContent:"center",margin:"20px",flexWrap:"wrap",gap:"40px",}}>
                  {staffList.map((val,key)=>{
                         return(
                             <>

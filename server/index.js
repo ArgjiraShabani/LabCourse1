@@ -16,9 +16,13 @@ const specializationRoutes=require('./Routes/specializationRoutes');
 const reportRoutes=require('./Routes/reportRoutes');
 const db=require('./db');
 const cookieParser = require("cookie-parser");
-const loginRoutes = require("./Routes/auth");
-const router = require("./Routes/protectedRoutes");
+const loginRoutes = require("./Routes/loginRoute");
+const signUpRoutes=require("./Routes/signupRoute");
+const pRPatient = require("./Routes/protectedRoutes/pRPatient");
+const pRAdmin = require("./Routes/protectedRoutes/pRAdmin");
+const patientRoutes=require('./Routes/patientRoutes');
 const app=express()
+const dayjs=require('dayjs');
 
 
 
@@ -30,8 +34,13 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
- app.use(loginRoutes);
- app.use("/", router); 
+
+app.use("/",loginRoutes);
+app.use("/", pRPatient);
+app.use("/", pRAdmin); 
+app.use("/",signUpRoutes);
+app.use("/patient",patientRoutes); 
+
 
 
 app.use('/uploads', express.static('public/uploads'));
@@ -82,7 +91,7 @@ db.connect((err) => {
   console.log('Connected to the database');
 });*/
 
-app.get('/staff',(req,res)=>{
+/*app.get('/staff',(req,res)=>{
     db.query("SELECT doctors.first_name,doctors.last_name,doctors.image_path,specialization.specialization_name FROM doctors inner join specialization on doctors.specialization_id=specialization.specialization_id",(err,result)=>{
     if(err){
         console.log(err);
@@ -90,9 +99,9 @@ app.get('/staff',(req,res)=>{
         res.send(result)
     }
     })
-})
+});
 
-
+*/
 //Departments
 
 
@@ -211,18 +220,26 @@ app.delete('/services/:id', (req, res) => {
 
 //app.use("/server/doctorRoutes", docRoutes);
 
-app.get('/infoPatient/:id',(req,res)=>{
+/*app.get('/infoPatient/:id',(req,res)=>{
   const id=req.params.id;
 
   db.query("SELECT * from patients inner join gender on patients.gender_id=gender.gender_id inner join blood on patients.blood_id=blood.blood_id where patients.patient_id = ?",[id],(err,result)=>{
   if(err){
-      console.log(err);
+      res.json(err)
   }else{
-      res.send(result[0])
-  }
-  })
-});
+       const data = result[0];
 
+        if (data.date_of_birth instanceof Date) {
+          data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+        }
+       
+        console.log(data);
+        res.send(data);
+  }
+  });
+});
+*/
+/*
 app.get('/gender',(req,res)=>{
   db.query('Select * from gender',(err,data)=>{
     if(err){
@@ -232,7 +249,8 @@ app.get('/gender',(req,res)=>{
     }
   })
 });
-
+*/
+/*
 app.post('/addGender',(req,res)=>{
   const gender=req.body.gender;
   db.query('INSERT INTO gender(gender_name) values(?) ',[gender],(error,data)=>{
@@ -243,7 +261,8 @@ app.post('/addGender',(req,res)=>{
     }
   })
 });
-
+*/
+/*
 app.post('/addRole',(req,res)=>{
   const role=req.body.role;
   db.query('INSERT INTO roles(role_name) values(?) ',[role],(error,data)=>{
@@ -254,7 +273,8 @@ app.post('/addRole',(req,res)=>{
     }
   })
 });
-
+*/
+/*
 app.post('/addBlood',(req,res)=>{
   const blood=req.body.blood;
   db.query('INSERT INTO blood(blood_type) values(?) ',[blood],(error,data)=>{
@@ -264,11 +284,13 @@ app.post('/addBlood',(req,res)=>{
       res.send(data);
     }
   })
-})
+});
+*/
 
 
 
 
+/*
 app.get('/status',(req,res)=>{
   db.query('Select * from status',(err,data)=>{
     if(err){
@@ -278,10 +300,12 @@ app.get('/status',(req,res)=>{
     }
   })
 });
-
+*/
+/*
 app.put('/updateStatus',(req,res)=>{
   const status_id=req.body.status;
   const id=req.body.id;
+
   db.query("update patients set status_id=? where patient_id=?",[status_id,id],(err,data)=>{
     if(err){
       return res.json("Didnt Update Patient!");
@@ -290,9 +314,9 @@ app.put('/updateStatus',(req,res)=>{
     }
   })
 });
+*/
 
-
-
+/*
 app.get('/blood',(req,res)=>{
   db.query('Select * from blood',(err,data)=>{
     if(err){
@@ -302,7 +326,8 @@ app.get('/blood',(req,res)=>{
     }
   })
 });
-
+*/
+/*
 app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
   const first_name=req.body.first_name;
   const last_name=req.body.last_name;
@@ -347,8 +372,15 @@ app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
               if(err){
                   console.log(err);
               }else{
-                console.log(result[0])
-                  res.send(result[0])
+                 const data = result[0];
+
+                // ✅ Fix the date format to prevent timezone issues
+                if (data.date_of_birth instanceof Date) {
+                  data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+                }
+              
+              
+                res.send(data);
               }
               })
             
@@ -362,8 +394,9 @@ app.put('/updatePatient/:id',upload.single("image"),(req,res)=>{
 }
   });
 }})
-})
-
+});
+*/
+/*
 app.post('/removePhotoPatient/:id',(req,res)=>{
    const id = req.params.id;
   db.query("UPDATE patients set image_path= NULL where patient_id=?",[id],(err,result)=>{
@@ -374,18 +407,28 @@ app.post('/removePhotoPatient/:id',(req,res)=>{
     }
   })
 })
-
+  */
+/*
 app.get('/patient',(req,res)=>{
   db.query("SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name FROM patients inner join gender on patients.gender_id=gender.gender_id inner join status on patients.status_id=status.status_id",(err,result)=>{
   if(err){
       console.log(err);
   }else{
-      res.send(result)
+       const data = result.map(patient => {
+        if (patient.date_of_birth) {
+          // Use dayjs with utc plugin or just format as ISO date string (without time)
+          patient.date_of_birth = dayjs(patient.date_of_birth).format('YYYY-MM-DD');
+        }
+        return patient;
+      });
+         res.send(data);
   }
   })
   
 });
+*/
 
+/*
 app.delete("/deletePatient/:id",(req,res)=>{
   const id = req.params.id;
   db.query("DELETE from patients where patient_id=?",[id],(err,result)=>{
@@ -396,7 +439,8 @@ app.delete("/deletePatient/:id",(req,res)=>{
     }
   })
 })
-
+*/
+/*
 app.post("/registerPatient",upload.single("image"),(req,res)=>{
   const name=req.body.first_name;
   const lastname=req.body.last_name;
@@ -449,8 +493,8 @@ app.post("/registerPatient",upload.single("image"),(req,res)=>{
                   }
                     if(data.length>0){
                       const statusId=data[0].status_id;
-
-                              db.query("select role_id from roles where role_name=?",['patient'],(err,data)=>{
+                          const roleName='patient';
+                              db.query("select role_id from roles where role_name=?",[roleName],(err,data)=>{
                                 if(err){
                                   return res.json("Error");
                                 }
@@ -483,7 +527,8 @@ app.post("/registerPatient",upload.single("image"),(req,res)=>{
             }});
             });
             });
-
+            */
+/*
 app.post('/login',(req,res)=>{
   const sql="SELECT patients.patient_id,patients.email,patients.password,roles.role_name FROM patients inner join roles on patients.role_id=roles.role_id inner join status on status.status_id=patients.status_id WHERE `email`=? AND `password`=? AND status.status_name=?";
   db.query(sql,[req.body.email,req.body.password,'active'],(err,data)=>{
@@ -517,7 +562,8 @@ app.post('/login',(req,res)=>{
 }});
 });
 
-
+*/
+/*
 app.post('/signup',(req,res)=>{
   const name=req.body.name;
   const lastname=req.body.lastname;
@@ -594,6 +640,8 @@ app.post('/signup',(req,res)=>{
                   });
 }})
 });
+*/
+/*
 app.patch('/changePassword',(req,res)=>{
   const oldPassword=req.body.oldPassword;
   const newPassword=req.body.password;
@@ -616,7 +664,8 @@ app.patch('/changePassword',(req,res)=>{
     }
   })
 });
-
+*/
+/*
 app.get('/roles',(req,res)=>{
     db.query('SELECT role_id,role_name FROM  roles',(err,results)=>{
         if(err){
@@ -626,7 +675,8 @@ app.get('/roles',(req,res)=>{
         res.json(results);
     });
 });
-
+*/
+/*
 app.delete('/deleteDataGender',(req,res)=>{
   const id=req.body.id;
   const name=req.body.nameData;
@@ -643,7 +693,8 @@ app.delete('/deleteDataGender',(req,res)=>{
           })
      
     });
-  
+  */
+ /*
   app.delete('/deleteDataBlood',(req,res)=>{
   const id=req.body.id;
   const name=req.body.nameData;
@@ -660,7 +711,8 @@ app.delete('/deleteDataGender',(req,res)=>{
           })
      
     });
-
+*/
+/*
 app.put('/updateDataBlood',(req,res)=>{
   const id=req.body.id;
   const newValue=req.body.newValue;
@@ -675,7 +727,8 @@ app.put('/updateDataBlood',(req,res)=>{
               }
           })
   });
-
+*/
+/*
   app.put('/updateDataGender',(req,res)=>{
   const id=req.body.id;
   const newValue=req.body.newValue;
@@ -690,7 +743,7 @@ app.put('/updateDataBlood',(req,res)=>{
               }
           })
   });
-
+*/
 app.use('/api',doctorRoutes);
 app.use('/api',departmentRoutes);
 app.use('/api',dataRoutes);
@@ -1086,7 +1139,7 @@ app.get('/doctors/byDepartment/:department_id', (req, res) => {
         res.json(results);
     });
 });
-
+/*
 app.get('/feedbacksPatient/:id', (req, res) => {
   const id=req.params.id;
   const query=`Select feedback_text,created_at,feedback_id from feedbacks where patient_id=?`;
@@ -1099,7 +1152,8 @@ app.get('/feedbacksPatient/:id', (req, res) => {
 
   });
 });
-
+*/
+/*
 app.get('/feedbacksAdmin', (req, res) => {
   const query=`Select * from feedbacks inner join patients on patients.patient_id=feedbacks.patient_id where feedbacks.is_deleted=FALSE`;
   db.query(query, (err, result) => {
@@ -1111,10 +1165,10 @@ app.get('/feedbacksAdmin', (req, res) => {
 
   });
 });
+*/
 
 
-
-
+/*
 app.post('/feedbacks', (req, res) => {
   const text=req.body.text;
   const id=req.body.id;
@@ -1129,7 +1183,8 @@ app.post('/feedbacks', (req, res) => {
     res.status(201).json({ message: 'Feedback inserted successfully' });
   });
 });
-
+*/
+/*
 app.delete('/deleteFeedback/:id',(req,res)=>{
   const id=req.params.id;
   db.query("DELETE FROM feedbacks WHERE feedback_id=?",[id],(err,result)=>{
@@ -1140,7 +1195,8 @@ app.delete('/deleteFeedback/:id',(req,res)=>{
     }
   })
 })
-
+  */
+/*
 app.patch('/updateFeedback/:id',(req,res)=>{
   const id=req.params.id;
   db.query("update feedbacks set is_deleted=TRUE where feedback_id=?",[id],(err,result)=>{
@@ -1150,7 +1206,7 @@ app.patch('/updateFeedback/:id',(req,res)=>{
       res.send(result)
     }
   })
-})
+})*/
 
 
 cron.schedule('0 23 * * 0', async () => {

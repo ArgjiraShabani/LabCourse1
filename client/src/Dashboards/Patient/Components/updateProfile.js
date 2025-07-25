@@ -69,12 +69,12 @@ function UpdateProfile({id,info,setInfo}){
   const [gender,setGender]=useState([]);
   const [blood,setBlood]=useState([]);
   useEffect(()=>{
-    axios.get('http://localhost:3001/gender').then((response)=>{
+    axios.get('http://localhost:3001/api/gender').then((response)=>{
       setGender(response.data);
     })
   },[]);
   useEffect(()=>{
-    axios.get('http://localhost:3001/blood').then((response)=>{
+    axios.get('http://localhost:3001/api/blood').then((response)=>{
       setBlood(response.data);
     })
   },[]);
@@ -106,7 +106,7 @@ function UpdateProfile({id,info,setInfo}){
             confirmButtonText: "Update"
             }).then((result) => {
             if (result.isConfirmed) {
-                 axios.put(`http://localhost:3001/updatePatient/${id}`,formdata)
+                 axios.put(`http://localhost:3001/patient/updatePatient/${id}`,formdata)
                   .then(res=>{
                       const updated = res.data;
                         updated.date_of_birth = updated.date_of_birth.split("T")[0];

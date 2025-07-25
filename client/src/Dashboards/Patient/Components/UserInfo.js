@@ -25,10 +25,10 @@ function Info({id,info,setInfo}){
             showCancelButton: true,
             confirmButtonColor: "#51A485",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Update"
+            confirmButtonText: "Remove"
             }).then((result) => {
             if (result.isConfirmed) {
-                    axios.post(`http://localhost:3001/removePhotoPatient/${id}`).then((response)=>{
+                    axios.post(`http://localhost:3001/patient/removePhotoPatient/${id}`).then((response)=>{
                     setInfo(prevInfo => ({ ...prevInfo, image_path: null }));
                         Swal.fire({
                                     position: "center",

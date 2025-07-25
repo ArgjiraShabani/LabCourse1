@@ -18,16 +18,40 @@ import "../../../App.css";
 import { Link } from "react-router-dom";
 
 function HomePagePatient() {
+  const navigate = useNavigate();
+ const param=useParams();
+  const {id}=param;
+
+  useEffect(() => {
+  axios
+    .get(`http://localhost:3001/homePagePatient/${id}`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'patient') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only patients can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, [id]);
+
   const [services, setServices] = useState([]);
   const [departments, setDepartments] = useState([]);
-   const param=useParams();
-  const {id}=param; 
+   
 
   useEffect(() => {
     fetchDepartments();
     fetchServices();
   }, []);
-
+   
   const fetchDepartments = async () => {
     try {
       const res = await axios.get("http://localhost:3001/departments");
@@ -69,7 +93,7 @@ function HomePagePatient() {
     } 
     console.log(info)
    
-      axios.post("http://localhost:3001/feedbacks",info).then(res=>{
+      axios.post("http://localhost:3001/patient/feedbacks",info).then(res=>{
           Swal.fire({
                         position: "center",
                         icon: "success",

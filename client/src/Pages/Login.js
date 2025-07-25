@@ -21,30 +21,35 @@ function Login(){
 
     const navigate=useNavigate();
    
-       const submitForm = (event) => {
-  axios.post('http://localhost:3001/login', event).then(res => {
-    if (res.data.message === 'Success') {
-      
-      localStorage.setItem("role", res.data.role);
+       const submitForm = (data) => {
+          
+          axios.post('http://localhost:3001/login', data,{withCredentials:true}).then(res => {
+            console.log(res.data)
+            if (res.data.message === 'Success') {
+              
+               const role = res.data.role;
+               const id = res.data.id;
 
-      if (res.data.role === 'doctor') {
-        localStorage.setItem("doctor_id", res.data.id);
-        navigate(`/doctordashboard/${res.data.id}`);
-      } else if (res.data.role === 'patient') {
-        localStorage.setItem("patient_id", res.data.id);
-        //navigate(`/patientdashboard/${res.data.id}`);
-        navigate(`/homePagePatient/${res.data.id}`)
-      } else {
-      localStorage.setItem("admin_id", res.data.id);
-        navigate(`/adminDashboard/${res.data.id}`);
-      }
-
-    } else {
-      setErrorMessage("Incorrect email or password!");
-    }
-  })
-  .catch(err => console.log(err));
-};
+              if (res.data.role === 'doctor') {
+                navigate(`/doctordashboard/${res.data.id}`);
+              } else if (res.data.role === 'patient') {
+                navigate(`/homePagePatient/${res.data.id}`)
+              } else {
+                navigate(`/adminDashboard/${res.data.id}`);
+              }
+            }
+          })
+              .catch(err => {
+          if (err.response && err.response.status === 401) {
+            // Login failed
+            setErrorMessage(err.response.data.message);
+          } else {
+            // Other errors
+            setErrorMessage("An unexpected error occurred. Please try again.");
+            console.log(err);
+          }
+    });
+        };
 
     return(
         <>

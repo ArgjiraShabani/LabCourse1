@@ -3,7 +3,7 @@ const router=express.Router();
 const multer=require('multer');
 const path=require('path');
 const {createDoctorHandler, updateDoctorHandler,getAllDoctorsHandlers,
-    deleteDoctorHandler,getDoctorByIdHandler,getAppointments
+    deleteDoctorHandler,getDoctorByIdHandler,getAppointments,getStaffHandler
 }=require('../Controllers/doctorController');
 
 
@@ -23,6 +23,7 @@ router.get('/viewDoctors',getAllDoctorsHandlers);
 router.delete('/deleteDoctor/:doctor_id',deleteDoctorHandler);
 router.get('/doctorId/:doctor_id',getDoctorByIdHandler);
 router.get('/appointments/:doctor_id',getAppointments);
+router.get('/staff',getStaffHandler);
 
 
 module.exports=router;
