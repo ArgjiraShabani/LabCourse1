@@ -21,7 +21,7 @@ const signUpRoutes=require("./Routes/signupRoute");
 const pRPatient = require("./Routes/protectedRoutes/pRPatient");
 const pRAdmin = require("./Routes/protectedRoutes/pRAdmin");
 const patientRoutes=require('./Routes/patientRoutes');
-const app=express()
+const app=express();
 const dayjs=require('dayjs');
 
 

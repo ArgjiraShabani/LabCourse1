@@ -65,16 +65,28 @@ router.post("/login", (req, res) => {
 
 
 function sendToken(res, id, role) {
-  const token = jwt.sign({ id, role }, process.env.JWT_SECRET, {
+  const accessToken = jwt.sign({ id, role }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
-  res.cookie("token", token, {
+  const refreshToken = jwt.sign({ id, role }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d", // longer-lived
+  });
+
+  res.cookie("accessToken", accessToken, {
     httpOnly: true,
     sameSite: "strict",
-    secure: false, // Set to true in production with HTTPS
-    maxAge:20000
+    secure: process.env.NODE_ENV === "production"
+, // Set to true in production with HTTPS
+    maxAge: 60 * 60 * 1000,
   },);
+
+   res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 
   return res.json({ message: "Success", id, role });
 };
