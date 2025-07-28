@@ -117,8 +117,8 @@ const UpdateDoctor=()=>{
         }
         const response=await
         Axios.put(`http://localhost:3001/api/updateDoctors/${doctorId}`,data);
-        if(response.data && response.data.success){
-                 swal.fire({
+        
+            await swal.fire({
             title: "Success!",
             text: "Your form was updated successfully.",
             icon: "success",
@@ -128,7 +128,7 @@ const UpdateDoctor=()=>{
         
 
         }
-    }catch(error){
+    catch(error){
             console.log("Error adding doctor:",error);
            
            await swal.fire({
