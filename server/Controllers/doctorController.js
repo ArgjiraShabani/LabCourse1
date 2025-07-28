@@ -3,7 +3,8 @@ const {createDoctor} = require('../Model/doctorModel');
 const {getDocPasswordById,updateDoctorById,getAllDoctors,
     deleteDoctor,getDoctorById,getStaff
 }=require('../Model/doctorModel');
-const {getPatientAppointments} =require('../Model/patientModel');
+const db=require('../db');
+
 const { json } = require('body-parser');
 
 
@@ -149,8 +150,28 @@ const getDoctorByIdHandler=(req,res)=>{
     });
 };
 
+const getPatientAppointments=(doctorId,callback)=>{
+    
+    const query=`
+     SELECT a.appointment_id, p.patient_id, p.first_name, p.last_name,
+    CASE 
+        WHEN r.appointment_id IS NOT NULL THEN 1
+        ELSE 0
+    END AS hasPrescription
+    FROM appointments a
+    JOIN patients p ON p.patient_id=a.patient_id
+    LEFT JOIN results r
+    ON r.appointment_id=a.appointment_id AND r.doctor_id=a.doctor_id
+    WHERE a.status= 'completed' AND a.doctor_id=?;
+    `;
+    db.query(query,[doctorId],callback);
+
+
+};
+
 const getAppointments=(req,res)=>{
     const doctorId=req.params.doctor_id;
+
     getPatientAppointments(doctorId,(err,results)=>{
         if(err){
             return res.status(500).json({error: "Database error"});
@@ -167,6 +188,7 @@ const getStaffHandler=(req,res)=>{
         res.json(results);
     });
 };
+
 
 
 

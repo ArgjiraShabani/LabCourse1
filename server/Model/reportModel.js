@@ -40,5 +40,9 @@ const getReport=(patientId,doctorId, appointmentId,callback)=>{
     db.query(query,[patientId,doctorId,appointmentId]);
 }
 
+const getReportByDoctor=(doctorId,callback)=>{
+    const query=`SELECT a.patient_id,a`
+}
+
 
 module.exports={createReport,getReport};

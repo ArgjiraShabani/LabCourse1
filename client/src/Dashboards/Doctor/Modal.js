@@ -6,28 +6,21 @@ function Modal({closeModal,patient_id,doctor_id,appointment_id,formData,setFormD
 
 
     const[patientInfo,setPatientInfo]=useState({});
-    /*const[formData,setFormData]=useState({
-        first_name: "",
-        last_name: "",
-        symptoms: "",
-        diagnose: "",
-        alergies: "",
-        result_text: "",
-    });
-    const[file,setFile]=useState(null);*/
+    
     useEffect(()=>{
         const fetchReport=async()=>{
             try{
                 const response=await axios.get(`http://localhost:3001/getReports/${patient_id}/${doctor_id}/${appointment_id}`);
-                if(response.data && !formData.first_name){
-                    setFormData({
+                if(response.data && Object.keys(response.data).length>0){
+                    setFormData(prev=>({
                         first_name: response.data.first_name,
                         last_name: response.data.last_name,
                         symptoms: response.data.symptoms,
                         diagnose: response.data.diagnose,
                         alergies: response.data.alergies,
                         result_text: response.data.result_text,
-                    });
+                    }));
+                    console.log("fetched data",response.data)
                 }
             }catch(error){
                 console.error("Error fetching report:",error);
