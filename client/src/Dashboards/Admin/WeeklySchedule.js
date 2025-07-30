@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
-import {
-  startOfWeek,
-  addDays,
-  format,
-  parseISO,
-} from "date-fns";
+import { startOfWeek, addDays, format, parseISO } from "date-fns";
+const api = axios.create({
+  baseURL: "http://localhost:3001/api",
+  withCredentials: true,
+});
 
 const WeeklySchedule = () => {
   const [doctors, setDoctors] = useState([]);
@@ -29,7 +28,7 @@ const WeeklySchedule = () => {
 
   const getWeekDates = () => {
     const today = new Date();
-    const start = startOfWeek(today, { weekStartsOn: 1 }); // Monday
+    const start = startOfWeek(today, { weekStartsOn: 1 });
     return Array.from({ length: 7 }, (_, i) =>
       format(addDays(start, i), "yyyy-MM-dd")
     );
@@ -51,7 +50,7 @@ const WeeklySchedule = () => {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/doctors");
+      const res = await api.get("/allDoctors");
       setDoctors(res.data);
       setError("");
     } catch (err) {
@@ -62,9 +61,7 @@ const WeeklySchedule = () => {
 
   const fetchWeeklySchedule = async (doctorId) => {
     try {
-      const res = await axios.get(
-        `http://localhost:3001/api/weeklySchedules/${doctorId}`
-      );
+      const res = await api.get(`/weekly-schedules/${doctorId}`);
 
       const scheduleMap = {};
       res.data.forEach((item) => {
@@ -84,7 +81,7 @@ const WeeklySchedule = () => {
 
   const fetchAllSchedules = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/weeklySchedules");
+      const res = await api.get("/weekly-schedules");
       setSchedules(res.data);
       setError("");
     } catch (err) {
@@ -112,16 +109,13 @@ const WeeklySchedule = () => {
         const dayData = weeklyData[date];
         if (dayData?.start_time && dayData?.end_time) {
           if (dayData.schedule_id) {
-            return axios.put(
-              `http://localhost:3001/api/weeklySchedules/${dayData.schedule_id}`,
-              {
-                start_time: dayData.start_time,
-                end_time: dayData.end_time,
-                is_custom: true,
-              }
-            );
+            return api.put(`/weekly-schedules/${dayData.schedule_id}`, {
+              start_time: dayData.start_time,
+              end_time: dayData.end_time,
+              is_custom: true,
+            });
           } else {
-            return axios.post("http://localhost:3001/api/weeklySchedules", {
+            return api.post("/weekly-schedules", {
               doctor_id: selectedDoctor,
               date,
               start_time: dayData.start_time,
@@ -146,12 +140,11 @@ const WeeklySchedule = () => {
   };
 
   const handleDeleteSchedule = async (scheduleId) => {
-    if (!window.confirm("Are you sure you want to delete this schedule?")) return;
+    if (!window.confirm("Are you sure you want to delete this schedule?"))
+      return;
 
     try {
-      await axios.delete(
-        `http://localhost:3001/api/weeklySchedules/${scheduleId}`
-      );
+      await api.delete(`/weekly-schedules/${scheduleId}`);
       alert("Schedule deleted successfully");
       fetchAllSchedules();
       if (selectedDoctor) fetchWeeklySchedule(selectedDoctor);

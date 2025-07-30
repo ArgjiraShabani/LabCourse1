@@ -24,6 +24,9 @@ const app = express();
 const dayjs = require("dayjs");
 const standardScheduleRoutes = require("./Routes/standardScheduleRoutes");
 const serviceRoutes = require('./Routes/servicesRoutes');
+const weeklyScheduleRoutes = require('./Routes/weeklyScheduleRoutes');
+
+
 
 app.use(
   cors({
@@ -745,6 +748,7 @@ app.use("/api", specializationRoutes);
 app.use("/api", reportRoutes);
 
 app.use('/api', standardScheduleRoutes);
+app.use('/api/weekly-schedules', weeklyScheduleRoutes);
 
 
 /*
