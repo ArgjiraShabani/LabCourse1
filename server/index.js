@@ -1,53 +1,50 @@
-
-const express=require("express")
-const mysql=require("mysql2")
-const cors=require("cors");
-const multer = require('multer');
-const path = require('path');
+const express = require("express");
+const mysql = require("mysql2");
+const cors = require("cors");
+const multer = require("multer");
+const path = require("path");
 const { emit } = require("process");
 const { error } = require("console");
-const bcrypt=require("bcrypt");
-const cron = require('node-cron');
+const bcrypt = require("bcrypt");
+const cron = require("node-cron");
 const { ResultWithContextImpl } = require("express-validator/lib/chain");
-const doctorRoutes=require('./Routes/doctorRoutes');
-const departmentRoutes=require('./Routes/departmentRoutes');
-const dataRoutes=require('./Routes/dataRoutes');
-const specializationRoutes=require('./Routes/specializationRoutes');
-const reportRoutes=require('./Routes/reportRoutes');
-const db=require('./db');
+const doctorRoutes = require("./Routes/doctorRoutes");
+const departmentRoutes = require("./Routes/departmentRoutes");
+const dataRoutes = require("./Routes/dataRoutes");
+const specializationRoutes = require("./Routes/specializationRoutes");
+const reportRoutes = require("./Routes/reportRoutes");
+const db = require("./db");
 const cookieParser = require("cookie-parser");
 const loginRoutes = require("./Routes/loginRoute");
-const signUpRoutes=require("./Routes/signupRoute");
+const signUpRoutes = require("./Routes/signupRoute");
 const pRPatient = require("./Routes/protectedRoutes/pRPatient");
 const pRAdmin = require("./Routes/protectedRoutes/pRAdmin");
-const patientRoutes=require('./Routes/patientRoutes');
-const app=express();
-const dayjs=require('dayjs');
+const patientRoutes = require("./Routes/patientRoutes");
+const app = express();
+const dayjs = require("dayjs");
+const standardScheduleRoutes = require("./Routes/standardScheduleRoutes");
 
-
-
-
-app.use(cors({
-  origin: 'http://localhost:3000', // ✅ Your React app origin
-  credentials: true               // ✅ Allow cookies
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000", // ✅ Your React app origin
+    credentials: true, // ✅ Allow cookies
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/",loginRoutes);
+app.use("/", loginRoutes);
 app.use("/", pRPatient);
-app.use("/", pRAdmin); 
-app.use("/",signUpRoutes);
-app.use("/patient",patientRoutes); 
+app.use("/", pRAdmin);
+app.use("/", signUpRoutes);
+app.use("/patient", patientRoutes);
 
-
-
-app.use('/uploads', express.static('public/uploads'));
+app.use("/uploads", express.static("public/uploads"));
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/uploads');
+    cb(null, "public/uploads");
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -66,7 +63,6 @@ const userStorage=multer.diskStorage({
 });
 const userUpload=multer({storage: userStorage});
 app.use('/userUploads',express.static(path.join(__dirname,'public/userUploads')));*/
-
 
 /*
 const db = mysql.createConnection({
@@ -104,42 +100,40 @@ db.connect((err) => {
 */
 //Departments
 
-
-app.get('/departments', (req, res) => {
-  const query = 'SELECT * FROM departments';
+app.get("/departments", (req, res) => {
+  const query = "SELECT * FROM departments";
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Error fetching departments:', err);
-      return res.status(500).send('Error fetching departments');
+      console.error("Error fetching departments:", err);
+      return res.status(500).send("Error fetching departments");
     }
     res.json(results);
   });
 });
 
-
-app.post('/departments', upload.single('photo'), (req, res) => {
+app.post("/departments", upload.single("photo"), (req, res) => {
   const { department_name, description } = req.body;
   const image_path = req.file ? req.file.filename : null;
 
-  const query = 'INSERT INTO departments (department_name, description, image_path) VALUES (?, ?, ?)';
+  const query =
+    "INSERT INTO departments (department_name, description, image_path) VALUES (?, ?, ?)";
   db.query(query, [department_name, description, image_path], (err, result) => {
     if (err) {
-      console.error('Error creating department:', err);
-      return res.status(500).send('Error creating department');
+      console.error("Error creating department:", err);
+      return res.status(500).send("Error creating department");
     }
-    res.status(201).send('Department created successfully');
+    res.status(201).send("Department created successfully");
   });
 });
 
-
-app.put('/departments/:id', upload.single('photo'), (req, res) => {
+app.put("/departments/:id", upload.single("photo"), (req, res) => {
   const { department_name, description } = req.body;
   const departmentId = req.params.id;
   const image_path = req.file ? req.file.filename : null;
 
   const query = image_path
-    ? 'UPDATE departments SET department_name = ?, description = ?, image_path = ? WHERE department_Id = ?'
-    : 'UPDATE departments SET department_name = ?, description = ? WHERE department_Id = ?';
+    ? "UPDATE departments SET department_name = ?, description = ?, image_path = ? WHERE department_Id = ?"
+    : "UPDATE departments SET department_name = ?, description = ? WHERE department_Id = ?";
 
   const values = image_path
     ? [department_name, description, image_path, departmentId]
@@ -147,74 +141,74 @@ app.put('/departments/:id', upload.single('photo'), (req, res) => {
 
   db.query(query, values, (err, result) => {
     if (err) {
-      console.error('Error updating department:', err);
-      return res.status(500).send('Error updating department');
+      console.error("Error updating department:", err);
+      return res.status(500).send("Error updating department");
     }
-    res.status(200).send('Department updated successfully');
+    res.status(200).send("Department updated successfully");
   });
 });
 
-
-app.delete('/departments/:id', (req, res) => {
+app.delete("/departments/:id", (req, res) => {
   const departmentId = req.params.id;
 
-  const query = 'DELETE FROM departments WHERE department_Id = ?';
+  const query = "DELETE FROM departments WHERE department_Id = ?";
   db.query(query, [departmentId], (err, result) => {
     if (err) {
-      console.error('Error deleting department:', err);
-      return res.status(500).send('Error deleting department');
+      console.error("Error deleting department:", err);
+      return res.status(500).send("Error deleting department");
     }
-    res.status(200).send('Department deleted successfully');
+    res.status(200).send("Department deleted successfully");
   });
 });
 
-
 //Services
-app.get('/services', (req, res) => {
-  const query = 'SELECT * FROM services';
+app.get("/services", (req, res) => {
+  const query = "SELECT * FROM services";
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Error fetching services:', err);
-      return res.status(500).send('Error fetching services');
+      console.error("Error fetching services:", err);
+      return res.status(500).send("Error fetching services");
     }
     res.json(results);
   });
 });
-app.post('/services', (req, res) => {
+app.post("/services", (req, res) => {
   const { service_name, department_Id } = req.body;
 
-  const query = 'INSERT INTO services (service_name, department_Id) VALUES (?, ?)';
+  const query =
+    "INSERT INTO services (service_name, department_Id) VALUES (?, ?)";
   db.query(query, [service_name, department_Id], (err, result) => {
     if (err) {
-      console.error('Error creating service:', err);
-      return res.status(500).send('Error creating service');
+      console.error("Error creating service:", err);
+      return res.status(500).send("Error creating service");
     }
-    res.status(201).send('Service created successfully');
+    res.status(201).send("Service created successfully");
   });
 });
-app.put('/services/:id', (req, res) => {
+app.put("/services/:id", (req, res) => {
   const { service_name, department_Id } = req.body;
   const serviceId = req.params.id;
 
-  const query = 'UPDATE services SET service_name = ?, department_Id = ? WHERE service_id = ?';
+  const query =
+    "UPDATE services SET service_name = ?, department_Id = ? WHERE service_id = ?";
   db.query(query, [service_name, department_Id, serviceId], (err, result) => {
     if (err) {
-      console.error('Error updating service:', err);
-      return res.status(500).send('Error updating service');
+      console.error("Error updating service:", err);
+      return res.status(500).send("Error updating service");
     }
-    res.status(200).send('Service updated successfully');
+    res.status(200).send("Service updated successfully");
   });
 });
-app.delete('/services/:id', (req, res) => {
+app.delete("/services/:id", (req, res) => {
   const serviceId = req.params.id;
 
-  const query = 'DELETE FROM services WHERE service_id = ?';
+  const query = "DELETE FROM services WHERE service_id = ?";
   db.query(query, [serviceId], (err, result) => {
     if (err) {
-      console.error('Error deleting service:', err);
-      return res.status(500).send('Error deleting service');
+      console.error("Error deleting service:", err);
+      return res.status(500).send("Error deleting service");
     }
-    res.status(200).send('Service deleted successfully');
+    res.status(200).send("Service deleted successfully");
   });
 });
 
@@ -286,9 +280,6 @@ app.post('/addBlood',(req,res)=>{
   })
 });
 */
-
-
-
 
 /*
 app.get('/status',(req,res)=>{
@@ -694,7 +685,7 @@ app.delete('/deleteDataGender',(req,res)=>{
      
     });
   */
- /*
+/*
   app.delete('/deleteDataBlood',(req,res)=>{
   const id=req.body.id;
   const name=req.body.nameData;
@@ -744,13 +735,13 @@ app.put('/updateDataBlood',(req,res)=>{
           })
   });
 */
-app.use('/api',doctorRoutes);
-app.use('/api',departmentRoutes);
-app.use('/api',dataRoutes);
-app.use('/api',specializationRoutes);
-app.use('/api',reportRoutes);
+app.use("/api", doctorRoutes);
+app.use("/api", departmentRoutes);
+app.use("/api", dataRoutes);
+app.use("/api", specializationRoutes);
+app.use("/api", reportRoutes);
 
-
+app.use('/api', standardScheduleRoutes);
 
 
 /*
@@ -793,7 +784,6 @@ app.get('/genderId', (req, res) => {
     res.json(result);
   });
 });*/
-
 
 /*
 app.post("/doctors",userUpload.single('img'),async (req,res)=>{
@@ -995,10 +985,7 @@ FROM doctors d inner join roles r on d.role_id=r.role_id
 
 });*/
 
-
-
-
-app.get('/api/doctors', (req, res) => {
+/*app.get("/api/doctors", (req, res) => {
   const query = `
     SELECT doctor_id AS id, CONCAT(first_name, " ", last_name) AS name 
     FROM doctors 
@@ -1007,15 +994,14 @@ app.get('/api/doctors', (req, res) => {
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Error while fetching doctors:', err.message);
-      return res.status(500).json({ error: 'Error while fetching doctors' });
+      console.error("Error while fetching doctors:", err.message);
+      return res.status(500).json({ error: "Error while fetching doctors" });
     }
     res.json(results);
   });
 });
 
-
-app.get('/api/standardSchedules', (req, res) => {
+app.get("/api/standardSchedules", (req, res) => {
   const query = `
     SELECT ss.schedule_id, ss.doctor_id, CONCAT(d.first_name, " ", d.last_name) AS doctor_name, 
            ss.weekday, ss.start_time, ss.end_time
@@ -1026,19 +1012,18 @@ app.get('/api/standardSchedules', (req, res) => {
 
   db.query(query, (err, results) => {
     if (err) {
-      console.error('Error while fetching schedules:', err.message);
-      return res.status(500).json({ error: 'Error while fetching schedules' });
+      console.error("Error while fetching schedules:", err.message);
+      return res.status(500).json({ error: "Error while fetching schedules" });
     }
     res.json(results);
   });
 });
 
-
-app.post('/api/standardSchedules', (req, res) => {
+app.post("/api/standardSchedules", (req, res) => {
   const { doctor_id, weekday, start_time, end_time } = req.body;
 
   if (!doctor_id || !weekday || !start_time || !end_time) {
-    return res.status(400).json({ error: 'The requested data is missing' });
+    return res.status(400).json({ error: "The requested data is missing" });
   }
 
   const query = `
@@ -1048,20 +1033,19 @@ app.post('/api/standardSchedules', (req, res) => {
 
   db.query(query, [doctor_id, weekday, start_time, end_time], (err, result) => {
     if (err) {
-      console.error('Error while saving the schedule:', err.message);
-      return res.status(500).json({ error: 'Error while saving the schedule' });
+      console.error("Error while saving the schedule:", err.message);
+      return res.status(500).json({ error: "Error while saving the schedule" });
     }
-    res.status(201).json({ message: 'The schedule was added successfully' });
+    res.status(201).json({ message: "The schedule was added successfully" });
   });
 });
 
-
-app.put('/api/standardSchedules/:schedule_id', (req, res) => {
+app.put("/api/standardSchedules/:schedule_id", (req, res) => {
   const { schedule_id } = req.params;
   const { start_time, end_time } = req.body;
 
   if (!start_time || !end_time) {
-    return res.status(400).json({ error: 'The requested data is missing' });
+    return res.status(400).json({ error: "The requested data is missing" });
   }
 
   const query = `
@@ -1072,29 +1056,32 @@ app.put('/api/standardSchedules/:schedule_id', (req, res) => {
 
   db.query(query, [start_time, end_time, schedule_id], (err, result) => {
     if (err) {
-      console.error('Error while updating the schedule:', err.message);
-      return res.status(500).json({ error: 'Error while updating the schedule' });
+      console.error("Error while updating the schedule:", err.message);
+      return res
+        .status(500)
+        .json({ error: "Error while updating the schedule" });
     }
-    res.json({ message: 'The schedule was updated successfully' });
+    res.json({ message: "The schedule was updated successfully" });
   });
 });
 
-
-app.delete('/api/standardSchedules/:schedule_id', (req, res) => {
+app.delete("/api/standardSchedules/:schedule_id", (req, res) => {
   const { schedule_id } = req.params;
 
   const query = `DELETE FROM standard_schedules WHERE schedule_id = ?`;
 
   db.query(query, [schedule_id], (err, result) => {
     if (err) {
-      console.error('Error while deleting the schedule:', err.message);
-      return res.status(500).json({ error: 'Error while deleting the schedule' });
+      console.error("Error while deleting the schedule:", err.message);
+      return res
+        .status(500)
+        .json({ error: "Error while deleting the schedule" });
     }
-    res.json({ message: 'The schedule was deleted successfully' });
+    res.json({ message: "The schedule was deleted successfully" });
   });
 });
-
-app.get('/services', async (req, res) => {
+*/
+app.get("/services", async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT service_id, service_name, department_id
@@ -1102,8 +1089,8 @@ app.get('/services', async (req, res) => {
     `);
     res.json(rows);
   } catch (error) {
-    console.error('Error fetching services:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching services:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -1126,18 +1113,19 @@ app.get('/services', async (req, res) => {
   });
 
 });*/
+/*
+app.get("/doctors/byDepartment/:department_id", (req, res) => {
+  const departmentId = req.params.department_id;
 
-app.get('/doctors/byDepartment/:department_id', (req, res) => {
-    const departmentId = req.params.department_id;
-
-    const sql = "SELECT doctor_id, first_name, last_name FROM doctors WHERE department_id = ?";
-    db.query(sql, [departmentId], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({error: "Database error"});
-        }
-        res.json(results);
-    });
+  const sql =
+    "SELECT doctor_id, first_name, last_name FROM doctors WHERE department_id = ?";
+  db.query(sql, [departmentId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
 });
 /*
 app.get('/feedbacksPatient/:id', (req, res) => {
@@ -1166,7 +1154,6 @@ app.get('/feedbacksAdmin', (req, res) => {
   });
 });
 */
-
 
 /*
 app.post('/feedbacks', (req, res) => {
@@ -1208,23 +1195,28 @@ app.patch('/updateFeedback/:id',(req,res)=>{
   })
 })*/
 
-
-cron.schedule('0 23 * * 0', async () => {
+cron.schedule("0 23 * * 0", async () => {
   try {
-    const [doctors] = await db.query('SELECT doctor_id FROM doctors');
-    const [standardSchedules] = await db.query('SELECT * FROM standard_schedules');
+    const [doctors] = await db.query("SELECT doctor_id FROM doctors");
+    const [standardSchedules] = await db.query(
+      "SELECT * FROM standard_schedules"
+    );
 
     const nextWeek = [];
     for (let i = 0; i < 7; i++) {
-      const date = moment().add(1, 'weeks').startOf('isoWeek').add(i, 'days').format('YYYY-MM-DD');
-      const weekday = moment(date).format('dddd');
+      const date = moment()
+        .add(1, "weeks")
+        .startOf("isoWeek")
+        .add(i, "days")
+        .format("YYYY-MM-DD");
+      const weekday = moment(date).format("dddd");
       nextWeek.push({ weekday, date });
     }
 
     for (const doctor of doctors) {
       for (const day of nextWeek) {
-        const schedule = standardSchedules.find(s =>
-          s.doctor_id === doctor.doctor_id && s.weekday === day.weekday
+        const schedule = standardSchedules.find(
+          (s) => s.doctor_id === doctor.doctor_id && s.weekday === day.weekday
         );
 
         if (schedule) {
@@ -1232,19 +1224,26 @@ cron.schedule('0 23 * * 0', async () => {
             await db.query(
               `INSERT IGNORE INTO weekly_schedules (doctor_id, date, start_time, end_time, is_custom)
                VALUES (?, ?, ?, ?, false)`,
-              [doctor.doctor_id, day.date, schedule.start_time, schedule.end_time]
+              [
+                doctor.doctor_id,
+                day.date,
+                schedule.start_time,
+                schedule.end_time,
+              ]
             );
           } catch (err) {
-            console.error(`Error inserting schedule for ${doctor.doctor_id} on ${day.date}:`, err);
+            console.error(
+              `Error inserting schedule for ${doctor.doctor_id} on ${day.date}:`,
+              err
+            );
           }
         }
       }
     }
 
     console.log("Weekly schedule generated successfully!");
-} catch (err) {
-  console.error("Error while generating the weekly schedule:", err);
-
+  } catch (err) {
+    console.error("Error while generating the weekly schedule:", err);
   }
 });
 
@@ -1262,8 +1261,9 @@ app.get("/api/weeklySchedules", (req, res) => {
   db.query(query, (err, results) => {
     if (err) {
       console.error("Error in query /api/weeklySchedules:", err);
-return res.status(500).json({ message: "Error while retrieving existing schedules" });
-
+      return res
+        .status(500)
+        .json({ message: "Error while retrieving existing schedules" });
     }
     res.json(results);
   });
@@ -1278,14 +1278,22 @@ app.post("/api/weeklySchedules", (req, res) => {
       end_time = VALUES(end_time),
       is_custom = VALUES(is_custom)
   `;
-  db.query(query, [doctor_id, date, start_time, end_time, is_custom || false], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: "Error while adding the schedule" });
-}
-res.json({ message: "Schedule added successfully", schedule_id: result.insertId });
-
-  });
+  db.query(
+    query,
+    [doctor_id, date, start_time, end_time, is_custom || false],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .json({ message: "Error while adding the schedule" });
+      }
+      res.json({
+        message: "Schedule added successfully",
+        schedule_id: result.insertId,
+      });
+    }
+  );
 });
 
 app.put("/api/weeklySchedules/:scheduleId", (req, res) => {
@@ -1296,14 +1304,19 @@ app.put("/api/weeklySchedules/:scheduleId", (req, res) => {
     SET start_time = ?, end_time = ?, is_custom = ?
     WHERE schedule_id = ?
   `;
-  db.query(query, [start_time, end_time, is_custom || false, scheduleId], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: "Error while updating the schedule" });
-}
-res.json({ message: "Schedule updated successfully" });
-
-  });
+  db.query(
+    query,
+    [start_time, end_time, is_custom || false, scheduleId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .json({ message: "Error while updating the schedule" });
+      }
+      res.json({ message: "Schedule updated successfully" });
+    }
+  );
 });
 
 app.delete("/api/weeklySchedules/:scheduleId", (req, res) => {
@@ -1312,13 +1325,14 @@ app.delete("/api/weeklySchedules/:scheduleId", (req, res) => {
   db.query(query, [scheduleId], (err, result) => {
     if (err) {
       console.error(err);
-     return res.status(500).json({ message: "Error while deleting the schedule" });
-}
-res.json({ message: "Schedule deleted successfully" });
-
+      return res
+        .status(500)
+        .json({ message: "Error while deleting the schedule" });
+    }
+    res.json({ message: "Schedule deleted successfully" });
   });
 });
- 
+
 //Patient Appointments (Admin Dashboardd)
 app.get("/all-patient-appointments", (req, res) => {
   const doctorId = req.query.doctor_id;
@@ -1354,8 +1368,9 @@ app.get("/all-patient-appointments", (req, res) => {
   db.query(sql, values, (err, results) => {
     if (err) {
       console.error("Error while retrieving the appointments:", err);
-return res.status(500).json({ error: "Unable to retrieve the appointments." });
-
+      return res
+        .status(500)
+        .json({ error: "Unable to retrieve the appointments." });
     }
 
     res.json(results);
@@ -1368,22 +1383,19 @@ app.put("/all-patient-appointments/:id/status", (req, res) => {
 
   if (!status) {
     return res.status(400).json({ error: "Status is missing." });
-
   }
   const sql = "UPDATE appointments SET status = ? WHERE appointment_id = ?";
   db.query(sql, [status, appointmentId], (err, result) => {
     if (err) {
       console.error("Error while updating the status:", err);
-return res.status(500).json({ error: "The status was not updated." });
-
+      return res.status(500).json({ error: "The status was not updated." });
     }
 
     if (result.affectedRows === 0) {
-  return res.status(404).json({ message: "Appointment not found." });
-}
+      return res.status(404).json({ message: "Appointment not found." });
+    }
 
-res.json({ message: "Status updated successfully." });
-
+    res.json({ message: "Status updated successfully." });
   });
 });
 
@@ -1395,17 +1407,17 @@ app.delete("/all-patient-appointments/:id", (req, res) => {
   db.query(sql, [appointmentId], (err, result) => {
     if (err) {
       console.error("Error while deleting the appointment:", err);
-return res.status(500).json({ error: "The appointment was not deleted." });
-
+      return res
+        .status(500)
+        .json({ error: "The appointment was not deleted." });
     }
 
     if (result.affectedRows === 0) {
-  return res.status(404).json({ message: "Appointment not found." });
-}
+      return res.status(404).json({ message: "Appointment not found." });
+    }
 
-res.json({ message: "Appointment deleted successfully." });
-});
-
+    res.json({ message: "Appointment deleted successfully." });
+  });
 });
 
 app.get("/appointments", (req, res) => {
@@ -1457,7 +1469,7 @@ app.post("/appointments", (req, res) => {
     lastname,
     appointment_datetime,
     purpose,
-    status
+    status,
   } = req.body;
 
   console.log("Received data:", req.body);
@@ -1468,23 +1480,28 @@ app.post("/appointments", (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [
-    patient_id,
-    doctor_id,
-    service_id,
-    name,
-    lastname,
-    appointment_datetime,
-    purpose,
-    status || 'pending'
-  ], (err, result) => {
-  if (err) {
-    console.error("Error during INSERT:", err);
-    return res.status(500).json({ error: "Error while booking the appointment." });
-  }
-  res.json({ message: "Appointment booked successfully!" });
-});
-
+  db.query(
+    sql,
+    [
+      patient_id,
+      doctor_id,
+      service_id,
+      name,
+      lastname,
+      appointment_datetime,
+      purpose,
+      status || "pending",
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Error during INSERT:", err);
+        return res
+          .status(500)
+          .json({ error: "Error while booking the appointment." });
+      }
+      res.json({ message: "Appointment booked successfully!" });
+    }
+  );
 });
 
 app.get("/appointments", (req, res) => {
@@ -1509,12 +1526,14 @@ app.get("/appointments", (req, res) => {
   db.query(sql, [doctorId], (err, results) => {
     if (err) {
       console.error("Error while fetching appointments:", err);
-      return res.status(500).json({ error: "Error while retrieving the data." });
+      return res
+        .status(500)
+        .json({ error: "Error while retrieving the data." });
     }
 
     res.json(results);
   });
-});	
+});
 
 app.get("/appointments/bookedSlots", (req, res) => {
   const { doctor_id, date } = req.query;
@@ -1531,7 +1550,7 @@ app.get("/appointments/bookedSlots", (req, res) => {
       return res.status(500).json({ error: "Database error" });
     }
 
-    const bookedTimes = results.map(row => row.time.slice(0, 5));
+    const bookedTimes = results.map((row) => row.time.slice(0, 5));
     res.json(bookedTimes);
   });
 });
@@ -1595,7 +1614,9 @@ app.put("/my-appointments/:id", (req, res) => {
   const patientId = req.query.patient_id;
 
   if (!name || !lastname || !purpose || !patientId) {
-    return res.status(400).json({ error: "All fields and patient_id are required" });
+    return res
+      .status(400)
+      .json({ error: "All fields and patient_id are required" });
   }
 
   const checkSql = `SELECT * FROM appointments WHERE appointment_id = ? AND patient_id = ?`;
@@ -1607,7 +1628,9 @@ app.put("/my-appointments/:id", (req, res) => {
     }
 
     if (result.length === 0) {
-      return res.status(403).json({ error: "Unauthorized or appointment not found" });
+      return res
+        .status(403)
+        .json({ error: "Unauthorized or appointment not found" });
     }
 
     const updateSql = `
@@ -1616,27 +1639,36 @@ app.put("/my-appointments/:id", (req, res) => {
       WHERE appointment_id = ? AND patient_id = ?
     `;
 
-    db.query(updateSql, [name, lastname, purpose, appointmentId, patientId], (err, result) => {
-      if (err) {
-        console.error("Error updating appointment:", err);
-        return res.status(500).json({ error: "Failed to update appointment" });
-      }
+    db.query(
+      updateSql,
+      [name, lastname, purpose, appointmentId, patientId],
+      (err, result) => {
+        if (err) {
+          console.error("Error updating appointment:", err);
+          return res
+            .status(500)
+            .json({ error: "Failed to update appointment" });
+        }
 
-      res.json({ message: "Appointment updated successfully" });
-    });
+        res.json({ message: "Appointment updated successfully" });
+      }
+    );
   });
 });
 
-app.get('/api/admin/stats', (req, res) => {
+app.get("/api/admin/stats", (req, res) => {
   const stats = {};
 
   const queries = [
-    { key: 'roles', query: 'SELECT COUNT(*) AS count FROM roles' },
-    { key: 'patients', query: 'SELECT COUNT(*) AS count FROM patients' },
-    { key: 'doctors', query: 'SELECT COUNT(*) AS count FROM doctors' },
-    { key: 'departments', query: 'SELECT COUNT(*) AS count FROM departments' },
-    { key: 'appointments', query: 'SELECT COUNT(*) AS count FROM appointments' },
-    { key: 'results', query: 'SELECT COUNT(*) AS count FROM results' }
+    { key: "roles", query: "SELECT COUNT(*) AS count FROM roles" },
+    { key: "patients", query: "SELECT COUNT(*) AS count FROM patients" },
+    { key: "doctors", query: "SELECT COUNT(*) AS count FROM doctors" },
+    { key: "departments", query: "SELECT COUNT(*) AS count FROM departments" },
+    {
+      key: "appointments",
+      query: "SELECT COUNT(*) AS count FROM appointments",
+    },
+    { key: "results", query: "SELECT COUNT(*) AS count FROM results" },
   ];
 
   let completed = 0;
@@ -1645,8 +1677,9 @@ app.get('/api/admin/stats', (req, res) => {
     db.query(item.query, (err, result) => {
       if (err) {
         console.error(`Error while executing the query for ${item.key}:`, err);
-return res.status(500).json({ error: 'Error while retrieving statistics' });
-
+        return res
+          .status(500)
+          .json({ error: "Error while retrieving statistics" });
       }
 
       stats[item.key] = result[0].count;
@@ -1659,9 +1692,6 @@ return res.status(500).json({ error: 'Error while retrieving statistics' });
   });
 });
 
-app.listen(3001,()=>{
-    console.log("Hey po punon")
-})
-
-
-
+app.listen(3001, () => {
+  console.log("Hey po punon");
+});

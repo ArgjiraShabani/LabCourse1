@@ -127,6 +127,16 @@ const getStaff=(callback)=>{
     db.query(sql,callback);
 }
 
+const getAllActiveDoctors = (callback) => {
+  const query = `
+    SELECT doctor_id AS id, CONCAT(first_name, " ", last_name) AS name 
+    FROM doctors 
+    WHERE is_active = 1 AND department_id IS NOT NULL
+  `;
+  db.query(query, (err, results) => {
+    callback(err, results);
+  });
+};
 
 
 module.exports={
@@ -137,5 +147,5 @@ module.exports={
     deleteDoctor,
     getDoctorById,
     getStaff,
-    
+    getAllActiveDoctors
 };

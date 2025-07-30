@@ -1,7 +1,7 @@
 const bcrypt=require('bcrypt');
 const {createDoctor} = require('../Model/doctorModel');
 const {getDocPasswordById,updateDoctorById,getAllDoctors,
-    deleteDoctor,getDoctorById,getStaff
+    deleteDoctor,getDoctorById,getStaff,getAllActiveDoctors
 }=require('../Model/doctorModel');
 const db=require('../db');
 
@@ -189,10 +189,15 @@ const getStaffHandler=(req,res)=>{
     });
 };
 
-
-
-
-
+const getAllActiveDoctorsHandler = (req, res) => {
+  getAllActiveDoctors((err, doctors) => {
+    if (err) {
+      console.error("Error while fetching doctors:", err.message);
+      return res.status(500).json({ error: "Error while fetching doctors" });
+    }
+    res.json(doctors);
+  });
+};
 
 
 module.exports={
@@ -203,6 +208,7 @@ module.exports={
     getDoctorByIdHandler,
     getAppointments,
     getStaffHandler,
+    getAllActiveDoctorsHandler
     
 };
   

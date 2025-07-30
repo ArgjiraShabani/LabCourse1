@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 
+const api = axios.create({
+  baseURL: "http://localhost:3001/api",
+  withCredentials: true,
+});
+
 const ManageSchedule = () => {
   const [doctors, setDoctors] = useState([]);
   const [formData, setFormData] = useState({
@@ -37,7 +42,7 @@ const ManageSchedule = () => {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/doctors");
+      const res = await api.get("/allDoctors");
       setDoctors(res.data);
     } catch (err) {
       setError("Error fetching the list of doctors");
@@ -46,7 +51,7 @@ const ManageSchedule = () => {
 
   const fetchSchedules = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/standardSchedules");
+      const res = await api.get("/standardSchedules");
       setSchedules(res.data);
     } catch (err) {
       console.error("Error fetching schedules:", err);
@@ -76,9 +81,7 @@ const ManageSchedule = () => {
       if (!formData.doctor_id) return;
 
       try {
-        const res = await axios.get(
-          `http://localhost:3001/api/standardSchedules/${formData.doctor_id}`
-        );
+        const res = await api.get(`/standardSchedules/${formData.doctor_id}`);
         const doctorSchedule = res.data;
 
         const updatedSchedule = {
@@ -125,15 +128,12 @@ const ManageSchedule = () => {
           if (!start_time || !end_time) return null;
 
           if (schedule_id) {
-            return axios.put(
-              `http://localhost:3001/api/standardSchedules/${schedule_id}`,
-              {
-                start_time,
-                end_time,
-              }
-            );
+            return api.put(`/standardSchedules/${schedule_id}`, {
+              start_time,
+              end_time,
+            });
           } else {
-            return axios.post("http://localhost:3001/api/standardSchedules", {
+            return api.post("/standardSchedules", {
               doctor_id,
               weekday: day,
               start_time,
@@ -165,10 +165,11 @@ const ManageSchedule = () => {
   };
 
   const handleDeleteSchedule = async (schedule_id) => {
-    if (!window.confirm("Are you sure you want to delete this schedule?")) return;
+    if (!window.confirm("Are you sure you want to delete this schedule?"))
+      return;
 
     try {
-      await axios.delete(`http://localhost:3001/api/standardSchedules/${schedule_id}`);
+      await api.delete(`/standardSchedules/${schedule_id}`);
       alert("Schedule deleted successfully!");
       fetchSchedules();
     } catch (err) {
@@ -275,8 +276,8 @@ const ManageSchedule = () => {
                     };
                     return acc;
                   }, [])
-                  .map((schedule, idx) => (
-                    <tr key={idx}>
+                  .map((schedule) => (
+                    <tr key={schedule.doctor_id}>
                       <td>{schedule.doctor_name}</td>
                       {days.map((day) => (
                         <td key={day}>
