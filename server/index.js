@@ -23,6 +23,7 @@ const patientRoutes = require("./Routes/patientRoutes");
 const app = express();
 const dayjs = require("dayjs");
 const standardScheduleRoutes = require("./Routes/standardScheduleRoutes");
+const serviceRoutes = require('./Routes/servicesRoutes');
 
 app.use(
   cors({
@@ -39,7 +40,8 @@ app.use("/", pRPatient);
 app.use("/", pRAdmin);
 app.use("/", signUpRoutes);
 app.use("/patient", patientRoutes);
-app.use("/api", departmentRoutes); 
+app.use("/api", departmentRoutes);
+app.use('/api', serviceRoutes); 
 
 app.use("/uploads", express.static("public/uploads"));
 
@@ -163,7 +165,7 @@ app.delete("/departments/:id", (req, res) => {
 });*/
 
 //Services
-app.get("/services", (req, res) => {
+/*app.get("/services", (req, res) => {
   const query = "SELECT * FROM services";
   db.query(query, (err, results) => {
     if (err) {
@@ -211,7 +213,7 @@ app.delete("/services/:id", (req, res) => {
     }
     res.status(200).send("Service deleted successfully");
   });
-});
+});*/
 
 //app.use("/server/doctorRoutes", docRoutes);
 
@@ -1082,7 +1084,7 @@ app.delete("/api/standardSchedules/:schedule_id", (req, res) => {
   });
 });
 */
-app.get("/services", async (req, res) => {
+/*app.get("/services", async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT service_id, service_name, department_id
@@ -1093,7 +1095,7 @@ app.get("/services", async (req, res) => {
     console.error("Error fetching services:", error);
     res.status(500).json({ message: "Server error" });
   }
-});
+});*/
 
 /*app.get('/getPatientInfo/:patient_id',(req,res)=>{
   const patientId=req.params.patient_id;
