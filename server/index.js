@@ -39,6 +39,7 @@ app.use("/", pRPatient);
 app.use("/", pRAdmin);
 app.use("/", signUpRoutes);
 app.use("/patient", patientRoutes);
+app.use("/api", departmentRoutes); 
 
 app.use("/uploads", express.static("public/uploads"));
 
@@ -100,7 +101,7 @@ db.connect((err) => {
 */
 //Departments
 
-app.get("/departments", (req, res) => {
+/*app.get("/departments", (req, res) => {
   const query = "SELECT * FROM departments";
   db.query(query, (err, results) => {
     if (err) {
@@ -159,7 +160,7 @@ app.delete("/departments/:id", (req, res) => {
     }
     res.status(200).send("Department deleted successfully");
   });
-});
+});*/
 
 //Services
 app.get("/services", (req, res) => {

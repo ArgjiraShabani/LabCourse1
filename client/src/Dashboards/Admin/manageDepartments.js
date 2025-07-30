@@ -1,4 +1,3 @@
-                                                                                  
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Sidebar from '../../Components/AdminSidebar';
@@ -17,7 +16,7 @@ const ManageDepartments = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/departments');
+      const response = await axios.get('http://localhost:3001/api/departments');
       setDepartments(response.data);
     } catch (error) {
       console.error('Error fetching departments:', error);
@@ -34,10 +33,12 @@ const ManageDepartments = () => {
     }
 
     try {
-      await axios.post('http://localhost:3001/departments', formData, {
+      await axios.post('http://localhost:3001/api/departments', formData, {
+
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+         withCredentials: true
       });
       setDepartmentName('');
       setDescription('');
@@ -67,10 +68,11 @@ const ManageDepartments = () => {
     }
 
     try {
-      await axios.put(`http://localhost:3001/departments/${editingDepartmentId}`, formData, {
+      await axios.put(`http://localhost:3001/api/departments/${editingDepartmentId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+         withCredentials: true
       });
       setDepartmentName('');
       setDescription('');
@@ -84,7 +86,9 @@ const ManageDepartments = () => {
 
   const handleDelete = async (departmentId) => {
     try {
-      await axios.delete(`http://localhost:3001/departments/${departmentId}`);
+     await axios.delete(`http://localhost:3001/api/departments/${departmentId}`, {
+  withCredentials: true
+})
       fetchDepartments();
     } catch (error) {
       console.error('Error deleting department:', error);
