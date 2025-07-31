@@ -17,7 +17,9 @@ const ManageServices = () => {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/departments');
+      const res = await axios.get('http://localhost:3001/api/departments', {
+        withCredentials: true,
+      });
       setDepartments(res.data);
     } catch (err) {
       console.error('Error fetching departments:', err);
@@ -26,7 +28,9 @@ const ManageServices = () => {
 
   const fetchServices = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/services');
+      const res = await axios.get('http://localhost:3001/api/services', {
+        withCredentials: true,
+      });
       setServices(res.data);
     } catch (err) {
       console.error('Error fetching services:', err);
@@ -37,19 +41,23 @@ const ManageServices = () => {
     e.preventDefault();
     try {
       if (editMode) {
-        await axios.put(`http://localhost:3001/services/${editingServiceId}`, {
+        await axios.put(`http://localhost:3001/api/services/${editingServiceId}`, {
           service_name: serviceName,
-          department_Id: department_Id,  
+          department_Id: department_Id,
+        }, {
+          withCredentials: true,
         });
       } else {
-        await axios.post('http://localhost:3001/services', {
+        await axios.post('http://localhost:3001/api/services', {
           service_name: serviceName,
-          department_Id: department_Id,  
+          department_Id: department_Id,
+        }, {
+          withCredentials: true,
         });
       }
 
       setServiceName('');
-      setDepartment_Id('');  
+      setDepartment_Id('');
       setEditMode(false);
       setEditingServiceId(null);
       fetchServices();
@@ -60,14 +68,16 @@ const ManageServices = () => {
 
   const handleEdit = (service) => {
     setServiceName(service.service_name);
-    setDepartment_Id(service.department_id);  
+    setDepartment_Id(service.department_id);
     setEditMode(true);
     setEditingServiceId(service.service_id);
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/services/${id}`);
+      await axios.delete(`http://localhost:3001/api/services/${id}`, {
+        withCredentials: true,
+      });
       fetchServices();
     } catch (err) {
       console.error('Error deleting service:', err);
@@ -100,7 +110,7 @@ const ManageServices = () => {
             <label className="form-label">Department</label>
             <select
               className="form-select"
-              value={department_Id}  
+              value={department_Id}
               onChange={(e) => setDepartment_Id(Number(e.target.value))}
               required
             >
@@ -152,4 +162,3 @@ const ManageServices = () => {
 };
 
 export default ManageServices;
-

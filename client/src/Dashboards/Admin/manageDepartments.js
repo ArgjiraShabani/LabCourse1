@@ -14,14 +14,16 @@ const ManageDepartments = () => {
     fetchDepartments();
   }, []);
 
-  const fetchDepartments = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/api/departments');
-      setDepartments(response.data);
-    } catch (error) {
-      console.error('Error fetching departments:', error);
-    }
-  };
+const fetchDepartments = async () => {
+  try {
+    const response = await axios.get('http://localhost:3001/api/departments', {
+      withCredentials: true,
+    });
+    setDepartments(response.data);
+  } catch (error) {
+    console.error('Error fetching departments:', error);
+  }
+};
 
   const handleCreate = async (e) => {
     e.preventDefault();
