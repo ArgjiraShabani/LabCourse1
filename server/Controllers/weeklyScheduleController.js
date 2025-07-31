@@ -58,7 +58,8 @@ const deleteWeeklyScheduleHandler = (req, res) => {
 };
 
 const getWeeklyScheduleByDoctorHandler = (req, res) => {
-  const doctorId = req.params.doctorId;
+  const doctorId = req.user.id;
+
   weeklyScheduleModel.getWeeklyScheduleByDoctor(doctorId, (err, results) => {
     if (err) {
       console.error("Error fetching weekly schedule for doctor:", err);

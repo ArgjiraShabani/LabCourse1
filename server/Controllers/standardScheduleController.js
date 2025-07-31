@@ -17,17 +17,17 @@ const getStandardSchedulesHandler = (req, res) => {
 };
 
 const getSchedulesByDoctorHandler = (req, res) => {
-  const doctor_id = req.params.doctor_id;
+  const doctor_id = req.user.id; 
+
   getSchedulesByDoctorId(doctor_id, (err, schedules) => {
     if (err) {
       console.error("Error fetching schedules by doctor:", err.message);
-      return res
-        .status(500)
-        .json({ error: "Error fetching schedules by doctor" });
+      return res.status(500).json({ error: "Error fetching schedules by doctor" });
     }
     res.json(schedules);
   });
 };
+
 
 const addStandardScheduleHandler = (req, res) => {
   const { doctor_id, weekday, start_time, end_time } = req.body;

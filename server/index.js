@@ -25,6 +25,7 @@ const dayjs = require("dayjs");
 const standardScheduleRoutes = require("./Routes/standardScheduleRoutes");
 const serviceRoutes = require('./Routes/servicesRoutes');
 const weeklyScheduleRoutes = require('./Routes/weeklyScheduleRoutes');
+const pRDoctor = require("./Routes/protectedRoutes/pRDoctor");
 
 
 
@@ -45,6 +46,7 @@ app.use("/", signUpRoutes);
 app.use("/patient", patientRoutes);
 app.use("/api", departmentRoutes);
 app.use('/api', serviceRoutes); 
+app.use("/doctor", pRDoctor);
 
 app.use("/uploads", express.static("public/uploads"));
 
