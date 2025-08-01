@@ -26,7 +26,7 @@ const standardScheduleRoutes = require("./Routes/standardScheduleRoutes");
 const serviceRoutes = require('./Routes/servicesRoutes');
 const weeklyScheduleRoutes = require('./Routes/weeklyScheduleRoutes');
 const pRDoctor = require("./Routes/protectedRoutes/pRDoctor");
-
+const appointmentRoutes = require("./Routes/appointmentRoutes");
 
 
 app.use(
@@ -47,6 +47,7 @@ app.use("/patient", patientRoutes);
 app.use("/api", departmentRoutes);
 app.use('/api', serviceRoutes); 
 app.use("/doctor", pRDoctor);
+app.use("/", appointmentRoutes);
 
 app.use("/uploads", express.static("public/uploads"));
 
@@ -1256,7 +1257,7 @@ cron.schedule("0 23 * * 0", async () => {
   }
 });
 
-app.get("/api/weeklySchedules", (req, res) => {
+/*app.get("/api/weeklySchedules", (req, res) => {
   const query = `
     SELECT ws.schedule_id, ws.doctor_id, 
            CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
@@ -1340,7 +1341,7 @@ app.delete("/api/weeklySchedules/:scheduleId", (req, res) => {
     }
     res.json({ message: "Schedule deleted successfully" });
   });
-});
+});*/
 
 //Patient Appointments (Admin Dashboardd)
 app.get("/all-patient-appointments", (req, res) => {
@@ -1469,7 +1470,7 @@ app.put("/appointments/:id/status", (req, res) => {
   });
 });
 
-app.post("/appointments", (req, res) => {
+/*app.post("/appointments", (req, res) => {
   const {
     patient_id,
     doctor_id,
@@ -1511,7 +1512,7 @@ app.post("/appointments", (req, res) => {
       res.json({ message: "Appointment booked successfully!" });
     }
   );
-});
+});*/
 
 app.get("/appointments", (req, res) => {
   const doctorId = req.query.doctor_id;
@@ -1544,7 +1545,7 @@ app.get("/appointments", (req, res) => {
   });
 });
 
-app.get("/appointments/bookedSlots", (req, res) => {
+/*app.get("/appointments/bookedSlots", (req, res) => {
   const { doctor_id, date } = req.query;
 
   const sql = `
@@ -1562,7 +1563,7 @@ app.get("/appointments/bookedSlots", (req, res) => {
     const bookedTimes = results.map((row) => row.time.slice(0, 5));
     res.json(bookedTimes);
   });
-});
+});*/
 
 app.get("/my-appointments", (req, res) => {
   const patientId = req.query.patient_id;
