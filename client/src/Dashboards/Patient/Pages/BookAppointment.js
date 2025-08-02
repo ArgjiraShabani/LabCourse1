@@ -8,8 +8,7 @@ function BookAppointment() {
   const [doctors, setDoctors] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
   const navigate = useNavigate();
-  const param = useParams();
-  const { id } = param;
+  const { id } = useParams();
 
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
@@ -21,7 +20,6 @@ function BookAppointment() {
     doctor_id: "",
     purpose: "",
   });
-
 
   function getNextSunday(date) {
     const now = new Date(date);
@@ -88,8 +86,12 @@ function BookAppointment() {
 
       try {
         const [standardRes, customRes] = await Promise.all([
-          axios.get("http://localhost:3001/api/standardSchedules"),
-          axios.get("http://localhost:3001/api/weeklySchedules"),
+          axios.get("http://localhost:3001/api/standardSchedules", {
+            withCredentials: true,
+          }),
+          axios.get("http://localhost:3001/api/weekly-schedules", {
+            withCredentials: true,
+          }),
         ]);
 
         const custom = customRes.data.find(
@@ -104,6 +106,11 @@ function BookAppointment() {
             s.weekday === weekday
         );
 
+        console.log("Selected Date:", selectedDate);
+        console.log("Weekday:", weekday);
+        console.log("Custom Schedule:", custom);
+        console.log("Standard Schedule:", standard);
+
         const schedule = custom || standard;
 
         if (!schedule) {
@@ -117,10 +124,7 @@ function BookAppointment() {
           const [endH, endM] = endTime.split(":").map(Number);
 
           while (h < endH || (h === endH && m < endM)) {
-            const slot = `${String(h).padStart(2, "0")}:${String(m).padStart(
-              2,
-              "0"
-            )}`;
+            const slot = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
             slots.push(slot);
             m += 30;
             if (m >= 60) {
@@ -132,6 +136,7 @@ function BookAppointment() {
         };
 
         const allSlots = generateSlots(schedule.start_time, schedule.end_time);
+        console.log("All Slots:", allSlots);
 
         try {
           const res = await axios.get(
@@ -141,14 +146,18 @@ function BookAppointment() {
                 doctor_id: formData.doctor_id,
                 date: selectedDate,
               },
+              withCredentials: true,
             }
           );
 
           const bookedSlots = res.data;
+          console.log("Booked Slots:", bookedSlots);
+
           const freeSlots = allSlots.filter(
             (slot) => !bookedSlots.includes(slot)
           );
 
+          console.log("Free Slots:", freeSlots);
           setAvailableSlots(freeSlots);
         } catch (err) {
           console.error("Error fetching booked slots:", err);
@@ -183,47 +192,46 @@ function BookAppointment() {
     setSelectedTimeSlot(e.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-    const patient_id = localStorage.getItem("patient_id");
-    if (!patient_id) {
-      alert("You must be logged in to book an appointment.");
-      return;
-    }
+  if (!selectedDate || !selectedTimeSlot) {
+    alert("Please select a date and time slot.");
+    return;
+  }
 
-    if (!selectedDate || !selectedTimeSlot) {
-      alert("Please select a date and time slot.");
-      return;
-    }
+  const appointment_datetime = `${selectedDate}T${selectedTimeSlot}`;
 
-    const appointment_datetime = `${selectedDate}T${selectedTimeSlot}`;
-
-    axios
-      .post("http://localhost:3001/appointments", {
+  axios
+    .post(
+      "http://localhost:3001/appointments",
+      {
         ...formData,
+        patient_id: parseInt(id), 
         appointment_datetime,
-        patient_id: parseInt(patient_id),
         status: "pending",
-      })
-      .then((res) => {
-        alert(res.data.message || "Appointment booked successfully!");
-        setFormData({
-          name: "",
-          lastname: "",
-          service_id: "",
-          doctor_id: "",
-          purpose: "",
-        });
-        setSelectedDate("");
-        setSelectedTimeSlot("");
-        setAvailableSlots([]);
-      })
-      .catch((err) => {
-        console.error("Error while booking:", err);
-        alert("Booking failed. Please try again.");
+      },
+      { withCredentials: true }
+    )
+    .then((res) => {
+      alert(res.data.message || "Appointment booked successfully!");
+      setFormData({
+        name: "",
+        lastname: "",
+        service_id: "",
+        doctor_id: "",
+        purpose: "",
       });
-  };
+      setSelectedDate("");
+      setSelectedTimeSlot("");
+      setAvailableSlots([]);
+    })
+    .catch((err) => {
+      console.error("Error while booking:", err);
+      alert("Booking failed. Please try again.");
+    });
+};
+
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>

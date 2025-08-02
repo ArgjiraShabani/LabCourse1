@@ -14,14 +14,14 @@ const {
 router.get(
   "/standardSchedules",
   authenticateToken,
-  authorizeRoles("admin"),
+  authorizeRoles("admin","patient"),
   getStandardSchedulesHandler
 );
 
 router.get(
   "/standardSchedules/:doctor_id",
   authenticateToken,
-  authorizeRoles("admin"),
+  authorizeRoles("admin","patient"),
   getSchedulesByDoctorHandler
 );
 

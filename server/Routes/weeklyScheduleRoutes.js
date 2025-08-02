@@ -14,13 +14,13 @@ const { authenticateToken, authorizeRoles } = require("../middlewares");
 router.get(
   "/",
   authenticateToken,
-  authorizeRoles("admin", "user"),
+  authorizeRoles("admin", "patient"),
   getAllWeeklySchedulesHandler
 );
 router.get(
   "/:doctorId",
   authenticateToken,
-  authorizeRoles("admin", "user"),
+  authorizeRoles("admin", "patient"),
   getWeeklyScheduleByDoctorHandler
 );
 router.post(
