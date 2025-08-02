@@ -1344,7 +1344,7 @@ app.delete("/api/weeklySchedules/:scheduleId", (req, res) => {
 });*/
 
 //Patient Appointments (Admin Dashboardd)
-app.get("/all-patient-appointments", (req, res) => {
+/*app.get("/all-patient-appointments", (req, res) => {
   const doctorId = req.query.doctor_id;
 
   let sql = `
@@ -1385,7 +1385,7 @@ app.get("/all-patient-appointments", (req, res) => {
 
     res.json(results);
   });
-});
+});*/
 
 app.put("/all-patient-appointments/:id/status", (req, res) => {
   const appointmentId = req.params.id;
@@ -1409,7 +1409,7 @@ app.put("/all-patient-appointments/:id/status", (req, res) => {
   });
 });
 
-app.delete("/all-patient-appointments/:id", (req, res) => {
+/*app.delete("/all-patient-appointments/:id", (req, res) => {
   const appointmentId = req.params.id;
 
   const sql = "DELETE FROM appointments WHERE appointment_id = ?";
@@ -1428,7 +1428,7 @@ app.delete("/all-patient-appointments/:id", (req, res) => {
 
     res.json({ message: "Appointment deleted successfully." });
   });
-});
+});*/
 
 app.get("/appointments", (req, res) => {
   const { doctor_id } = req.query;
@@ -1565,7 +1565,7 @@ app.get("/appointments", (req, res) => {
   });
 });*/
 
-app.get("/my-appointments", (req, res) => {
+/*app.get("/my-appointments", (req, res) => {
   const patientId = req.query.patient_id;
 
   if (!patientId) {
@@ -1664,7 +1664,7 @@ app.put("/my-appointments/:id", (req, res) => {
       }
     );
   });
-});
+});*/
 
 app.get("/api/admin/stats", (req, res) => {
   const stats = {};

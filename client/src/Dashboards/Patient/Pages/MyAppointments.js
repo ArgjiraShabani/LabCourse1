@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
+const API_BASE_URL = "http://localhost:3001";
 
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -13,41 +13,36 @@ const MyAppointments = () => {
     lastname: "",
     purpose: "",
   });
-  const param=useParams();
- const {id}=param; 
 
-
+  const { id } = useParams();
   const navigate = useNavigate();
-  const patientId = localStorage.getItem("patient_id");
 
   useEffect(() => {
-    if (!patientId) {
-      alert("Patient not logged in.");
-      navigate("/login"); 
-      return;
-    }
-
     axios
-      .get("http://localhost:3001/my-appointments", {
-        params: { patient_id: patientId },
+      .get(`${API_BASE_URL}/my-appointments`, {
+        withCredentials: true, 
       })
-      .then((response) => {
-        setAppointments(response.data);
+      .then((res) => {
+        setAppointments(res.data);
       })
-      .catch((error) => {
-        console.error("Error retrieving appointments:", error);
+      .catch((err) => {
+        console.error("Error fetching appointments:", err);
+        alert("Please log in as a patient.");
+        navigate("/login");
       });
-  }, [patientId, navigate]);
+  }, [navigate]);
 
   const cancelAppointment = (appointmentId) => {
     axios
-      .delete(`http://localhost:3001/my-appointments/${appointmentId}`)
+      .delete(`${API_BASE_URL}/my-appointments/${appointmentId}`, {
+        withCredentials: true,
+      })
       .then(() => {
         setAppointments((prev) => prev.filter((a) => a.id !== appointmentId));
       })
       .catch((err) => {
-        console.error("Error while canceling the appointment:", err);
-        alert("The appointment was not canceled.");
+        console.error("Error cancelling appointment:", err);
+        alert("Appointment was not cancelled.");
       });
   };
 
@@ -70,38 +65,28 @@ const MyAppointments = () => {
 
   const handleSave = () => {
     axios
-      .put(
-        `http://localhost:3001/my-appointments/${editingAppointment}?patient_id=${patientId}`,
-        formData
-      )
+      .put(`${API_BASE_URL}/my-appointments/${editingAppointment}`, formData, {
+        withCredentials: true,
+      })
       .then(() => {
         setAppointments((prev) =>
           prev.map((appointment) =>
             appointment.id === editingAppointment
-              ? {
-                  ...appointment,
-                  patient_name: formData.name,
-                  patient_lastname: formData.lastname,
-                  purpose: formData.purpose,
-                }
+              ? { ...appointment, patient_name: formData.name, patient_lastname: formData.lastname, purpose: formData.purpose }
               : appointment
           )
         );
         setEditingAppointment(null);
       })
       .catch((err) => {
-        console.error("Error while saving the appointment:", err);
-        alert("The appointment was not updated.");
+        console.error("Error updating appointment:", err);
+        alert("Appointment was not updated.");
       });
   };
 
   const handleCancelEdit = () => {
     setEditingAppointment(null);
-    setFormData({
-      name: "",
-      lastname: "",
-      purpose: "",
-    });
+    setFormData({ name: "", lastname: "", purpose: "" });
   };
 
   return (
@@ -117,10 +102,10 @@ const MyAppointments = () => {
                 <th>ID</th>
                 <th>First Name</th>
                 <th>Last Name</th>
-                <th>Doctor's Name</th>
+                <th>Doctor</th>
                 <th>Date & Time</th>
                 <th>Purpose</th>
-                <th>Service Name</th>
+                <th>Service</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -131,41 +116,19 @@ const MyAppointments = () => {
                     <td>{appointment?.id || "-"}</td>
                     <td>{appointment?.patient_name || "-"}</td>
                     <td>{appointment?.patient_lastname || "-"}</td>
-                    <td>
-                      {(appointment?.doctor_firstname || "-") +
-                        " " +
-                        (appointment?.doctor_lastname || "")}
-                    </td>
-                    <td>
-                      {appointment?.appointment_datetime
-                        ? new Date(
-                            appointment.appointment_datetime
-                          ).toLocaleString()
-                        : "-"}
-                    </td>
+                    <td>{(appointment?.doctor_firstname || "-") + " " + (appointment?.doctor_lastname || "")}</td>
+                    <td>{appointment?.appointment_datetime ? new Date(appointment.appointment_datetime).toLocaleString() : "-"}</td>
                     <td>{appointment?.purpose || "-"}</td>
                     <td>{appointment?.service_name || "-"}</td>
                     <td>
-                      <button
-                        onClick={() => cancelAppointment(appointment.id)}
-                        className="btn btn-danger btn-sm me-2"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={() => editAppointment(appointment.id)}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Edit
-                      </button>
+                      <button onClick={() => cancelAppointment(appointment.id)} className="btn btn-danger btn-sm me-2">Cancel</button>
+                      <button onClick={() => editAppointment(appointment.id)} className="btn btn-primary btn-sm">Edit</button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center">
-                    No appointments found.
-                  </td>
+                  <td colSpan="8" className="text-center">No appointments found.</td>
                 </tr>
               )}
             </tbody>
@@ -175,49 +138,21 @@ const MyAppointments = () => {
         {editingAppointment && (
           <div className="card mt-4">
             <div className="card-body">
-              <h5 className="card-title">
-                Edit Appointment #{editingAppointment}
-              </h5>
-
+              <h5 className="card-title">Edit Appointment #{editingAppointment}</h5>
               <div className="mb-3">
                 <label className="form-label">First Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-control"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
+                <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
               </div>
-
               <div className="mb-3">
                 <label className="form-label">Last Name</label>
-                <input
-                  type="text"
-                  name="lastname"
-                  className="form-control"
-                  value={formData.lastname}
-                  onChange={handleChange}
-                />
+                <input type="text" name="lastname" className="form-control" value={formData.lastname} onChange={handleChange} />
               </div>
-
               <div className="mb-3">
                 <label className="form-label">Purpose</label>
-                <input
-                  type="text"
-                  name="purpose"
-                  className="form-control"
-                  value={formData.purpose}
-                  onChange={handleChange}
-                />
+                <input type="text" name="purpose" className="form-control" value={formData.purpose} onChange={handleChange} />
               </div>
-
-              <button className="btn btn-success me-2" onClick={handleSave}>
-                Save
-              </button>
-              <button className="btn btn-secondary" onClick={handleCancelEdit}>
-                Cancel
-              </button>
+              <button className="btn btn-success me-2" onClick={handleSave}>Save</button>
+              <button className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>
             </div>
           </div>
         )}
