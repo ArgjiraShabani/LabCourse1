@@ -137,6 +137,49 @@ const updateAppointment = (appointmentId, patientId, data, callback) => {
   });
 };
 
+const updateAppointmentStatus = (appointmentId, status, callback) => {
+  const sql = "UPDATE appointments SET status = ? WHERE appointment_id = ?";
+  db.query(sql, [status, appointmentId], (err, result) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, result);
+  });
+};
+
+const getAllAppointmentsByDoctor = (doctorId, callback) => {
+  let sql = `
+    SELECT 
+      a.appointment_id AS id,
+      a.name AS patient_name,
+      a.lastname AS patient_lastname,
+      a.appointment_datetime,
+      a.purpose,
+      a.status,
+      CONCAT(p.first_name, ' ', p.last_name) AS booked_by,
+      s.service_name,
+      CONCAT(d.first_name, ' ', d.last_name) AS doctor_name,
+      d.first_name AS doctor_firstname,
+      d.last_name AS doctor_lastname
+    FROM appointments a
+    LEFT JOIN patients p ON a.patient_id = p.patient_id
+    LEFT JOIN services s ON a.service_id = s.service_id
+    LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+  `;
+
+  const values = [];
+
+  if (doctorId) {
+    sql += " WHERE a.doctor_id = ?";
+    values.push(doctorId);
+  }
+
+  sql += " ORDER BY a.appointment_datetime DESC";
+
+  db.query(sql, values, callback);
+};
+
+
 module.exports = {
   getAllServices,
   getDoctorsByDepartment,
@@ -146,4 +189,6 @@ module.exports = {
   deleteAppointment,
   getAppointmentsByPatient,
   updateAppointment,
+  updateAppointmentStatus,
+  getAllAppointmentsByDoctor
 };

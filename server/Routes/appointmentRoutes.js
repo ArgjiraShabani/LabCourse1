@@ -12,11 +12,18 @@ router.post("/appointments", authenticateToken, appointmentController.bookAppoin
 
 router.get("/all-patient-appointments", authenticateToken, authorizeRoles("admin"), appointmentController.getAllAppointments);
 router.delete("/all-patient-appointments/:id", authenticateToken, authorizeRoles("admin"), appointmentController.deleteAppointment);
+router.put("/appointments/:id/status", authenticateToken, appointmentController.updateAppointmentStatus);
 
 router.get("/my-appointments", authenticateToken, appointmentController.getMyAppointments);
 router.delete("/my-appointments/:id", authenticateToken, appointmentController.cancelMyAppointment);
 router.put("/my-appointments/:id", authenticateToken, appointmentController.updateMyAppointment);
 
 router.get("/appointments/byPatient", authenticateToken, appointmentController.getAppointmentsByPatientHandler);
+router.get("/doctor-appointments", authenticateToken, appointmentController.getDoctorAppointments);
+router.put(
+  "/appointments/:id/status",
+  authenticateToken,    
+  appointmentController.updateAppointmentStatus
+);
 
 module.exports = router;

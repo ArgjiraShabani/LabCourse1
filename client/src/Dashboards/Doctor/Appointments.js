@@ -1,111 +1,190 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
+import Swal from "sweetalert2";
+
+const api = axios.create({
+  baseURL: "http://localhost:3001",
+  withCredentials: true,
+});
 
 const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
-    const doctorId = localStorage.getItem("doctor_id");
+    fetchAppointments();
+  }, []);
 
-    if (!doctorId) {
-      console.error("Nuk u gjet doctor_id në localStorage.");
+  const fetchAppointments = () => {
+    api
+      .get("/doctor-appointments")
+      .then((response) => {
+        const sorted = response.data.sort(
+          (a, b) =>
+            new Date(a.appointment_datetime) - new Date(b.appointment_datetime)
+        );
+        setAppointments(sorted);
+      })
+      .catch((error) => {
+        console.error("Error fetching appointments:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "An error occurred while fetching appointments.",
+        });
+      });
+  };
+
+  const isToday = (dateStr) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const updateStatus = (appointmentId, newStatus, appointmentDate) => {
+    if (!isToday(appointmentDate)) {
+      Swal.fire({
+        icon: "error",
+        title: "Action Not Allowed",
+        text: "You can only update today's appointments.",
+      });
       return;
     }
 
-    axios
-      .get(`http://localhost:3001/all-patient-appointments?doctor_id=${doctorId}`)
-      .then((response) => {
-        setAppointments(response.data);
-      })
-      .catch((error) => {
-        console.error("Gabim gjatë marrjes së termineve:", error);
-      });
-  }, []);
-
-  const updateStatus = (appointmentId, newStatus) => {
-    axios
-      .put(`http://localhost:3001/appointments/${appointmentId}/status`, {
-        status: newStatus,
-      })
-      .then(() => {
-        setAppointments((prev) =>
-          prev.map((a) =>
-            a.id === appointmentId ? { ...a, status: newStatus } : a
-          )
-        );
-      })
-      .catch((err) => {
-        console.error("Gabim gjatë përditësimit të statusit:", err);
-        alert("Nuk u përditësua statusi.");
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to mark this appointment as completed?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#51A485",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, complete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        api
+          .put(`/appointments/${appointmentId}/status`, { status: newStatus })
+          .then(() => {
+            setAppointments((prev) =>
+              prev.map((a) =>
+                a.id === appointmentId ? { ...a, status: newStatus } : a
+              )
+            );
+            Swal.fire({
+              position: "center",
+              icon: "success",
+              title: "Appointment marked as completed!",
+              showConfirmButton: false,
+              timer: 1200,
+            });
+          })
+          .catch((err) => {
+            const message =
+              err.response?.data?.error || "Status update failed.";
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: message,
+            });
+            console.error("Error updating status:", err.response || err);
+          });
+      }
+    });
   };
+
+  const todaysAppointments = appointments.filter((a) =>
+    isToday(a.appointment_datetime)
+  );
+  const otherAppointments = appointments.filter(
+    (a) => !isToday(a.appointment_datetime)
+  );
+
+  const renderTable = (appointmentsList, disableStatusChange) => (
+    <table className="table table-bordered table-striped">
+      <thead className="table-light">
+        <tr>
+          <th>#</th>
+          <th>Patient Name</th>
+          <th>Date & Time</th>
+          <th>Purpose</th>
+          <th>Booked By</th>
+          <th>Service</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {appointmentsList.length > 0 ? (
+          appointmentsList.map((appointment, index) => {
+            const status = (appointment.status || "pending")
+              .toLowerCase()
+              .trim();
+
+            return (
+              <tr
+                key={appointment.id}
+                className={status === "completed" ? "table-success" : ""}
+              >
+                <td>{index + 1}</td> {}
+                <td>{`${appointment.patient_name} ${appointment.patient_lastname}`}</td>
+                <td>
+                  {new Date(appointment.appointment_datetime).toLocaleString()}
+                </td>
+                <td>{appointment.purpose}</td>
+                <td>{appointment.booked_by}</td>
+                <td>{appointment.service_name}</td>
+                <td className="text-capitalize">{status}</td>
+                <td>
+                  {status !== "completed" && !disableStatusChange ? (
+                    <button
+                      onClick={() =>
+                        updateStatus(
+                          appointment.id,
+                          "completed",
+                          appointment.appointment_datetime
+                        )
+                      }
+                      className="btn btn-success btn-sm"
+                    >
+                      Completed
+                    </button>
+                  ) : status !== "completed" && disableStatusChange ? (
+                    <span className="text-muted">Not available</span>
+                  ) : (
+                    <button disabled className="btn btn-secondary btn-sm">
+                      Completed
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })
+        ) : (
+          <tr>
+            <td colSpan="8" className="text-center">
+              No appointments found.
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="doctor" />
       <div className="p-4 flex-grow-1">
-        <h2 className="mb-4">List of Appointments</h2>
-
+        <h2 className="mb-4">Today's Appointments</h2>
         <div className="table-responsive">
-          <table className="table table-bordered table-striped">
-            <thead className="table-light">
-              <tr>
-                <th>ID</th>
-                <th>Patient's First Name</th>
-                <th>Patient's Last Name</th>
-                <th>Date & Time</th>
-                <th>Purpose</th>
-                <th>Booked By</th>
-                <th>Service Name</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.length > 0 ? (
-                appointments.map((appointment) => {
-                  const status = (appointment.status || "pending").toLowerCase().trim();
+          {renderTable(todaysAppointments, false)}
+        </div>
 
-                  return (
-                    <tr key={appointment.id}>
-                      <td>{appointment.id}</td>
-                      <td>{appointment.patient_name}</td>
-                      <td>{appointment.patient_lastname}</td>
-                      <td>{new Date(appointment.appointment_datetime).toLocaleString()}</td>
-                      <td>{appointment.purpose}</td>
-                      <td>{appointment.booked_by}</td>
-                      <td>{appointment.service_name}</td>
-                      <td className="text-capitalize">{status}</td>
-                      <td>
-                        {status !== "completed" ? (
-                          <button
-                            onClick={() => updateStatus(appointment.id, "completed")}
-                            className="btn btn-success btn-sm"
-                          >
-                            Completed
-                          </button>
-                        ) : (
-                          <button
-                            disabled
-                            className="btn btn-secondary btn-sm"
-                          >
-                            Completed
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="9" className="text-center">
-                    No appointments found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <h2 className="mt-5 mb-4">Appointments for Other Days</h2>
+        <div className="table-responsive">
+          {renderTable(otherAppointments, true)}
         </div>
       </div>
     </div>

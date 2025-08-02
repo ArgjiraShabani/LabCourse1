@@ -148,6 +148,32 @@ const getAppointmentsByPatientHandler = (req, res) => {
   });
 };
 
+const updateAppointmentStatus = (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  appointmentModel.getAppointmentById(id, (err, results) => {
+    if (err) return res.status(500).json({ error: "Server error" });
+    if (!results.length) return res.status(404).json({ error: "Appointment not found" });
+
+    appointmentModel.updateAppointmentStatus(id, status, (err) => {
+      if (err) return res.status(500).json({ error: "Unable to update appointment status." });
+      res.json({ message: "Appointment status updated successfully." });
+    });
+  });
+};
+const getDoctorAppointments = (req, res) => {
+  const doctorId = req.user.id;
+
+  appointmentModel.getAllAppointments(doctorId, (err, results) => {
+    if (err) {
+      console.error("Error fetching doctor appointments:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+    res.json(results);
+  });
+};
+
 module.exports = {
   getServices,
   getDoctors,
@@ -159,4 +185,6 @@ module.exports = {
   updateMyAppointment,
   cancelMyAppointment,
   getAppointmentsByPatientHandler, 
+  updateAppointmentStatus,
+  getDoctorAppointments
 };
