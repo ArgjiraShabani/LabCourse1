@@ -27,6 +27,7 @@ const serviceRoutes = require('./Routes/servicesRoutes');
 const weeklyScheduleRoutes = require('./Routes/weeklyScheduleRoutes');
 const pRDoctor = require("./Routes/protectedRoutes/pRDoctor");
 const appointmentRoutes = require("./Routes/appointmentRoutes");
+const emailRoutes=require("./Routes/emailRoute");
 const logoutRoutes=require("./Routes/logoutRoutes");
 
 
@@ -751,6 +752,7 @@ app.use("/api", departmentRoutes);
 app.use("/api", dataRoutes);
 app.use("/api", specializationRoutes);
 app.use("/api", reportRoutes);
+app.use("/api", emailRoutes);
 
 app.use('/api', standardScheduleRoutes);
 app.use('/api/weekly-schedules', weeklyScheduleRoutes);

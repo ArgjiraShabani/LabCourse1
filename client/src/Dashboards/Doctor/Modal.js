@@ -8,6 +8,28 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
     const[patientInfo,setPatientInfo]=useState({});
     const[doctorInfo,setDoctorInfo]=useState(null);
 
+    const handleEmailSend=async()=>{
+        try{
+            const data={
+                subject: "Medical Report",
+                text: "Please find the report attached",
+                patient_id,
+                appointment_id
+                
+            };
+
+            const response=await axios.post(
+                `http://localhost:3001/api/sendReport`,
+                data,
+                {withCredentials: true}
+            );
+            alert("Medical report sent by email successfully");
+        }catch(error){
+            console.log("Error sending email:",error);
+            alert("Failed to send report by email.");
+        }
+    };
+
     
     
     useEffect(()=>{
@@ -193,6 +215,7 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
 
                 </div>
                 <div className="row mb-3 ">
+                <label className="form-label" for="testresults">Test Results:</label>
                 <div className="col-sm-10">
                  <input type="file" className="form-control" id="attachment"
                  onChange={handleFileChange} readOnly={readOnly}/>
@@ -200,14 +223,17 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
 
 
                 </div>
+                <div>
                 {!readOnly &&(
                     <>
 
                 <button type="submit" name="action" value="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Submit</button>
-                <button type="submit" name="action" value="email" className="btn " style={{backgroundColor: '#51A485',color: '#fff',width: '100px'}}>Send by email</button>
+                
                 </>
 
                 )}
+                <button type="button" onClick={handleEmailSend} name="action" value="email" className="btn " style={{backgroundColor: '#51A485',color: '#fff',width: '100px'}}>Send by email</button>
+                </div>
               
                 </form>
             </div>
