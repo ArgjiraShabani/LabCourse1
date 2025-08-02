@@ -2,15 +2,20 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
 
 import axios from "axios";
-function Modal({closeModal,patient_id,doctor_id,appointment_id,formData,setFormData,file,setFile,readOnly,onSubmitSuccess}){
+function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormData,file,setFile,readOnly,onSubmitSuccess}){
 
 
     const[patientInfo,setPatientInfo]=useState({});
+    const[doctorInfo,setDoctorInfo]=useState(null);
+
+    
     
     useEffect(()=>{
         const fetchReport=async()=>{
             try{
-                const response=await axios.get(`http://localhost:3001/getReports/${patient_id}/${doctor_id}/${appointment_id}`);
+                const response=await axios.get(`http://localhost:3001/getReports/${patient_id}/${appointment_id}`,{
+                    withCredentials: true
+                })
                 if(response.data && Object.keys(response.data).length>0){
                     setFormData(prev=>({
                         first_name: response.data.first_name,
@@ -58,12 +63,10 @@ function Modal({closeModal,patient_id,doctor_id,appointment_id,formData,setFormD
         
 
         const response=await axios.post(
-            `http://localhost:3001/api/reports/${patient_id}/${doctor_id}`,
+            `http://localhost:3001/api/reports/${patient_id}`,
             data,
             {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+                withCredentials: true
             }
         );
         alert("Medical Report created successfully!");

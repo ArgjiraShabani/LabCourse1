@@ -5,6 +5,7 @@ const path=require('path');
 const {createDoctorHandler, updateDoctorHandler,getAllDoctorsHandlers,
     deleteDoctorHandler,getDoctorByIdHandler,getAppointments,getStaffHandler,getAllActiveDoctorsHandler
 }=require('../Controllers/doctorController');
+const {authenticateToken}=require("../middlewares.js");
 
 
 const userStorage=multer.diskStorage({
@@ -17,12 +18,12 @@ const userStorage=multer.diskStorage({
 });
 const userUpload=multer({storage: userStorage});
 
-router.post('/doctors',userUpload.single('img'),createDoctorHandler);
-router.put('/updateDoctors/:doctor_id',userUpload.single('img'),updateDoctorHandler);
-router.get('/viewDoctors',getAllDoctorsHandlers);
-router.delete('/deleteDoctor/:doctor_id',deleteDoctorHandler);
-router.get('/doctorId/:doctor_id',getDoctorByIdHandler);
-router.get('/appointments/:doctor_id',getAppointments);
+router.post('/doctors',authenticateToken, userUpload.single('img'),createDoctorHandler);
+router.put('/updateDoctors/:doctor_id',authenticateToken,userUpload.single('img'),updateDoctorHandler);
+router.get('/viewDoctors',authenticateToken, getAllDoctorsHandlers);
+router.delete('/deleteDoctor/:doctor_id',authenticateToken,deleteDoctorHandler);
+router.get('/doctorId',authenticateToken,getDoctorByIdHandler);
+router.get('/appointments',authenticateToken,getAppointments);
 router.get('/staff',getStaffHandler);
 router.get('/allDoctors', getAllActiveDoctorsHandler); 
 

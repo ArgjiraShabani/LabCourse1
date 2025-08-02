@@ -30,6 +30,8 @@ function Login(){
                const role = res.data.role;
                const id = res.data.id;
 
+              
+
               if (res.data.role === 'doctor') {
                 navigate(`/doctordashboard/${res.data.id}`);
               } else if (res.data.role === 'patient') {

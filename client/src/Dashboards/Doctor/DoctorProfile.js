@@ -5,30 +5,41 @@ import {FaUser,FaEnvelope,FaPhone,FaGenderless,FaStethoscope,FaHospital} from "r
 import { LuCalendarDays } from "react-icons/lu";
 import { PiStudentFill } from "react-icons/pi";
 import Axios from "axios";
+
 function DoctorProfile(){
 
     
     const [doctorData,setDoctorData]=useState([]);
+
+  
+  
+    
     
 
     const navigate=useNavigate();
     
     useEffect(()=>{
-        const doctor_id=localStorage.getItem("doctor_id");
+        
        
-        if(!doctor_id){
-            navigate("/login");
-            return;
-        }
-        Axios.get(`http://localhost:3001/api/doctorId/${doctor_id}`)
+        
+        
+        
+        Axios.get(`http://localhost:3001/api/doctorId`,{
+           withCredentials: true
+        })
         .then((response)=>{
             const birthDate=response.data.date_of_birth.split("T")[0];
             response.data.date_of_birth=birthDate;
             setDoctorData(response.data);
         })
-        .catch((error)=>{
-            console.error("Error fetching doctor data",error);
-     } );
+      .catch((error) => {
+    if (error.response) {
+        console.error("Error fetching doctor data:", error.response.status, error.response.data);
+    } else {
+        console.error("Network error or no response:", error.message);
+    }
+    navigate("/login");
+    });
     },[navigate]);
 
     if(!doctorData){

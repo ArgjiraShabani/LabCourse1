@@ -2,6 +2,7 @@ import { useState,useEffect } from "react";
 import Sidebar from "../../Components/AdminSidebar";
 import Modal from "./Modal";
 import axios from "axios";
+
 function MedicalRecords(){
 
     const [openModal,setOpenModal] = useState(false);
@@ -12,12 +13,15 @@ function MedicalRecords(){
     const [modalFormData,setModalFormData]=useState({});
     const [modalFile,setModalFile]=useState(null);
     const [submittedPrescription,setSubmittedPrescription]=useState({});
+
    
     useEffect(()=>{
-      const doctor_id=localStorage.getItem("doctor_id");
+      
 
-      if(doctor_id){
-        axios.get(`http://localhost:3001/api/appointments/${doctor_id}`).then((response)=>{
+      
+        axios.get(`http://localhost:3001/api/appointments`, {
+          withCredentials: true
+        }).then((response)=>{
          setPatientList(response.data.patients);
 
          const submitted={};
@@ -34,7 +38,7 @@ function MedicalRecords(){
         console.error("Error fetching appointments:",error);
       })
 
-      }
+      
       
       
 

@@ -55,7 +55,7 @@ const createDoctorHandler=async(req,res)=>{
 };
 
 const updateDoctorHandler=(req,res)=>{
-    const doctorId=req.params.doctor_id;
+    const doctorId=req.user.id;
 
     getDocPasswordById(doctorId,(err,results)=>{
         if(err){
@@ -121,7 +121,7 @@ const getAllDoctorsHandlers=(req,res)=>{
 };
 
 const deleteDoctorHandler=(req,res)=>{
-    const doctorId=req.params.doctor_id;
+    const doctorId=req.user.id;
 
     deleteDoctor(doctorId,(err,result)=>{
         if(err){
@@ -136,7 +136,7 @@ const deleteDoctorHandler=(req,res)=>{
 };
 
 const getDoctorByIdHandler=(req,res)=>{
-    const doctorId=req.params.doctor_id;
+    const doctorId=req.user.id;
 
     getDoctorById(doctorId,(err,results)=>{
         if(err){
@@ -170,7 +170,7 @@ const getPatientAppointments=(doctorId,callback)=>{
 };
 
 const getAppointments=(req,res)=>{
-    const doctorId=req.params.doctor_id;
+    const doctorId=req.user.id;
 
     getPatientAppointments(doctorId,(err,results)=>{
         if(err){

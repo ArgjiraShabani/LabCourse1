@@ -2,7 +2,7 @@ const {createReport,getReport} =require('../Model/reportModel');
 
 const createReportHandler=(req,res)=>{
     const patientId=req.params.patient_id;
-    const doctorId=req.params.doctor_id;
+    const doctorId=req.user.id;
     const reportData={
         
         doctor_id: doctorId,
@@ -27,7 +27,7 @@ const createReportHandler=(req,res)=>{
 
 const getReportHandler=(req,res)=>{
     const patientId=req.params.patient_id;
-    const doctorId=req.params.doctor_id;
+    const doctorId=req.user.id;
     const appointmentId=req.params.appointment_id;
 
     getReport(patientId,doctorId,appointmentId,(err,results)=>{
