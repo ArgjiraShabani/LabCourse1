@@ -7,6 +7,8 @@ import { useState,useEffect } from "react";
 import Sidebar from '../../../Components/AdminSidebar';
 import { set } from 'react-hook-form';
 import UpdatePassword from '../Components/updatePassword';
+import Swal from "sweetalert2";
+
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -14,6 +16,27 @@ const MyProfile = () => {
   const {id}=param; 
 
     const [info,setInfo]=useState(null);
+
+   useEffect(() => {
+  axios
+    .get(`http://localhost:3001/myprofile/${id}`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'patient') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only patients can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, [id]);
 
   useEffect(()=>{
         axios.get(`http://localhost:3001/patient/infoPatient/${id}`).then((response)=>{
@@ -25,6 +48,7 @@ const MyProfile = () => {
             setInfo(response.data);
         })
     },[id]);
+
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh' }}>

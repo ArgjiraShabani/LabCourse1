@@ -20,6 +20,29 @@ router.get("/homePagePatient/:id", authenticateToken, authorizeRoles("patient"),
   res.json({ message: "Welcome Patient", user: req.user });
 });
 
+router.get("/myAppointment/:id", authenticateToken, authorizeRoles("patient"), (req, res) => {
+  res.json({ message: "Welcome Patient", user: req.user });
+});
+
+router.get("/BookAppointments", authenticateToken, authorizeRoles("patient"), (req, res) => {
+  res.json({ message: "Welcome Patient", user: req.user });
+});
+
+router.get("/myprofile/:id", authenticateToken, authorizeRoles("patient"), (req, res) => {
+  res.json({ message: "Welcome Patient", user: req.user });
+});
+
+router.get("/feedbacksPatient/:id", authenticateToken, authorizeRoles("patient"), (req, res) => {
+  res.json({ message: "Welcome Patient", user: req.user });
+});
+
+router.get("/staff/:id", authenticateToken, authorizeRoles("patient"), (req, res) => {
+  res.json({ message: "Welcome Patient", user: req.user });
+});
+
+
+
+
 router.get("/staff/:id", authenticateToken, authorizeRoles("doctor"), (req, res) => {
   res.json({ message: "Welcome Doctor", user: req.user });
 });

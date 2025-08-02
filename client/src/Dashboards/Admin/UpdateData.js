@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -13,16 +14,40 @@ import * as yup from "yup";
 
 function UpdateData(){
 
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+  axios
+    .get(`http://localhost:3001/updateData`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'admin') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only admin can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, []);
+
     const [blood,setBlood]=useState([]);
     const [role,setRole]=useState([]);
     const [gender,setGender]=useState([]);
     const [editingBlood, setEditingBlood] = useState({});
     const [editingGender, setEditingGender] = useState({});
 
-
+   
     
 
-    const {
+  const {
   register: registerRole,
   handleSubmit: handleSubmitRole,
   formState: { errors: errorsRole },

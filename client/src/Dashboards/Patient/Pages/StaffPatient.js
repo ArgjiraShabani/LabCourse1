@@ -1,22 +1,50 @@
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
 import Axios from "axios";
 import { useState,useEffect } from 'react';
-
 import { Link } from 'react-router-dom';
 import NavbarPatient from '../Components/NavbarPatient';
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useParams } from "react-router-dom";
+
+
+
 function MedicalStaffPatient(){
-    
 
     const [staffList,setstaffList]=useState([]);
+    const param=useParams();
+    const {id}=param;
+    const navigate = useNavigate();
+     
 
     useEffect(()=>{
         Axios.get("http://localhost:3001/api/staff").then((response)=>{
             setstaffList(response.data);
         })
     },[staffList])
+
+     useEffect(() => {
+  Axios
+    .get(`http://localhost:3001/staff/${id}`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'patient') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only patients can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, [id]);
 
     return(
         <>

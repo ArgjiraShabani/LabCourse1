@@ -4,12 +4,36 @@ import Axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from 'sweetalert2';
 import Button from 'react-bootstrap/Button';
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 
 function Patient(){
 
     const [patientList,setPatientList]=useState([]);
     const[status,setStatus]=useState([]);
+    const navigate = useNavigate();
+
+useEffect(() => {
+  Axios
+    .get(`http://localhost:3001/patient`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'admin') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only admin can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, []);
 
     useEffect(()=>{
         Axios.get("http://localhost:3001/patient/patient").then((response)=>{

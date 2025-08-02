@@ -154,11 +154,14 @@ const Sidebar = ({ role, id }) => {
                   Update Data
                 </Link>
               </li>
-              <li className="nav-item mt-4">
-                <a href="#" className="nav-link text-danger">
-                  Log out
-                </a>
-              </li>
+               <li>
+                  <Link
+                      to="/logout"
+                      className="nav-link text-white hover-link"
+                      style={{ fontWeight: "bold" }}>
+                              LOG OUT
+                   </Link>
+                </li>
             </ul>
           </>
         ) : role === "doctor" ? (
@@ -210,11 +213,14 @@ const Sidebar = ({ role, id }) => {
                   My Profile
                 </Link>
               </li>
-              <li className="nav-item mt-4">
-                <a href="#" className="nav-link text-danger">
-                  Log out
-                </a>
-              </li>
+               <li>
+                  <Link
+                      to="/logout"
+                      className="nav-link text-white hover-link"
+                      style={{  fontWeight: "bold" }}>
+                              LOG OUT
+                   </Link>
+                </li>
             </ul>
           </>
         ) : role === "patient" ? (
@@ -261,16 +267,25 @@ const Sidebar = ({ role, id }) => {
                   My Feedbacks
                 </Link>
               </li>
-              <li className="nav-item mb-2">
+             {/* <li className="nav-item mb-2">
                 <a href="#" className="nav-link text-white hover-link">
                   Message
                 </a>
               </li>
+               */}
               <li className="nav-item mt-4">
                 <Link to={`/homePagePatient/${id}`} className="nav-link text-white">
                   Home
                 </Link>
               </li>
+                <li>
+                  <Link
+                      to="/logout"
+                      className="nav-link text-white hover-link"
+                      style={{ fontWeight: "bold" }}> 
+                              LOG OUT
+                   </Link>
+                </li>
             </ul>
           </>
         ) : null}

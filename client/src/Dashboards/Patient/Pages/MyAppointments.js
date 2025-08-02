@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const API_BASE_URL = "http://localhost:3001";
 
@@ -13,9 +14,13 @@ const MyAppointments = () => {
     lastname: "",
     purpose: "",
   });
+  const param=useParams();
+ const {id}=param; 
 
-  const { id } = useParams();
+
   const navigate = useNavigate();
+  const patientId = localStorage.getItem("patient_id");
+  
 
   useEffect(() => {
     axios

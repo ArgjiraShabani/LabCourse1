@@ -14,6 +14,17 @@ router.get("/adminDashboard/:id", authenticateToken, authorizeRoles("admin"), (r
   res.json({ message: "Welcome Admin", user: req.user });
 });
 
+router.get("/patient", authenticateToken, authorizeRoles("admin"), (req, res) => {
+  res.json({ message: "Welcome Admin", user: req.user });
+});
+
+router.get("/FeedbacksAdmin", authenticateToken, authorizeRoles("admin"), (req, res) => {
+  res.json({ message: "Welcome Admin", user: req.user });
+});
+
+router.get("/updateData", authenticateToken, authorizeRoles("admin"), (req, res) => {
+  res.json({ message: "Welcome Admin", user: req.user });
+});
 
 
 module.exports = router;

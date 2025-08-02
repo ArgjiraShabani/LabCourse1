@@ -27,6 +27,7 @@ const serviceRoutes = require('./Routes/servicesRoutes');
 const weeklyScheduleRoutes = require('./Routes/weeklyScheduleRoutes');
 const pRDoctor = require("./Routes/protectedRoutes/pRDoctor");
 const appointmentRoutes = require("./Routes/appointmentRoutes");
+const logoutRoutes=require("./Routes/logoutRoutes");
 
 
 app.use(
@@ -40,6 +41,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/", loginRoutes);
+app.use("/",logoutRoutes);
 app.use("/", pRPatient);
 app.use("/", pRAdmin);
 app.use("/", signUpRoutes);

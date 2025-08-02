@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../../../Components/AdminSidebar";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
+
 
 function BookAppointment() {
   const [services, setServices] = useState([]);
@@ -20,6 +22,7 @@ function BookAppointment() {
     doctor_id: "",
     purpose: "",
   });
+
 
   function getNextSunday(date) {
     const now = new Date(date);
@@ -40,6 +43,27 @@ function BookAppointment() {
 
   const today = new Date();
   const maxDate = getNextSunday(today);
+
+  useEffect(() => {
+    axios
+    .get(`http://localhost:3001/BookAppointments`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'patient') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only patients can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, [id]);
 
   useEffect(() => {
     axios
@@ -191,6 +215,9 @@ function BookAppointment() {
   const handleTimeSlotChange = (e) => {
     setSelectedTimeSlot(e.target.value);
   };
+
+  
+
 
 const handleSubmit = (e) => {
   e.preventDefault();

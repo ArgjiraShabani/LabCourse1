@@ -3,11 +3,36 @@ import axios from 'axios';
 import Sidebar from '../../Components/AdminSidebar';
 import Button from 'react-bootstrap/Button';
 import Swal from 'sweetalert2';
+import { useNavigate } from "react-router-dom";
+
 
 
 
 const FeedbacksAdmin = () => {
   const [feedbacks, setFeedbacks] = useState([]);
+  const navigate = useNavigate();
+
+  
+  useEffect(() => {
+  axios
+    .get(`http://localhost:3001/updateData`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'admin') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only admin can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, []);
 
   useEffect(() => {
     axios.get('http://localhost:3001/api/feedbacksAdmin').then((response)=>{

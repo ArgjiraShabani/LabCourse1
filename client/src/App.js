@@ -36,6 +36,7 @@ import Appointment from './Dashboards/Doctor/Appointments';
 import PatientAppointments from './Dashboards/Admin/PatientAppointments';
 import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';
 import UpdateData from './Dashboards/Admin/UpdateData';
+import LogOut from './Pages/Logout';
 
 
 
@@ -50,9 +51,9 @@ function Layout() {
       <main className="flex-grow-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path='/homePagePatient/:id' element={<HomePagePatient />}/>
+          <Route path='/homePagePatient/:id' element={<HomePagePatient />}/>-----------
           <Route path="/staff" element={<MedicalStaff />} />
-          <Route path='/staff/:id' element={<MedicalStaffPatient />}/>
+          <Route path='/staff/:id' element={<MedicalStaffPatient />}/>-----------------
           <Route path="/adminDashboard/:id" element={<AdminDashboard />} />
           <Route path="/doctors" element={<AdminDoctor/>}/>
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
@@ -60,29 +61,30 @@ function Layout() {
           <Route path='/doctorSpecializations' element={<DoctorSpecializations/>}/>
           <Route path='/doctorProfile/:doctor_id' element={<DoctorProfile/>}/>
           <Route path='/medicalRecords/:id' element={<MedicalRecords/>}/>
-          <Route path='/feedbacksPatient/:id' element={<FeedbacksPatient/>}></Route>
-          <Route path='updateData' element={<UpdateData/>}></Route>
+          <Route path='/feedbacksPatient/:id' element={<FeedbacksPatient/>}></Route>---------------
+          <Route path='/updateData' element={<UpdateData/>}></Route>---------------------------
 
           <Route path="/doctordashboard/:doctor_id" element={<DoctorDashboard/>} />
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
-          <Route path='/myprofile/:id' element={<MyProfile/>}></Route>
+          <Route path='/myprofile/:id' element={<MyProfile/>}></Route>--------------
           <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
           <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
           <Route path="/ManageServices/:id" element={<ManageServices />} />
           <Route path='/login' element={<Login/>}></Route>
-          <Route path='/patient' element={<Patient/>}></Route>
+          <Route path='/patient' element={<Patient/>}></Route>--------------------------
           <Route path='/registerPatient' element={<Register/>}></Route>
           <Route path="/ManageSchedule/:id" element={<ManageSchedule />} />
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path="/DoctorSchedule" element={<DoctorSchedule />} />
-          <Route path="/BookAppointments" element={<BookAppointments />} />
-          <Route path="/FeedbacksAdmin/" element={<FeedbacksAdmin />} />
+          <Route path="/BookAppointments" element={<BookAppointments />} />---------------
+          <Route path="/FeedbacksAdmin/" element={<FeedbacksAdmin />} />------------------
           <Route path="/WeeklySchedule/:id" element={<WeeklySchedule />} />
           <Route path="/Appointment/:id" element={<Appointment />} />
           <Route path="/PatientAppointments/:id" element={<PatientAppointments/>}/>
+          <Route path='/logout' element={<LogOut/>}/>---------------------------
 
 
-          <Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>
+          <Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>--
         </Routes>
       </main>
      

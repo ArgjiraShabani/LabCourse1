@@ -39,7 +39,7 @@ function NavbarPatient(){
       </div>
       <div >
       <Link
-            to="#"
+            to="/logout"
             className="btn btn-secondary btn-sm me-2"
               style={{backgroundColor: '#51A485',
                 border: 'none',

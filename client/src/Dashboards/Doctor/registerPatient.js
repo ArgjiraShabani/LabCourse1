@@ -59,6 +59,8 @@ const schema =yup.object().shape({
 function Register(){
    
     const navigate=useNavigate();
+    
+
     const [gender,setGender]=useState([]);
     const [blood,setBlood]=useState([]);
     const [status,setStatus]=useState([]);

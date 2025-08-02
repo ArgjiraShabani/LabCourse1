@@ -2,6 +2,7 @@ import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
 import { useState,useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import Swal from 'sweetalert2';
 
@@ -9,10 +10,32 @@ import Swal from 'sweetalert2';
 
 
 function FeedbacksPatient(){
-    const [info,setInfo]=useState([]);
-      const param=useParams();
-      const {id}=param; 
+  const [info,setInfo]=useState([]);
+  const param=useParams();
+  const {id}=param; 
+  const navigate = useNavigate();
 
+
+  useEffect(() => {
+  axios
+    .get(`http://localhost:3001/feedbacksPatient/${id}`, {
+      withCredentials: true, // this sends the JWT cookie
+    })
+    .then((res) => {
+      if (res.data.user?.role !== 'patient') {
+        // Not a patient? Block it.
+        Swal.fire({
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'Only patients can access this page.',
+        });
+        navigate('/');
+      }
+    })
+    .catch((err) => {
+      navigate('/');
+    });
+}, [id]);
 
     useEffect(()=>{
          axios.get(`http://localhost:3001/patient/feedbacksPatient/${id}`).then((response)=>{

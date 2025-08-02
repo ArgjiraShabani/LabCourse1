@@ -18,4 +18,6 @@ router.get('/dashboard', (req, res) => {
   res.json({ message: "Welcome Doctor", user: req.user });
 });
 
+
+
 module.exports = router;
