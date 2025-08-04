@@ -10,7 +10,8 @@ const {
   getDoctorByIdHandler,
   getAppointments,
   getStaffHandler,
-  getAllActiveDoctorsHandler
+  getAllActiveDoctorsHandler,
+    getDoctorByIdAdminHandler
 } = require('../Controllers/doctorController');
 
 const {
@@ -41,6 +42,7 @@ router.get('/doctorId',authenticateToken,getDoctorByIdHandler);
 router.get('/appointments',authenticateToken,getAppointments);
 router.get('/staff',getStaffHandler);
 router.get('/allDoctors', getAllActiveDoctorsHandler);
+router.get('/doctorInfo/:doctor_id', authenticateToken,getDoctorByIdAdminHandler); 
 
 router.get('/standard-schedule', authenticateToken,getSchedulesByDoctorHandler);
 router.get('/weekly-schedule', authenticateToken, getWeeklyScheduleByDoctorHandler);

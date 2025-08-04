@@ -31,7 +31,9 @@ const ViewDoctors=()=>{
      const [openModal,setOpenModal] = useState(false);
     const [doctorList,setDoctorList]=useState([]);
     useEffect(()=>{
-        Axios.get("http://localhost:3001/api/viewDoctors").then((response)=>{
+        Axios.get("http://localhost:3001/api/viewDoctors",{
+            withCredentials: true
+        }).then((response)=>{
             const formattedData=response.data.map((doctor)=>{
                 if(doctor.date_of_birth){
                     return{
@@ -46,7 +48,9 @@ const ViewDoctors=()=>{
     },[]);
 
     const deleteDoctor=(id)=>{
-        Axios.delete(`http://localhost:3001/api/deleteDoctor/${id}`)
+        Axios.delete(`http://localhost:3001/api/deleteDoctor/${id}`,{
+            withCredentials: true
+        })
         .then(()=>{
             setDoctorList(prevList=>prevList.filter(d=>d.doctor_id!==id));
             swal.fire('Deleted!','Doctor has been deleted.','Success');

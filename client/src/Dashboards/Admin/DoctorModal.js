@@ -10,7 +10,9 @@ function DoctorModal({doctor_id,closeModal}){
     const [docInfo,SetDocInfo] = useState({});
 
     useEffect(()=>{
-        axios.get(`http://localhost:3001/api/doctorId/${doctor_id}`)
+        axios.get(`http://localhost:3001/api/doctorInfo/${doctor_id}`,{
+            withCredentials: true
+        })
          .then((response)=>{
             const birthDate=response.data.date_of_birth.split("T")[0];
             response.data.date_of_birth=birthDate;

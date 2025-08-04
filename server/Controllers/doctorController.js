@@ -121,7 +121,7 @@ const getAllDoctorsHandlers=(req,res)=>{
 };
 
 const deleteDoctorHandler=(req,res)=>{
-    const doctorId=req.user.id;
+    const doctorId=req.params.doctor_id;
 
     deleteDoctor(doctorId,(err,result)=>{
         if(err){
@@ -149,6 +149,21 @@ const getDoctorByIdHandler=(req,res)=>{
         res.json(results[0]);
     });
 };
+const getDoctorByIdAdminHandler=(req,res)=>{
+    const doctorId=req.params.doctor_id;
+
+    getDoctorById(doctorId,(err,results)=>{
+        if(err){
+            console.error("Database error:" , err);
+            return res.status(500).json({error: "Database error"});
+        }
+        if(results.length===0){
+            return res.status(404).json({message: "Doctor not found"});
+        }
+        res.json(results[0]);
+    });
+};
+
 
 const getPatientAppointments=(doctorId,callback)=>{
     
@@ -208,7 +223,8 @@ module.exports={
     getDoctorByIdHandler,
     getAppointments,
     getStaffHandler,
-    getAllActiveDoctorsHandler
+    getAllActiveDoctorsHandler,
+    getDoctorByIdAdminHandler
     
 };
   

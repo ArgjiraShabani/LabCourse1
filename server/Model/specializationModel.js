@@ -13,7 +13,23 @@ const getSpecializations=(callback)=>{
     });
 };
 
+const deleteSpecialization=(specializationId,callback)=>{
+    const query="DELETE FROM specialization WHERE specialization_id=?";
+    db.query(query,[specializationId],(err,results)=>{
+        callback(err,results);
+    });
+};
+const updateSpecialization=(specializationId,specializationName,callback)=>{
+    
+    const query=`UPDATE specialization SET specialization_name=? WHERE specialization_id=?`;
+    db.query(query,[specializationName,specializationId],(err,results)=>{
+        callback(err,results);
+    });
+};
+
 module.exports={
     createSpecialization,
     getSpecializations,
+    deleteSpecialization,
+    updateSpecialization
 };
