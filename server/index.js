@@ -1208,7 +1208,7 @@ app.patch('/updateFeedback/:id',(req,res)=>{
     }
   })
 })*/
-
+/*
 cron.schedule("0 23 * * 0", async () => {
   try {
     const [doctors] = await db.query("SELECT doctor_id FROM doctors");
@@ -1390,7 +1390,7 @@ app.delete("/api/weeklySchedules/:scheduleId", (req, res) => {
     res.json(results);
   });
 });*/
-
+/*
 app.put("/all-patient-appointments/:id/status", (req, res) => {
   const appointmentId = req.params.id;
   const { status } = req.body;
@@ -1433,7 +1433,7 @@ app.put("/all-patient-appointments/:id/status", (req, res) => {
     res.json({ message: "Appointment deleted successfully." });
   });
 });*/
-
+/*
 app.get("/appointments", (req, res) => {
   const { doctor_id } = req.query;
 
@@ -1473,7 +1473,7 @@ app.put("/appointments/:id/status", (req, res) => {
     res.json({ message: "Status was updated successfully" });
   });
 });
-
+*/
 /*app.post("/appointments", (req, res) => {
   const {
     patient_id,
@@ -1517,7 +1517,7 @@ app.put("/appointments/:id/status", (req, res) => {
     }
   );
 });*/
-
+/*
 app.get("/appointments", (req, res) => {
   const doctorId = req.query.doctor_id;
 

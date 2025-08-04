@@ -2,11 +2,26 @@ const express= require('express');
 const router=express.Router();
 const multer=require('multer');
 const path=require('path');
-const {createDoctorHandler, updateDoctorHandler,getAllDoctorsHandlers,
-    deleteDoctorHandler,getDoctorByIdHandler,getAppointments,getStaffHandler,getAllActiveDoctorsHandler
-}=require('../Controllers/doctorController');
-const {authenticateToken}=require("../middlewares.js");
+const {
+  createDoctorHandler,
+  updateDoctorHandler,
+  getAllDoctorsHandlers,
+  deleteDoctorHandler,
+  getDoctorByIdHandler,
+  getAppointments,
+  getStaffHandler,
+  getAllActiveDoctorsHandler
+} = require('../Controllers/doctorController');
 
+const {
+  getSchedulesByDoctorHandler,
+} = require('../Controllers/standardScheduleController');
+
+const {
+  getWeeklyScheduleByDoctorHandler,
+} = require('../Controllers/weeklyScheduleController');
+
+const { authenticateToken, authorizeRoles } = require("../middlewares.js");
 
 const userStorage=multer.diskStorage({
   destination: (req,file,cb)=>{
@@ -25,9 +40,9 @@ router.delete('/deleteDoctor/:doctor_id',authenticateToken,deleteDoctorHandler);
 router.get('/doctorId',authenticateToken,getDoctorByIdHandler);
 router.get('/appointments',authenticateToken,getAppointments);
 router.get('/staff',getStaffHandler);
-router.get('/allDoctors', getAllActiveDoctorsHandler); 
+router.get('/allDoctors', getAllActiveDoctorsHandler);
 
-
-
+router.get('/standard-schedule', authenticateToken,getSchedulesByDoctorHandler);
+router.get('/weekly-schedule', authenticateToken, getWeeklyScheduleByDoctorHandler);
 
 module.exports=router;

@@ -3,7 +3,7 @@ import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 
 const api = axios.create({
-  baseURL: "http://localhost:3001/doctor",
+  baseURL: "http://localhost:3001/api",
   withCredentials: true,
 });
 
@@ -25,7 +25,6 @@ const DoctorSchedule = () => {
       try {
         const resWeekly = await api.get("/weekly-schedule");
         const weekly = resWeekly.data;
-        console.log("Weekly schedule data:", weekly);
 
         const resStandard = await api.get("/standard-schedule");
         const standard = resStandard.data;
