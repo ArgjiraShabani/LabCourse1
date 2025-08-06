@@ -22,7 +22,7 @@ const getEmail=(query,id)=>{
 router.post('/sendReport',authenticateToken,async(req,res)=>{
     const {subject,text, patient_id, appointment_id}=req.body;
     
-    const doctor_id=req.user.doctor_id;
+    const doctor_id=req.user.id;
 
     if(!doctor_id || !patient_id || !appointment_id){
         return res.status(400).json({message: "Missing doctor, patient id or appointment_id"});
@@ -61,6 +61,9 @@ router.post('/sendReport',authenticateToken,async(req,res)=>{
             auth: {
                 user: '1c986629a75622',
                 pass: '3bfae535a1005d',
+            },
+            tls: {
+                rejectUnauthorized: false,
             }
         });
         const mailOptions={

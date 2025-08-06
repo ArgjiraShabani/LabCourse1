@@ -36,8 +36,8 @@ const createReport=(patientId,reportData,callback)=>{
 
 const getReport=(patientId,doctorId, appointmentId,callback)=>{
     const query=`SELECT result_id,result_text,attachment,symptoms,alergies,diagnose,first_name,last_name
-    FROM results WHERE doctor_id=?  AND patient_id=? AND appointment_id=?`;
-    db.query(query,[patientId,doctorId,appointmentId]);
+    FROM results WHERE patient_id=? AND doctor_id=? AND appointment_id=?`;
+    db.query(query,[patientId,doctorId,appointmentId], callback);
 }
 
 const getReportByDoctor=(doctorId,callback)=>{

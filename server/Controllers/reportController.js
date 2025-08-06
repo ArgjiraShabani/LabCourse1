@@ -26,6 +26,7 @@ const createReportHandler=(req,res)=>{
 };
 
 const getReportHandler=(req,res)=>{
+    console.log("Decoded user from token:", req.user);
     const patientId=req.params.patient_id;
     const doctorId=req.user.id;
     const appointmentId=req.params.appointment_id;

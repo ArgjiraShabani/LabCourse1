@@ -2,7 +2,7 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
 
 import axios from "axios";
-function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormData,file,setFile,readOnly,onSubmitSuccess}){
+function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,setFile,readOnly,onSubmitSuccess}){
 
 
     const[patientInfo,setPatientInfo]=useState({});
@@ -17,11 +17,14 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
                 appointment_id
                 
             };
+            console.log("Sending email with data", data);
 
             const response=await axios.post(
                 `http://localhost:3001/api/sendReport`,
                 data,
-                {withCredentials: true}
+                {withCredentials: true
+                   
+                }
             );
             alert("Medical report sent by email successfully");
         }catch(error){
@@ -38,7 +41,8 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
                 const response=await axios.get(`http://localhost:3001/getReports/${patient_id}/${appointment_id}`,{
                     withCredentials: true
                 })
-                if(response.data && Object.keys(response.data).length>0){
+                const report= response.data.report;
+                if(report && Object.keys(report).length>0){
                     setFormData(prev=>({
                         first_name: response.data.first_name,
                         last_name: response.data.last_name,
@@ -50,13 +54,19 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
                     console.log("fetched data",response.data)
                 }
             }catch(error){
-                console.error("Error fetching report:",error);
+                if(error.response && error.response.status===404){
+                    console.log("No report found for this patient and appointment.");
+                }else{
+                     console.error("Error fetching report:",error);
+
+                }
+               
             }
         };
-        if(patient_id && doctor_id && appointment_id){
+        if(patient_id  && appointment_id){
             fetchReport();
         }
-    },[patient_id,doctor_id,appointment_id]);
+    },[patient_id,appointment_id]);
 
     const handleChange=(e)=>{
         setFormData({...formData,[e.target.id]: e.target.value});
@@ -67,7 +77,7 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
     const handleSubmit= async (e)=>{
         e.preventDefault();
         const data=new FormData();
-        data.append('doctor_id',doctor_id)
+        
         data.append("patient_id",patient_id);
         data.append("appointment_id",appointment_id);
         data.append("first_name",formData.first_name);
@@ -93,7 +103,7 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
         );
         alert("Medical Report created successfully!");
         if(onSubmitSuccess){
-            onSubmitSuccess(patient_id);
+            onSubmitSuccess(patient_id,appointment_id);
         }
         closeModal();
         
@@ -219,6 +229,7 @@ function Modal({doctor_id,closeModal,patient_id,appointment_id,formData,setFormD
                 <div className="col-sm-10">
                  <input type="file" className="form-control" id="attachment"
                  onChange={handleFileChange} readOnly={readOnly}/>
+                 {file && <p style={{marginTop: "0.5rem", color: "#333"}}>Uploaded file: {file.name}</p>}
                 </div>
 
 

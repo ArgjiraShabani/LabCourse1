@@ -27,7 +27,7 @@ function MedicalRecords(){
          const submitted={};
          response.data.patients.forEach(p=>{
           if(p.hasPrescription){
-            submitted[p.patient_id]=true;
+            submitted[`${p.patient_id}_${p.appointment_id}`]=true;
 
           }
 
@@ -93,8 +93,10 @@ function MedicalRecords(){
                                                 appointment_id: p.appointment_id
                                               });
                                               
-        setOpenModal(true);
-       }}>{submittedPrescription[p.patient_id]? 'View prescription':'Write prescription'}</button></td>
+                                              setModalFile(null);
+                                              
+                                              setOpenModal(true);
+       }}>{submittedPrescription[`${p.patient_id}_${p.appointment_id}`]? 'View prescription':'Write prescription'}</button></td>
                     </tr>
                   ))}
 
@@ -107,14 +109,14 @@ function MedicalRecords(){
          <Modal closeModal={()=>setOpenModal(false)} 
          patient_id={selectedPatient.patient_id} 
        appointment_id={selectedPatient.appointment_id}
-        doctor_id={localStorage.getItem("doctor_id")}
+        
         formData={modalFormData}
         setFormData={setModalFormData}
         file={modalFile}
         setFile={setModalFile}
-        readOnly={submittedPrescription[selectedPatient.patient_id]}
+        readOnly={submittedPrescription[`${selectedPatient.patient_id}_${selectedPatient.appointment_id}`]}
         onSubmitSuccess={(patient_id)=>{
-          setSubmittedPrescription((prev)=>({...prev,[patient_id]:true}));
+          setSubmittedPrescription((prev)=>({...prev,[`${selectedPatient.patient_id}_${selectedPatient.appointment_id}`]:true}));
         }
         }
         />)}
