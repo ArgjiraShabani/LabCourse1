@@ -68,11 +68,7 @@ const Appointment = () => {
         api
           .put(`/appointments/${appointmentId}/status`, { status: newStatus })
           .then(() => {
-            setAppointments((prev) =>
-              prev.map((a) =>
-                a.id === appointmentId ? { ...a, status: newStatus } : a
-              )
-            );
+            fetchAppointments();
             Swal.fire({
               position: "center",
               icon: "success",
@@ -123,13 +119,23 @@ const Appointment = () => {
               .toLowerCase()
               .trim();
 
+            const appointmentId = appointment.id || appointment.appointment_id;
+            const patientName =
+              appointment.patient_name ||
+              appointment.name || 
+              "";
+            const patientLastname =
+              appointment.patient_lastname ||
+              appointment.lastname || 
+              "";
+
             return (
               <tr
-                key={appointment.id}
+                key={appointmentId}
                 className={status === "completed" ? "table-success" : ""}
               >
-                <td>{index + 1}</td> {}
-                <td>{`${appointment.patient_name} ${appointment.patient_lastname}`}</td>
+                <td>{index + 1}</td>
+                <td>{`${patientName} ${patientLastname}`}</td>
                 <td>
                   {new Date(appointment.appointment_datetime).toLocaleString()}
                 </td>
@@ -142,7 +148,7 @@ const Appointment = () => {
                     <button
                       onClick={() =>
                         updateStatus(
-                          appointment.id,
+                          appointmentId,
                           "completed",
                           appointment.appointment_datetime
                         )
@@ -178,14 +184,10 @@ const Appointment = () => {
       <Sidebar role="doctor" />
       <div className="p-4 flex-grow-1">
         <h2 className="mb-4">Today's Appointments</h2>
-        <div className="table-responsive">
-          {renderTable(todaysAppointments, false)}
-        </div>
+        <div className="table-responsive">{renderTable(todaysAppointments, false)}</div>
 
         <h2 className="mt-5 mb-4">Appointments for Other Days</h2>
-        <div className="table-responsive">
-          {renderTable(otherAppointments, true)}
-        </div>
+        <div className="table-responsive">{renderTable(otherAppointments, true)}</div>
       </div>
     </div>
   );

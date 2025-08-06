@@ -147,6 +147,14 @@ const updateAppointmentStatus = (appointmentId, status, callback) => {
   });
 };
 
+const getAppointmentById = (appointmentId, callback) => {
+  const sql = "SELECT * FROM appointments WHERE appointment_id = ?";
+  db.query(sql, [appointmentId], (err, results) => {
+    if (err) return callback(err);
+    callback(null, results);
+  });
+};
+
 const getAllAppointmentsByDoctor = (doctorId, callback) => {
   let sql = `
     SELECT 
@@ -190,5 +198,6 @@ module.exports = {
   getAppointmentsByPatient,
   updateAppointment,
   updateAppointmentStatus,
-  getAllAppointmentsByDoctor
+  getAllAppointmentsByDoctor,
+  getAppointmentById
 };
