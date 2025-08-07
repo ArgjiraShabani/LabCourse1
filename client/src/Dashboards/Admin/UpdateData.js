@@ -141,7 +141,9 @@ const {
              }).then((result) => {
                 if (result.isConfirmed) {
       
-                        axios.delete("http://localhost:3001/api/deleteDataGender",{ data: data }).then((response)=>{
+                        axios.delete("http://localhost:3001/api/deleteDataGender",{ data: data ,
+        withCredentials: true
+    }).then((response)=>{
                           
                           Swal.fire({
                                                       position: "center",
@@ -174,7 +176,9 @@ function handleDeleteBlood(id,nameData){
              }).then((result) => {
                 if (result.isConfirmed) {
       
-                        axios.delete("http://localhost:3001/api/deleteDataBlood",{ data: data }).then((response)=>{
+                        axios.delete("http://localhost:3001/api/deleteDataBlood",{ data: data ,
+        withCredentials: true
+    }).then((response)=>{
                           
                           Swal.fire({
                                                       position: "center",
@@ -203,7 +207,9 @@ function handleDeleteBlood(id,nameData){
           .put("http://localhost:3001/api/updateDataBlood", {
             id: id,
             newValue: updatedValue,
-          })
+          },{
+        withCredentials: true
+    })
           .then(() => {
             Swal.fire({
               position: "center",
@@ -230,7 +236,9 @@ function handleDeleteBlood(id,nameData){
           .put("http://localhost:3001/api/updateDataGender", {
             id: id,
             newValue: updatedValue,
-          })
+          },{
+        withCredentials: true
+    })
           .then(() => {
             Swal.fire({
               position: "center",
@@ -262,7 +270,9 @@ function handleDeleteBlood(id,nameData){
             confirmButtonText: "Add"
              }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.post("http://localhost:3001/api/addRole",event).then((response)=>{
+                    axios.post("http://localhost:3001/api/addRole",event,{
+        withCredentials: true
+    }).then((response)=>{
                            Swal.fire({
                                  position: "center",
                                  icon: "success",
@@ -288,7 +298,9 @@ function handleDeleteBlood(id,nameData){
             confirmButtonText: "Add"
              }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.post("http://localhost:3001/api/addGender",event).then((response)=>{
+                    axios.post("http://localhost:3001/api/addGender",event,{
+        withCredentials: true
+    }).then((response)=>{
                            Swal.fire({
                                  position: "center",
                                  icon: "success",
@@ -314,7 +326,9 @@ function handleDeleteBlood(id,nameData){
             confirmButtonText: "Add"
              }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.post("http://localhost:3001/api/addBlood",event).then((response)=>{
+                    axios.post("http://localhost:3001/api/addBlood",event,{
+        withCredentials: true
+    }).then((response)=>{
                          Swal.fire({
                                  position: "center",
                                  icon: "success",

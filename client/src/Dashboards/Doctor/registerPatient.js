@@ -96,7 +96,9 @@ function Register(){
     })
   },[]);
   useEffect(()=>{
-        axios.get("http://localhost:3001/api/status").then((response)=>{
+        axios.get("http://localhost:3001/api/status",{
+        withCredentials: true
+    }).then((response)=>{
             setStatus(response.data);
         })
     },[]);
@@ -118,7 +120,9 @@ function Register(){
             formdata.append("blood", e.blood);
             formdata.append("status", e.status);
         
-         axios.post("http://localhost:3001/patient/registerPatient",formdata).then(res=>{
+       axios.post("http://localhost:3001/patient/registerPatient",formdata,{
+                withCredentials: true
+            }).then(res=>{
              
              if(res.data===""){ 
             Swal.fire({

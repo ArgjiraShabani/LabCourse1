@@ -38,7 +38,9 @@ function UpdatePassword({id,info,setInfo}){
 
      function changePassword(event){
         event.id=id;
-        axios.patch('http://localhost:3001/patient/changePassword',event).then((response)=>{
+        axios.patch('http://localhost:3001/patient/changePassword',event,{
+             withCredentials: true
+         }).then((response)=>{
             if(response.data==='Changed'){
                  Swal.fire({
                        position: "center",

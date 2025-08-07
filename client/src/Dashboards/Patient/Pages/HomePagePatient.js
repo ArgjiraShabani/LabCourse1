@@ -93,7 +93,9 @@ function HomePagePatient() {
     } 
     console.log(info)
    
-      axios.post("http://localhost:3001/patient/feedbacks",info).then(res=>{
+      axios.post("http://localhost:3001/patient/feedbacks",info,{
+        withCredentials: true
+    }).then(res=>{
           Swal.fire({
                         position: "center",
                         icon: "success",

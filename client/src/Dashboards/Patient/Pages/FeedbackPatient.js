@@ -38,7 +38,9 @@ function FeedbacksPatient(){
 }, [id]);
 
     useEffect(()=>{
-         axios.get(`http://localhost:3001/patient/feedbacksPatient/${id}`).then((response)=>{
+         axios.get(`http://localhost:3001/patient/feedbacksPatient/${id}`,{
+        withCredentials: true
+    }).then((response)=>{
            const formattedData = response.data.map(item => {
                   if (item.created_at) {
                     const datePart = item.created_at.split("T")[0];
@@ -66,7 +68,9 @@ function FeedbacksPatient(){
                   confirmButtonText: "Delete"
                   }).then((result) => {
                   if (result.isConfirmed) {
-                      axios.delete(`http://localhost:3001/patient/deleteFeedback/${feedbackId}`)
+                      axios.delete(`http://localhost:3001/patient/deleteFeedback/${feedbackId}`,{
+                                   withCredentials: true
+                                })
                                   .then(response=>{
                                   const updatedFeedback = info.filter(feedback => feedback.feedback_id !==feedbackId);
                                   setInfo(updatedFeedback);

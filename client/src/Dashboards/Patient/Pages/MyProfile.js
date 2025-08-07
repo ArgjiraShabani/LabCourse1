@@ -39,7 +39,9 @@ const MyProfile = () => {
 }, [id]);
 
   useEffect(()=>{
-        axios.get(`http://localhost:3001/patient/infoPatient/${id}`).then((response)=>{
+        axios.get(`http://localhost:3001/patient/infoPatient/${id}`,{
+        withCredentials: true
+    }).then((response)=>{
             console.log(response.data)
             console.log(response.data.date_of_birth)
             const dateOfBirth = response.data.date_of_birth.split("T")[0];

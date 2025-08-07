@@ -43,6 +43,10 @@ router.get("/staff/:id", authenticateToken, authorizeRoles("patient"), (req, res
 
 
 
+
+
+
+
 router.get("/staff/:id", authenticateToken, authorizeRoles("doctor"), (req, res) => {
   res.json({ message: "Welcome Doctor", user: req.user });
 });

@@ -35,7 +35,9 @@ const FeedbacksAdmin = () => {
 }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:3001/api/feedbacksAdmin').then((response)=>{
+    axios.get('http://localhost:3001/api/feedbacksAdmin',{
+        withCredentials: true
+    }).then((response)=>{
        const formattedData = response.data.map(item => {
         if (item.created_at) {
           const datePart = item.created_at.split("T")[0];
@@ -64,7 +66,9 @@ function handleDelete(id){
             confirmButtonText: "Delete"
             }).then((result) => {
             if (result.isConfirmed) {
-                axios.patch(`http://localhost:3001/api/updateFeedback/${id}`)
+                axios.patch(`http://localhost:3001/api/updateFeedback/${id}`,{
+        withCredentials: true
+    })
                      .then(response=>{
                         const updatedFeedback = feedbacks.filter(feedback => feedback.feedback_id !== id);
                     setFeedbacks(updatedFeedback);

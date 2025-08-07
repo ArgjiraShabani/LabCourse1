@@ -106,7 +106,9 @@ function UpdateProfile({id,info,setInfo}){
             confirmButtonText: "Update"
             }).then((result) => {
             if (result.isConfirmed) {
-                 axios.put(`http://localhost:3001/patient/updatePatient/${id}`,formdata)
+                 axios.put(`http://localhost:3001/patient/updatePatient/${id}`,formdata,{
+                    withCredentials: true
+                })
                   .then(res=>{
                       const updated = res.data;
                         updated.date_of_birth = updated.date_of_birth.split("T")[0];

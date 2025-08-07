@@ -36,7 +36,9 @@ useEffect(() => {
 }, []);
 
     useEffect(()=>{
-        Axios.get("http://localhost:3001/patient/patient").then((response)=>{
+        Axios.get("http://localhost:3001/patient/patient",{
+        withCredentials: true
+    }).then((response)=>{
             console.log(response.data)
               const updatedPatients = response.data.map(patient => {
                 if (patient.date_of_birth) {
@@ -54,7 +56,9 @@ useEffect(() => {
        
 
     useEffect(()=>{
-        Axios.get("http://localhost:3001/api/status").then((response)=>{
+        Axios.get("http://localhost:3001/api/status",{
+        withCredentials: true
+    }).then((response)=>{
             setStatus(response.data);
         })
     },[]);
@@ -69,7 +73,9 @@ useEffect(() => {
             confirmButtonText: "Change"
             }).then((result) => {
             if (result.isConfirmed) {
-                Axios.put("http://localhost:3001/api/updateStatus",{status:s_id,id:id}).then(response=>{
+                Axios.put("http://localhost:3001/api/updateStatus",{status:s_id,id:id},{
+        withCredentials: true
+    }).then(response=>{
                     const updatedList = patientList.map(patient => {
                         if (patient.patient_id === id) {
                             const statusObj = status.find(s => s.status_id === s_id);
@@ -117,7 +123,9 @@ useEffect(() => {
             confirmButtonText: "Delete"
             }).then((result) => {
             if (result.isConfirmed) {
-                Axios.delete(`http://localhost:3001/patient/deletePatient/${id}`)
+                Axios.delete(`http://localhost:3001/patient/deletePatient/${id}`,{
+                    withCredentials: true
+                    })
                      .then(response=>{
                         const updatedList = patientList.filter(patient => patient.patient_id !== id);
                     setPatientList(updatedList);
