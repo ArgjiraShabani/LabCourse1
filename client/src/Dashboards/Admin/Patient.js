@@ -37,6 +37,7 @@ useEffect(() => {
 
     useEffect(()=>{
         Axios.get("http://localhost:3001/patient/patient").then((response)=>{
+            console.log(response.data)
               const updatedPatients = response.data.map(patient => {
                 if (patient.date_of_birth) {
                     patient.date_of_birth = patient.date_of_birth.split("T")[0];
@@ -182,7 +183,7 @@ useEffect(() => {
                         <td>{value.email}</td>
                         <td>{value.phone}</td>
                         <td>{value.date_of_birth}</td>
-                        <td>{value.gender_name}</td>
+                        <td>{value.gender_name ? value.gender_name : '--'}</td>
                         <td style={{ color: value.status_name.toLowerCase() === 'inactive' ? 'red' : 'green' }}>{value.status_name}</td>
                         <td>
                             {status.map((val,key)=>{

@@ -2,6 +2,7 @@ const express= require('express');
 const router=express.Router();
 const multer=require('multer');
 const path=require('path');
+const { authenticateToken, authorizeRoles } = require("../middlewares.js");
 const {getPatientByIdHandler,
     getAllPatientsHandler,
     deletePatientByIdHandler,
@@ -24,15 +25,15 @@ const userStorage=multer.diskStorage({
 });
 const upload=multer({storage: userStorage});
 
-router.get('/infoPatient/:id',getPatientByIdHandler);
-router.get('/patient',getAllPatientsHandler);
-router.delete('/deletePatient/:id',deletePatientByIdHandler);
-router.post('/removePhotoPatient/:id',removePhotoHandler);
-router.patch('/changePassword',changePasswordHandler);
-router.put('/updatePatient/:id',upload.single('image'),updatePatientHandler);
-router.post('/registerPatient',upload.single('image'),registerPatientHandler);
-router.post('/feedbacks',setFeedbacksHandler);
-router.get('/feedbacksPatient/:id',getFeedbacksPatientHandler);
-router.delete('/deleteFeedback/:id',deleteFeedbackHandler);
+router.get('/infoPatient/:id',authenticateToken,getPatientByIdHandler);
+router.get('/patient',authenticateToken,getAllPatientsHandler);
+router.delete('/deletePatient/:id',authenticateToken,deletePatientByIdHandler);
+router.post('/removePhotoPatient/:id',authenticateToken,removePhotoHandler);
+router.patch('/changePassword',authenticateToken,changePasswordHandler);
+router.put('/updatePatient/:id',authenticateToken,upload.single('image'),updatePatientHandler);
+router.post('/registerPatient',authenticateToken,upload.single('image'),registerPatientHandler);
+router.post('/feedbacks',authenticateToken,setFeedbacksHandler);
+router.get('/feedbacksPatient/:id',authenticateToken,getFeedbacksPatientHandler);
+router.delete('/deleteFeedback/:id',authenticateToken,deleteFeedbackHandler);
 
 module.exports=router;

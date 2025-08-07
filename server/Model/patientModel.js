@@ -14,16 +14,16 @@ const getPatientAppointments=(doctorId,callback)=>{
 };
 
 const getPatientById=(patientId,callback)=>{
-    const sql=`SELECT * from patients inner join gender
-     on patients.gender_id=gender.gender_id inner join blood 
+    const sql=`SELECT * from patients left join gender
+     on patients.gender_id=gender.gender_id left join blood 
      on patients.blood_id=blood.blood_id where patients.patient_id = ?`;
      db.query(sql,[patientId],callback);
 };
 
 const getAllPatients=(callback)=>{
     const sql=`SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name
-     FROM patients inner join gender
-     on patients.gender_id=gender.gender_id inner join status
+     FROM patients left join gender
+     on patients.gender_id=gender.gender_id left join status
      on patients.status_id=status.status_id`;
 
      db.query(sql,callback);

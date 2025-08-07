@@ -101,7 +101,7 @@ function Info({id,info,setInfo}){
     <hr/>
     <div style={{display:"flex"}}><FaPhone size={18} color="#51A485" title="Phone" className="me-2"/> <h5>Phone Number:<b> {info.phone}</b></h5></div>
     <hr/>
-    <div style={{display:"flex"}}><FaGenderless size={18} color="#51A485" title="Gender" className="me-2"/><h5>Gender:<b> {info.gender_name}</b></h5></div>
+    <div style={{display:"flex"}}><FaGenderless size={18} color="#51A485" title="Gender" className="me-2"/><h5>Gender:<b> {info.gender_name ? info.gender_name:"--"}</b></h5></div>
     <hr/>
     <div style={{display:"flex"}}><FaBirthdayCake size={18} color="#51A485" title="Birth" className="me-2"/><h5>Birthday:<b> {formattedDate}</b></h5></div>
     <hr/>

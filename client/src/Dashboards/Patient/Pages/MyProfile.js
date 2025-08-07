@@ -40,6 +40,7 @@ const MyProfile = () => {
 
   useEffect(()=>{
         axios.get(`http://localhost:3001/patient/infoPatient/${id}`).then((response)=>{
+            console.log(response.data)
             console.log(response.data.date_of_birth)
             const dateOfBirth = response.data.date_of_birth.split("T")[0];
             response.data.date_of_birth = dateOfBirth;

@@ -30,6 +30,7 @@ const getPatientByIdHandler=(req,res)=>{
         if(err){
       res.json(err)
   }else{
+    console.log(results[0])
        const data = results[0];
 
         if (data.date_of_birth instanceof Date) {
