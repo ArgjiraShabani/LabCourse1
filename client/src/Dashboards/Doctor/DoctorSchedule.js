@@ -1,44 +1,67 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-const api = axios.create({
+const apiDoctor = axios.create({
+  baseURL: "http://localhost:3001/doctor",
+  withCredentials: true,
+});
+const apiSchedule = axios.create({
   baseURL: "http://localhost:3001/api",
   withCredentials: true,
 });
 
+const days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 const DoctorSchedule = () => {
   const [schedule, setSchedule] = useState({});
   const [error, setError] = useState("");
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    apiDoctor
+      .get("/DoctorSchedule")
+      .then((res) => {
+        if (res.data.user?.role !== "doctor") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only doctors can access this page.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        }
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Authentication failed. Please login.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+      });
+  }, [navigate]);
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        const resWeekly = await api.get("/weekly-schedule");
+        const [resWeekly, resStandard] = await Promise.all([
+          apiSchedule.get("/weekly-schedule"),
+          apiSchedule.get("/standard-schedule"),
+        ]);
+
         const weekly = resWeekly.data;
-
-        const resStandard = await api.get("/standard-schedule");
         const standard = resStandard.data;
-
-        const days = [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday",
-        ];
-
         const formatted = {};
         days.forEach((day) => {
           formatted[day] = {
@@ -49,11 +72,13 @@ const DoctorSchedule = () => {
         });
 
         standard.forEach((item) => {
-          formatted[item.weekday] = {
-            start_time: item.start_time?.slice(0, 5) || "-",
-            end_time: item.end_time?.slice(0, 5) || "-",
-            isException: false,
-          };
+          if (item.weekday) {
+            formatted[item.weekday] = {
+              start_time: item.start_time?.slice(0, 5) || "-",
+              end_time: item.end_time?.slice(0, 5) || "-",
+              isException: false,
+            };
+          }
         });
 
         const getDayNameFromDate = (dateString) => {
@@ -62,13 +87,15 @@ const DoctorSchedule = () => {
         };
 
         weekly.forEach((item) => {
-          if (item.start_time && item.end_time) {
+          if (item.start_time && item.end_time && item.date) {
             const dayName = getDayNameFromDate(item.date);
-            formatted[dayName] = {
-              start_time: item.start_time.slice(0, 5),
-              end_time: item.end_time.slice(0, 5),
-              isException: true,
-            };
+            if (dayName in formatted) {
+              formatted[dayName] = {
+                start_time: item.start_time.slice(0, 5),
+                end_time: item.end_time.slice(0, 5),
+                isException: true,
+              };
+            }
           }
         });
 
@@ -76,7 +103,7 @@ const DoctorSchedule = () => {
         setError("");
       } catch (err) {
         console.error("Error while loading schedule:", err);
-        setError("Couldn't load the schedule.");
+        setError("Could not load the schedule. Please try again later.");
       }
     };
 
@@ -89,6 +116,7 @@ const DoctorSchedule = () => {
       <div className="flex-grow-1 p-4">
         <h3>Work Schedule</h3>
         {error && <div className="alert alert-danger">{error}</div>}
+
         <table className="table table-bordered">
           <thead>
             <tr>
@@ -103,11 +131,11 @@ const DoctorSchedule = () => {
                 <td>{day}</td>
                 <td>
                   {schedule[day]?.start_time}{" "}
-                  {schedule[day]?.isException ? "(exception)" : ""}
+                  {schedule[day]?.isException && <em>(exception)</em>}
                 </td>
                 <td>
                   {schedule[day]?.end_time}{" "}
-                  {schedule[day]?.isException ? "(exception)" : ""}
+                  {schedule[day]?.isException && <em>(exception)</em>}
                 </td>
               </tr>
             ))}

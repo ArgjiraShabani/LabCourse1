@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
+import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router-dom";
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -25,6 +27,9 @@ const ManageSchedule = () => {
   const [error, setError] = useState("");
   const [schedules, setSchedules] = useState([]);
 
+  const navigate = useNavigate();
+  const { id } = useParams();
+
   const days = [
     "Monday",
     "Tuesday",
@@ -34,6 +39,44 @@ const ManageSchedule = () => {
     "Saturday",
     "Sunday",
   ];
+
+  useEffect(() => {
+    if (!id) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Invalid user id.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/");
+      return;
+    }
+
+    axios
+      .get(`http://localhost:3001/ManageSchedule/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data.user?.role !== "admin") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only admin can access this page.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        }
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Authentication failed.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+      });
+  }, [id, navigate]);
 
   useEffect(() => {
     fetchDoctors();
@@ -116,6 +159,29 @@ const ManageSchedule = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.doctor_id) {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Please select a doctor first.",
+        confirmButtonColor: "#51A485",
+      });
+      return;
+    }
+    const result = await Swal.fire({
+      title: "Save Changes?",
+      text: "Do you want to save the changes to the schedule?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, save it!",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#51A485",
+      cancelButtonColor: "#d33",
+    });
+
+    if (!result.isConfirmed) return;
+
     setLoading(true);
     setError("");
 
@@ -145,7 +211,13 @@ const ManageSchedule = () => {
 
       await Promise.all(requests);
 
-      alert("Schedule saved/updated successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Schedule saved/updated successfully!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
       setFormData({
         doctor_id: "",
@@ -165,12 +237,28 @@ const ManageSchedule = () => {
   };
 
   const handleDeleteSchedule = async (schedule_id) => {
-    if (!window.confirm("Are you sure you want to delete this schedule?"))
-      return;
+    const result = await Swal.fire({
+      title: "Are you sure you want to delete this schedule?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#51A485",
+      cancelButtonColor: "#d33",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       await api.delete(`/standardSchedules/${schedule_id}`);
-      alert("Schedule deleted successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Schedule deleted successfully!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
       fetchSchedules();
     } catch (err) {
       console.error("Error deleting the schedule:", err);
@@ -235,7 +323,12 @@ const ManageSchedule = () => {
 
           <button
             type="submit"
-            className="btn btn-success mt-3"
+            className="btn mt-3"
+            style={{
+              backgroundColor: "#51A485",
+              borderColor: "#51A485",
+              color: "white",
+            }}
             disabled={loading}
           >
             {loading ? "Saving..." : "Save Schedule"}

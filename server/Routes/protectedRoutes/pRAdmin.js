@@ -26,5 +26,13 @@ router.get("/updateData", authenticateToken, authorizeRoles("admin"), (req, res)
   res.json({ message: "Welcome Admin", user: req.user });
 });
 
+router.get("/ManageSchedule/:id",authenticateToken,authorizeRoles("admin","doctor"),(req,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
+});
+
+router.get("/WeeklySchedule/:id",authenticateToken,authorizeRoles("admin","doctor"),(req,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
+})
+
 
 module.exports = router;

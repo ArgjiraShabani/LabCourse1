@@ -23,13 +23,12 @@ const patientRoutes = require("./Routes/patientRoutes");
 const app = express();
 const dayjs = require("dayjs");
 const standardScheduleRoutes = require("./Routes/standardScheduleRoutes");
-const serviceRoutes = require('./Routes/servicesRoutes');
-const weeklyScheduleRoutes = require('./Routes/weeklyScheduleRoutes');
+const serviceRoutes = require("./Routes/servicesRoutes");
+const weeklyScheduleRoutes = require("./Routes/weeklyScheduleRoutes");
 const pRDoctor = require("./Routes/protectedRoutes/pRDoctor");
 const appointmentRoutes = require("./Routes/appointmentRoutes");
-const emailRoutes=require("./Routes/emailRoute");
-const logoutRoutes=require("./Routes/logoutRoutes");
-
+const emailRoutes =require("./Routes/emailRoute");
+const logoutRoutes = require("./Routes/logoutRoutes");
 
 app.use(
   cors({
@@ -42,13 +41,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/", loginRoutes);
-app.use("/",logoutRoutes);
+app.use("/", logoutRoutes);
 app.use("/", pRPatient);
 app.use("/", pRAdmin);
 app.use("/", signUpRoutes);
 app.use("/patient", patientRoutes);
 app.use("/api", departmentRoutes);
-app.use('/api', serviceRoutes); 
+app.use("/api", serviceRoutes);
 app.use("/doctor", pRDoctor);
 app.use("/", appointmentRoutes);
 
@@ -754,9 +753,8 @@ app.use("/api", specializationRoutes);
 app.use("/api", reportRoutes);
 app.use("/api", emailRoutes);
 
-app.use('/api', standardScheduleRoutes);
-app.use('/api/weekly-schedules', weeklyScheduleRoutes);
-
+app.use("/api", standardScheduleRoutes);
+app.use("/api/weekly-schedules", weeklyScheduleRoutes);
 
 /*
 

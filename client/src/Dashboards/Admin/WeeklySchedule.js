@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
+import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router-dom";
 import { startOfWeek, addDays, format, parseISO } from "date-fns";
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -15,6 +17,8 @@ const WeeklySchedule = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [schedules, setSchedules] = useState([]);
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   const days = [
     "Monday",
@@ -25,6 +29,41 @@ const WeeklySchedule = () => {
     "Saturday",
     "Sunday",
   ];
+
+  useEffect(() => {
+    if (!id) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Invalid user id.",
+      });
+      navigate("/");
+      return;
+    }
+
+    axios
+      .get(`http://localhost:3001/WeeklySchedule/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data.user?.role !== "admin") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only admin can access this page.",
+          });
+          navigate("/");
+        }
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Authentication failed.",
+        });
+        navigate("/");
+      });
+  }, [id, navigate]);
 
   const getWeekDates = () => {
     const today = new Date();
@@ -54,7 +93,7 @@ const WeeklySchedule = () => {
       setDoctors(res.data);
       setError("");
     } catch (err) {
-      console.error("Error while fetching the doctors list:", err);
+      console.error("Error fetching doctors:", err);
       setError("Error while fetching the doctors list");
     }
   };
@@ -62,19 +101,20 @@ const WeeklySchedule = () => {
   const fetchWeeklySchedule = async (doctorId) => {
     try {
       const res = await api.get(`/weekly-schedules/${doctorId}`);
-
       const scheduleMap = {};
       res.data.forEach((item) => {
         scheduleMap[item.date] = {
           ...item,
           start_time: item.start_time?.slice(0, 5),
           end_time: item.end_time?.slice(0, 5),
+          schedule_id: item.schedule_id,
+          is_custom: item.is_custom || false,
         };
       });
       setWeeklyData(scheduleMap);
       setError("");
     } catch (err) {
-      console.error("Error while fetching the weekly schedule:", err);
+      console.error("Error fetching weekly schedule:", err);
       setError("Error while fetching the weekly schedule");
     }
   };
@@ -85,7 +125,7 @@ const WeeklySchedule = () => {
       setSchedules(res.data);
       setError("");
     } catch (err) {
-      console.error("Error while fetching existing schedules:", err);
+      console.error("Error fetching schedules:", err);
       setError("Error while fetching existing schedules");
     }
   };
@@ -102,6 +142,29 @@ const WeeklySchedule = () => {
   };
 
   const handleSave = async () => {
+    if (!selectedDoctor) {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Please select a doctor first.",
+        confirmButtonColor: "#51A485",
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: "Save Changes?",
+      text: "Do you want to save the changes to the schedule?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, save it!",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#51A485",
+      cancelButtonColor: "#51A485",
+    });
+
+    if (!result.isConfirmed) return;
+
     setLoading(true);
     setError("");
     try {
@@ -128,28 +191,54 @@ const WeeklySchedule = () => {
       });
 
       await Promise.all(requests.filter(Boolean));
-      alert("Schedule saved successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Schedule saved successfully!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
       fetchWeeklySchedule(selectedDoctor);
       fetchAllSchedules();
     } catch (err) {
-      console.error("Error while saving the schedule:", err);
+      console.error("Error saving schedule:", err);
       setError("Error while saving the schedule");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteSchedule = async (scheduleId) => {
-    if (!window.confirm("Are you sure you want to delete this schedule?"))
-      return;
+  const confirmDeletion = (scheduleId) => {
+    Swal.fire({
+      title: "Are you sure you want to delete this schedule?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#51A485",
+      cancelButtonColor: "#d33",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDeleteSchedule(scheduleId);
+      }
+    });
+  };
 
+  const handleDeleteSchedule = async (scheduleId) => {
     try {
       await api.delete(`/weekly-schedules/${scheduleId}`);
-      alert("Schedule deleted successfully");
+      Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Schedule deleted successfully",
+        timer: 1500,
+        showConfirmButton: false,
+      });
       fetchAllSchedules();
       if (selectedDoctor) fetchWeeklySchedule(selectedDoctor);
     } catch (err) {
-      console.error("Error while deleting the schedule:", err);
+      console.error("Error deleting schedule:", err);
       setError("Error while deleting the schedule");
     }
   };
@@ -210,7 +299,12 @@ const WeeklySchedule = () => {
             ))}
 
             <button
-              className="btn btn-primary mt-3"
+              className="btn mt-3"
+              style={{
+                backgroundColor: "#51A485",
+                borderColor: "#51A485",
+                color: "white",
+              }}
               onClick={handleSave}
               disabled={loading}
             >
@@ -225,7 +319,7 @@ const WeeklySchedule = () => {
           <table className="table table-bordered">
             <thead className="table-light">
               <tr>
-                <th>Mjeku</th>
+                <th>Doctor</th>
                 {days.map((day) => (
                   <th key={day}>{day}</th>
                 ))}
@@ -258,7 +352,6 @@ const WeeklySchedule = () => {
                     };
                     return acc;
                   }, [])
-
                   .map((schedule, idx) => (
                     <tr key={idx}>
                       <td>{schedule.doctor_name}</td>
@@ -271,7 +364,7 @@ const WeeklySchedule = () => {
                             <button
                               className="btn btn-sm btn-danger ms-2"
                               onClick={() =>
-                                handleDeleteSchedule(schedule[day].schedule_id)
+                                confirmDeletion(schedule[day].schedule_id)
                               }
                             >
                               Delete
