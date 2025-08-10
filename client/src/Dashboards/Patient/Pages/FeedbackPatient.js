@@ -33,7 +33,11 @@ function FeedbacksPatient(){
       }
     })
     .catch((err) => {
-      navigate('/');
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/');
+      } else {
+        console.error("Unexpected error", err);
+      }
     });
 }, [id]);
 
@@ -55,8 +59,12 @@ function FeedbacksPatient(){
             setInfo(formattedData);
         })
         .catch((err)=>{
-          console.log(err);
-        })
+          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            navigate('/');
+          } else {
+            console.error("Unexpected error", err);
+          }
+        });
     },[id]);
 
     function deleteFeedback(feedbackId){
@@ -82,8 +90,12 @@ function FeedbacksPatient(){
                                                   timer: 1100
                                                   });
                                   })
-                                  .catch(error=>{
-                                      console.error('Not deleted!')
+                                   .catch((err) => {
+                                    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                                      navigate('/');
+                                    } else {
+                                      console.error("Unexpected error", err);
+                                    }
                                   })
                                 }})
     }

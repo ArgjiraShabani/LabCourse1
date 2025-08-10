@@ -37,6 +37,7 @@ import PatientAppointments from './Dashboards/Admin/PatientAppointments';
 import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';
 import UpdateData from './Dashboards/Admin/UpdateData';
 import LogOut from './Pages/Logout';
+import UpdatePatient from './Dashboards/Admin/UpdatePatient';
 
 
 
@@ -82,7 +83,7 @@ function Layout() {
           <Route path="/Appointment/:id" element={<Appointment />} />
           <Route path="/PatientAppointments/:id" element={<PatientAppointments/>}/>
           <Route path='/logout' element={<LogOut/>}/>---------------------------
-
+          <Route path='/updatePatient/:id' element={<UpdatePatient/>}/>---------------
 
           <Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>--
         </Routes>

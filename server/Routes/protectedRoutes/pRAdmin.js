@@ -34,5 +34,8 @@ router.get("/WeeklySchedule/:id",authenticateToken,authorizeRoles("admin","docto
   res.json({message : "Welcome Admin", user: req.user});
 })
 
+router.get('/updatePatient/:id',authenticateToken,authorizeRoles('admin'),(req,res)=>{
+    res.json({ message: "Welcome Admin", user: req.user });
+});
 
 module.exports = router;

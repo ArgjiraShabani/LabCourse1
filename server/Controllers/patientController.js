@@ -20,7 +20,9 @@ const {getPatientAppointments,
       registerPatient,
       setFeedbacks,
       getFeedbacksPatient,
-      deleteFeedback,} =require('../Model/patientModel');
+      deleteFeedback,
+      getPatientForUpdation,
+      updatePatientAdmin,} =require('../Model/patientModel');
 
 
 const getPatientByIdHandler=(req,res)=>{
@@ -284,6 +286,44 @@ const deleteFeedbackHandler=(req,res)=>{
   });
 };
 
+const getPatientForUpdationHandler=(req,res)=>{
+  const id=req.params.id;
+  getPatientForUpdation(id,(err,result)=>{
+     if (err) {
+      console.error('Error getting feedback:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }else{
+      if (result && result[0].date_of_birth) {
+          result[0].date_of_birth = dayjs(result[0].date_of_birth).format('YYYY-MM-DD');
+        }
+          res.send(result);
+    }
+      
+    });
+  };
+
+const updatePatientAdminHandler=(req,res)=>{
+  const id=req.params.id;
+  const name = req.body.first_name;
+  const lastname = req.body.last_name;
+  const email=req.body.email;
+  const number = req.body.phone;
+  const birth = req.body.date_of_birth;
+  const gender = req.body.gender_name;
+
+  updatePatientAdmin([name,lastname,email,number,birth,gender,id],(err,data)=>{
+      if (err) {
+      console.error('Error getting feedback:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }else{
+      if (data && data.date_of_birth) {
+          data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+        }
+          res.send(data);
+    };
+     
+  });
+};
 
 module.exports={
     getPatientByIdHandler,
@@ -296,4 +336,6 @@ module.exports={
     setFeedbacksHandler,
     getFeedbacksPatientHandler,
     deleteFeedbackHandler,
+    getPatientForUpdationHandler,
+    updatePatientAdminHandler,
 }

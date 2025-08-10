@@ -22,7 +22,7 @@ function HomePage() {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/departments");
+      const res = await axios.get("http://localhost:3001/api/departments");
       setDepartments(res.data);
     } catch (err) {
       console.error("Error fetching departments:", err);
@@ -31,7 +31,7 @@ function HomePage() {
 
   const fetchServices = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/services");
+      const res = await axios.get("http://localhost:3001/api/services");
       setServices(res.data);
     } catch (err) {
       console.error("Error fetching services:", err);

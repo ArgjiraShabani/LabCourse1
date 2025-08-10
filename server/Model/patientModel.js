@@ -115,6 +115,17 @@ const deleteFeedback=(id,callback)=>{
     db.query(sql,id,callback);
 };
 
+const getPatientForUpdation=(id,callback)=>{
+    const sql='Select p.first_name,p.last_name,p.email,p.phone,p.date_of_birth,p.gender_id from patients p left join gender g on p.gender_id=g.gender_id where p.patient_id=?';
+    db.query(sql,id,callback);
+};
+
+const updatePatientAdmin=(params,callback)=>{
+    const sql='UPDATE patients SET first_name=?,last_name=?,email=?,phone=?,date_of_birth=?,gender_id=? WHERE patient_id=?';
+    db.query(sql,params,callback);
+
+};
+
 module.exports={
     getPatientAppointments,
     getPatientById,
@@ -135,5 +146,7 @@ module.exports={
     setFeedbacks,
     getFeedbacksPatient,
     deleteFeedback,
+    getPatientForUpdation,
+    updatePatientAdmin,
 
 }

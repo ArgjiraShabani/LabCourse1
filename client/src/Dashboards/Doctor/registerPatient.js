@@ -100,6 +100,12 @@ function Register(){
         withCredentials: true
     }).then((response)=>{
             setStatus(response.data);
+        }).catch(err=>{
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            }
         })
     },[]);
     const formSubmit=(e)=>{
@@ -139,15 +145,12 @@ function Register(){
 
             }
         }).catch(err=>{
-
-           console.log(err);
-             Swal.fire({
-                position: "center",
-                icon: "error",
-                title: "Patient is not registered!Please check again!",
-                showConfirmButton: false,
-                timer: 1500
-                });
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            }
+           
         });
     }
     

@@ -4,7 +4,7 @@ import Axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from 'sweetalert2';
 import Button from 'react-bootstrap/Button';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 
 
@@ -31,7 +31,11 @@ useEffect(() => {
       }
     })
     .catch((err) => {
-      navigate('/');
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/');
+      } else {
+        console.error("Unexpected error", err);
+      }
     });
 }, []);
 
@@ -49,8 +53,13 @@ useEffect(() => {
                 return patient;
             });
             setPatientList(updatedPatients);
-        }) .catch((error) => {
-            console.error("Error fetching patient list:", error);
+        }) .catch((err) => {
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            }
+            
         });
     },[]);
        
@@ -60,7 +69,13 @@ useEffect(() => {
         withCredentials: true
     }).then((response)=>{
             setStatus(response.data);
-        })
+        }).catch(err=>{
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            };
+        });
     },[]);
 
 
@@ -98,8 +113,12 @@ useEffect(() => {
                             });
 
                         })
-                        .catch(error => {
-                            console.error("Error:", error);
+                        .catch(err => {
+                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                                navigate('/');
+                            } else {
+                                console.error("Unexpected error", err);
+                            }
                         });
                         
                         }else{
@@ -129,22 +148,29 @@ useEffect(() => {
                      .then(response=>{
                         const updatedList = patientList.filter(patient => patient.patient_id !== id);
                     setPatientList(updatedList);
-                         })
-                     .catch(error=>{
-                         console.error('Not deleted!')
-                    })
+                       Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "Patient has been deleted!",
+                        showConfirmButton: false,
+                        timer: 1100
+                        });
+                 }).catch(err=>{
+                         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                                navigate('/');
+                            } else {
+                                console.error("Unexpected error", err);
+                            }
+                })
                 
-                Swal.fire({
-                position: "center",
-                icon: "success",
-                title: "Patient has been deleted!",
-                showConfirmButton: false,
-                timer: 1100
-                });
             }
             });
 
-    }
+    };
+
+    function handleUpdate(id){
+       navigate(`/updatePatient/${id}`);
+    };
 
     return(
         
@@ -167,6 +193,7 @@ useEffect(() => {
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white",width:"100px"}}>Status</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>
+                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Update</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Delete</th>
 
 
@@ -199,6 +226,9 @@ useEffect(() => {
                                         <Button variant="secondary" onClick={() => handleClick(val.status_id,value.patient_id)}>{val.status_name}</Button>
                                 )
                                 })}
+                        </td>
+                        <td>
+                            <Button variant="secondary" onClick={()=>{handleUpdate(value.patient_id)}}>Update</Button>
                         </td>
                         <td>
                             <Button variant="danger" onClick={()=>{handleDelete(value.patient_id)}}>Delete</Button>

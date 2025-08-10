@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 
-const Logout = () => {
+const LogOut = () => {
   const navigate = useNavigate();
   
 
@@ -26,4 +26,4 @@ const Logout = () => {
   return null;
 };
 
-export default Logout;
+export default LogOut;

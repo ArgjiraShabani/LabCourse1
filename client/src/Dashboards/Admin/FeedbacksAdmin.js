@@ -15,7 +15,7 @@ const FeedbacksAdmin = () => {
   
   useEffect(() => {
   axios
-    .get(`http://localhost:3001/updateData`, {
+    .get(`http://localhost:3001/FeedbacksAdmin`, {
       withCredentials: true, // this sends the JWT cookie
     })
     .then((res) => {
@@ -30,7 +30,11 @@ const FeedbacksAdmin = () => {
       }
     })
     .catch((err) => {
-      navigate('/');
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/');
+      } else {
+        console.error("Unexpected error", err);
+      }
     });
 }, []);
 
@@ -53,7 +57,11 @@ const FeedbacksAdmin = () => {
             setFeedbacks(formattedData);
         })
         .catch((err)=>{
-          console.log(err);
+               if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                       navigate('/');
+              } else {
+                      console.error("Unexpected error", err);
+                    }
         })
   }, []);
  
@@ -80,8 +88,12 @@ function handleDelete(id){
                 timer: 1100
                 });
                          })
-                     .catch(error=>{
-                         console.error('Not removed!')
+                     .catch(err=>{
+                       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                        navigate('/');
+                      } else {
+                        console.error("Unexpected error", err);
+                      }
                     })
                 
               

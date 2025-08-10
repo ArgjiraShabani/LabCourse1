@@ -39,7 +39,11 @@ function HomePagePatient() {
       }
     })
     .catch((err) => {
-      navigate('/');
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/');
+      } else {
+        console.error("Unexpected error", err);
+      }
     });
 }, [id]);
 
@@ -105,8 +109,13 @@ function HomePagePatient() {
                         });
                         reset();
       }) 
-      .catch(err=>console.log(err));
-
+      .catch((err) => {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          navigate('/');
+        } else {
+          console.error("Unexpected error", err);
+        }
+    });
   }
 
 

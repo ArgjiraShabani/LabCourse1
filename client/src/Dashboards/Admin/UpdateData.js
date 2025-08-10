@@ -34,7 +34,11 @@ function UpdateData(){
       }
     })
     .catch((err) => {
-      navigate('/');
+       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/');
+      } else {
+        console.error("Unexpected error", err);
+      }
     });
 }, []);
 
@@ -141,9 +145,9 @@ const {
              }).then((result) => {
                 if (result.isConfirmed) {
       
-                        axios.delete("http://localhost:3001/api/deleteDataGender",{ data: data ,
-        withCredentials: true
-    }).then((response)=>{
+                axios.delete("http://localhost:3001/api/deleteDataGender",{ data: data ,
+                            withCredentials: true
+                        }).then((response)=>{
                           
                           Swal.fire({
                                                       position: "center",
@@ -154,8 +158,12 @@ const {
                                                       }); 
                                   fetchGender();
                                                           
-                        }).catch((error)=>{
-                          console.log(error);
+                        }).catch((err)=>{
+                          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                            navigate('/');
+                          } else {
+                            console.error("Unexpected error", err);
+                          }
                         })
                   }
                   })
@@ -176,9 +184,9 @@ function handleDeleteBlood(id,nameData){
              }).then((result) => {
                 if (result.isConfirmed) {
       
-                        axios.delete("http://localhost:3001/api/deleteDataBlood",{ data: data ,
-        withCredentials: true
-    }).then((response)=>{
+                  axios.delete("http://localhost:3001/api/deleteDataBlood",{ data: data ,
+                        withCredentials: true
+                    }).then((response)=>{
                           
                           Swal.fire({
                                                       position: "center",
@@ -189,8 +197,12 @@ function handleDeleteBlood(id,nameData){
                                                       }); 
                                   fetchBlood();
                                                           
-                        }).catch((error)=>{
-                          console.log(error);
+                        }).catch((err)=>{
+                           if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                              navigate('/');
+                            } else {
+                              console.error("Unexpected error", err);
+                            }
                         })
                   }
                   })
@@ -225,8 +237,14 @@ function handleDeleteBlood(id,nameData){
               return updated;
             });
           })
-          .catch((error) => console.log(error));
-      };
+          .catch((err) =>{
+                    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                              navigate('/');
+                            } else {
+                              console.error("Unexpected error", err);
+                            }
+          }
+      )};
 
       function handleEditGender(id) {
         const updatedValue = editingGender[id];
@@ -254,7 +272,13 @@ function handleDeleteBlood(id,nameData){
               return updated;
             });
           })
-          .catch((error) => console.log(error));
+          .catch((err) =>{
+                    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                              navigate('/');
+                            } else {
+                              console.error("Unexpected error", err);
+                            }
+          });
       };
 
 
@@ -310,8 +334,12 @@ function handleDeleteBlood(id,nameData){
                                    });  
                           resetGender(); 
                           fetchGender();
-                      }).catch((error)=>{
-                          console.log(error);
+                      }).catch((err)=>{
+                          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                              navigate('/');
+                            } else {
+                              console.error("Unexpected error", err);
+                            }
                       })
                     }
                   })
@@ -338,8 +366,12 @@ function handleDeleteBlood(id,nameData){
                                    }); 
                                    resetBlood(); 
                                    fetchBlood();
-                      }).catch((error)=>{
-                          console.log(error);
+                      }).catch((err)=>{
+                          if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                              navigate('/');
+                            } else {
+                              console.error("Unexpected error", err);
+                            }
                       })
                     }
                   })

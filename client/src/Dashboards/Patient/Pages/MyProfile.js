@@ -34,7 +34,11 @@ const MyProfile = () => {
       }
     })
     .catch((err) => {
-      navigate('/');
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate('/');
+      } else {
+        console.error("Unexpected error", err);
+      }
     });
 }, [id]);
 
@@ -49,7 +53,13 @@ const MyProfile = () => {
                         console.log(response.data.date_of_birth)
 
             setInfo(response.data);
-        })
+        }).catch((err) => {
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+              navigate('/');
+            } else {
+              console.error("Unexpected error", err);
+            }
+          });
     },[id]);
 
 
