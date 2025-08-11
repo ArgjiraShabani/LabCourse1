@@ -85,7 +85,7 @@ function Layout() {
           <Route path='/logout' element={<LogOut/>}/>---------------------------
           <Route path='/updatePatient/:id' element={<UpdatePatient/>}/>---------------
 
-          <Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>--
+          <Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>
         </Routes>
       </main>
      

@@ -19,12 +19,6 @@ function MedicalStaffPatient(){
     const navigate = useNavigate();
      
 
-    useEffect(()=>{
-        Axios.get("http://localhost:3001/api/staff").then((response)=>{
-            setstaffList(response.data);
-        })
-    },[staffList])
-
      useEffect(() => {
   Axios
     .get(`http://localhost:3001/staff/${id}`, {
@@ -42,9 +36,25 @@ function MedicalStaffPatient(){
       }
     })
     .catch((err) => {
-      navigate('/');
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+         Swal.fire({
+                                  icon: "error",
+                                  title: "Access Denied",
+                                  text: "Please login.",
+                                  confirmButtonColor: "#51A485",
+                                });
+        navigate('/');
+      } else {
+        console.error("Unexpected error", err);
+      }
     });
 }, [id]);
+
+useEffect(()=>{
+        Axios.get("http://localhost:3001/api/staff").then((response)=>{
+            setstaffList(response.data);
+        })
+    },[staffList])
 
     return(
         <>

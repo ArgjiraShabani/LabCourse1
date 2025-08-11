@@ -1,6 +1,7 @@
 
 import { useState,useEffect } from "react";
 import { LuCalendarDays } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
 import {FaUser,FaEnvelope,FaTint,FaUserCircle ,FaPhone,FaGenderless,FaStethoscope,FaHospital,FaBirthdayCake} from "react-icons/fa";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -9,17 +10,19 @@ import Swal from "sweetalert2";
 
 
 function Info({id,info,setInfo}){
-   
+
+    const navigate = useNavigate();
 
     if (!info) {
         return <p>Loading profile...</p>;
       }
-    
     const datePart = info.date_of_birth.split("T")[0];
     const [year, month, day] = datePart.split("-");
     const formattedDate = `${month}-${day}-${year}`;
+
     
     function removePhoto(){
+        
         Swal.fire({
             title: "Are you sure about removing your photo?",
             showCancelButton: true,
@@ -41,7 +44,17 @@ function Info({id,info,setInfo}){
                                     });
                     })
                     .catch((err)=>{
-                        console.log(err);
+                       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                            Swal.fire({
+                                                    icon: "error",
+                                                    title: "Access Denied",
+                                                    text: "Please login.",
+                                                    confirmButtonColor: "#51A485",
+                                                    });
+                            navigate('/');
+                        } else {
+                            console.error("Unexpected error", err);
+                        }
                     })
 
             }})

@@ -4,6 +4,8 @@ import * as yup from "yup";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 
  const schema =yup.object().shape({
@@ -35,6 +37,8 @@ function UpdatePassword({id,info,setInfo}){
                 resolver:yupResolver(schema),
             });
       const [error,setError]=useState("");
+    const navigate = useNavigate();
+
 
      function changePassword(event){
         event.id=id;
@@ -54,15 +58,19 @@ function UpdatePassword({id,info,setInfo}){
             }else{
             setError(response.data);
             }
-        }).catch((error)=>{
-            console.log(error);
+        }).catch((err)=>{
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                Swal.fire({
+                                        icon: "error",
+                                        title: "Access Denied",
+                                        text: "Please login.",
+                                        confirmButtonColor: "#51A485",
+                                        });
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            }
         })
-
-
-
-
-
-
             };
 
     return(

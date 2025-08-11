@@ -59,6 +59,37 @@ const schema =yup.object().shape({
 function Register(){
    
     const navigate=useNavigate();
+     useEffect(() => {
+        axios.get(`http://localhost:3001/doctor/registerPatient`, {
+      withCredentials: true, // this sends the JWT cookie
+        })
+          .then((res) => {
+            if (res.data.user?.role !== "doctor") {
+              Swal.fire({
+                icon: "error",
+                title: "Access Denied",
+                text: "Only doctors can access this page.",
+                confirmButtonColor: "#51A485",
+              });
+              navigate("/");
+            }
+          })
+          .catch((err) => {
+              console.error("Caught error:", err);
+
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                Swal.fire({
+                          icon: "error",
+                          title: "Access Denied",
+                          text: "Please login.",
+                          confirmButtonColor: "#51A485",
+                        });
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            }
+          });
+      }, [navigate]);
     
 
     const [gender,setGender]=useState([]);
@@ -102,6 +133,12 @@ function Register(){
             setStatus(response.data);
         }).catch(err=>{
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                Swal.fire({
+                          icon: "error",
+                          title: "Access Denied",
+                          text: "Please login.",
+                          confirmButtonColor: "#51A485",
+                        });
                 navigate('/');
             } else {
                 console.error("Unexpected error", err);
@@ -146,6 +183,12 @@ function Register(){
             }
         }).catch(err=>{
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                Swal.fire({
+                          icon: "error",
+                          title: "Access Denied",
+                          text: "Please login.",
+                          confirmButtonColor: "#51A485",
+                        });
                 navigate('/');
             } else {
                 console.error("Unexpected error", err);
