@@ -38,4 +38,8 @@ router.get('/updatePatient/:id',authenticateToken,authorizeRoles('admin'),(req,r
     res.json({ message: "Welcome Admin", user: req.user });
 });
 
+router.get("/PatientAppointments", authenticateToken, authorizeRoles("admin"), (req, res) => {
+  res.json({ message: "Welcome Admin", user: req.user });
+});
+
 module.exports = router;

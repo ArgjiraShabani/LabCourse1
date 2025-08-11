@@ -23,5 +23,6 @@ router.get("/doctor-appointments", authenticateToken, appointmentController.getD
 router.put("/appointments/:id/status", authenticateToken, appointmentController.updateAppointmentStatus);
 router.get("/appointments/:id", authenticateToken, appointmentController.getAppointmentById);
 
-
+router.delete("/appointments/:id", authenticateToken, authorizeRoles("admin"), appointmentController.deleteAppointment);
+router.put("/appointments/:id", authenticateToken, authorizeRoles("admin"), appointmentController.updateAppointmentAdminHandler);
 module.exports = router;

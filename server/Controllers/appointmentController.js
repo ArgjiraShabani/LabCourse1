@@ -198,6 +198,22 @@ const getAppointmentById = (req, res) => {
   });
 };
 
+const updateAppointmentAdminHandler = (req, res) => {
+  const appointmentId = req.params.id;
+  const data = req.body;
+
+  appointmentModel.updateAppointmentByAdmin(appointmentId, data, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Error updating appointment." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Appointment not found." });
+    }
+    res.json({ message: "Appointment updated successfully!" });
+  });
+};
+
 module.exports = {
   getServices,
   getDoctors,
@@ -211,5 +227,6 @@ module.exports = {
   getAppointmentsByPatientHandler, 
   updateAppointmentStatus,
   getDoctorAppointments,
-  getAppointmentById
+  getAppointmentById,
+  updateAppointmentAdminHandler
 };

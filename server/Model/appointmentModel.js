@@ -187,6 +187,20 @@ const getAllAppointmentsByDoctor = (doctorId, callback) => {
   db.query(sql, values, callback);
 };
 
+const updateAppointmentByAdmin = (appointmentId, data, callback) => {
+  const { patient_id, doctor_id, service_id, name, lastname, appointment_datetime, purpose, status } = data;
+
+  const sql = `
+    UPDATE appointments
+    SET patient_id = ?, doctor_id = ?, service_id = ?, name = ?, lastname = ?, appointment_datetime = ?, purpose = ?, status = ?
+    WHERE appointment_id = ?`;
+
+  db.query(
+    sql,
+    [patient_id, doctor_id, service_id, name, lastname, appointment_datetime, purpose, status, appointmentId],
+    callback
+  );
+};
 
 module.exports = {
   getAllServices,
@@ -199,5 +213,6 @@ module.exports = {
   updateAppointment,
   updateAppointmentStatus,
   getAllAppointmentsByDoctor,
-  getAppointmentById
+  getAppointmentById,
+  updateAppointmentByAdmin
 };

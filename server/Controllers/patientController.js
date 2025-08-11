@@ -22,7 +22,8 @@ const {getPatientAppointments,
       getFeedbacksPatient,
       deleteFeedback,
       getPatientForUpdation,
-      updatePatientAdmin,} =require('../Model/patientModel');
+      updatePatientAdmin,
+      getPatientsForDropdown,} =require('../Model/patientModel');
 
 
 const getPatientByIdHandler=(req,res)=>{
@@ -325,6 +326,16 @@ const updatePatientAdminHandler=(req,res)=>{
   });
 };
 
+const getPatientsForDropdownHandler = (req, res) => {
+  getPatientsForDropdown((err, results) => {
+    if (err) {
+      console.error('Error fetching patients for dropdown:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+};
+
 module.exports={
     getPatientByIdHandler,
     getAllPatientsHandler,
@@ -338,4 +349,5 @@ module.exports={
     deleteFeedbackHandler,
     getPatientForUpdationHandler,
     updatePatientAdminHandler,
+    getPatientsForDropdownHandler
 }

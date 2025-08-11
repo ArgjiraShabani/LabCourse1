@@ -126,6 +126,11 @@ const updatePatientAdmin=(params,callback)=>{
 
 };
 
+const getPatientsForDropdown = (callback) => {
+  const sql = `SELECT patient_id, first_name, last_name FROM patients`;
+  db.query(sql, callback);
+};
+
 module.exports={
     getPatientAppointments,
     getPatientById,
@@ -148,5 +153,6 @@ module.exports={
     deleteFeedback,
     getPatientForUpdation,
     updatePatientAdmin,
-
+    getPatientsForDropdown,
+    
 }

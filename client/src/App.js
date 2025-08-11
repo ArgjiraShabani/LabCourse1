@@ -81,7 +81,7 @@ function Layout() {
           <Route path="/FeedbacksAdmin/" element={<FeedbacksAdmin />} />------------------
           <Route path="/WeeklySchedule/:id" element={<WeeklySchedule />} />+++++++++++++++++++
           <Route path="/Appointment/:id" element={<Appointment />} />
-          <Route path="/PatientAppointments/:id" element={<PatientAppointments/>}/>
+          <Route path="/patientAppointments" element={<PatientAppointments/>}/>
           <Route path='/logout' element={<LogOut/>}/>---------------------------
           <Route path='/updatePatient/:id' element={<UpdatePatient/>}/>---------------
 

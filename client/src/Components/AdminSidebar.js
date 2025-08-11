@@ -4,10 +4,14 @@ import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 
 const Sidebar = ({ role, id }) => {
   const [doctorMenuOpen, setDoctorMenuOpen] = useState(false);
+  const [scheduleMenuOpen, setScheduleMenuOpen] = useState(false);
 
   const toggleDoctorMenu = () => {
     setDoctorMenuOpen(!doctorMenuOpen);
   };
+ const toggleScheduleMenu = () => {
+  setScheduleMenuOpen(!scheduleMenuOpen);
+};
   return (
     <>
       <style>
@@ -118,25 +122,43 @@ const Sidebar = ({ role, id }) => {
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/PatientAppointments/${id}`}
+                   to={`/patientAppointments`}
                   className="nav-link text-white hover-link"
                 >Patient Appointments</Link>
               </li>
               <li className="nav-item mb-2">
-                <Link
-                  to={`/ManageSchedule/${id}`}
+                <div
+                  onClick={toggleScheduleMenu}
                   className="nav-link text-white hover-link"
+                  style={{ cursor: "pointer" }}
                 >
-                  Standard Schedule
-                </Link>
-              </li>
-              <li className="nav-item mb-2">
-                <Link
-                  to={`/WeeklySchedule/${id}`}
-                  className="nav-link text-white hover-link"
-                >
-                  Weekly Schedule
-                </Link>
+                  Doctor Schedule{" "}
+                  {scheduleMenuOpen ? (
+                    <TiArrowSortedUp size={18} color="#fff" />
+                  ) : (
+                    <TiArrowSortedDown size={18} color="#fff" />
+                  )}
+                </div>
+                {scheduleMenuOpen && (
+                  <ul className="submenu list-unstyled ps-3">
+                    <li className="nav-item mb-2">
+                      <Link
+                        to={`/ManageSchedule/${id}`}
+                        className="nav-link text-white hover-link"
+                      >
+                        Standard Schedule
+                      </Link>
+                    </li>
+                    <li className="nav-item mb-2">
+                      <Link
+                        to={`/WeeklySchedule/${id}`}
+                        className="nav-link text-white hover-link"
+                      >
+                        Weekly Schedule
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </li>
               <li className="nav-item mb-2">
                 <Link
