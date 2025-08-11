@@ -29,6 +29,8 @@ const pRDoctor = require("./Routes/protectedRoutes/pRDoctor");
 const appointmentRoutes = require("./Routes/appointmentRoutes");
 const emailRoutes =require("./Routes/emailRoute");
 const logoutRoutes = require("./Routes/logoutRoutes");
+const adminRoutes = require("./Routes/adminRoutes");
+const adminController = require("./Controllers/adminController");
 
 app.use(
   cors({
@@ -51,6 +53,7 @@ app.use("/api", departmentRoutes);
 app.use("/api", serviceRoutes);
 app.use("/doctor", pRDoctor);
 app.use("/", appointmentRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.use("/uploads", express.static("public/uploads"));
 
@@ -1669,7 +1672,7 @@ app.put("/my-appointments/:id", (req, res) => {
   });
 });*/
 
-app.get("/api/admin/stats", (req, res) => {
+/*app.get("/api/admin/stats", (req, res) => {
   const stats = {};
 
   const queries = [
@@ -1703,7 +1706,7 @@ app.get("/api/admin/stats", (req, res) => {
       }
     });
   });
-});
+});*/
 
 app.listen(3001, () => {
   console.log("Hey po punon");

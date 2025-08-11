@@ -1,7 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; 
 import Sidebar from '../../Components/AdminSidebar';
 import axios from 'axios';
-import { FaUserShield, FaProcedures, FaUserMd, FaBuilding, FaCalendarCheck, FaFileAlt } from 'react-icons/fa';
+import { 
+  FaUserShield, FaProcedures, FaUserMd, FaBuilding, FaCalendarCheck, FaFileAlt 
+} from 'react-icons/fa';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+import { Bar, Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const monthTranslations = {
+  'Jan': 'Jan', 'Feb': 'Feb', 'Mar': 'Mar', 'Apr': 'Apr', 'May': 'May', 'Jun': 'Jun',
+  'Jul': 'Jul', 'Aug': 'Aug', 'Sep': 'Sep', 'Oct': 'Oct', 'Nov': 'Nov', 'Dec': 'Dec',
+  'Janar': 'Jan', 'Shkurt': 'Feb', 'Mars': 'Mar', 'Prill': 'Apr', 'Maj': 'May', 'Qershor': 'Jun',
+  'Korrik': 'Jul', 'Gusht': 'Aug', 'Shtator': 'Sep', 'Tetor': 'Oct', 'Nëntor': 'Nov', 'Dhjetor': 'Dec'
+};
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -13,9 +47,19 @@ const AdminDashboard = () => {
     results: 0
   });
 
+  const [monthlyAppointments, setMonthlyAppointments] = useState({
+    year: new Date().getFullYear(),
+    months: [],
+    counts: []
+  });
+
   useEffect(() => {
     axios.get('http://localhost:3001/api/admin/stats')
       .then(response => setStats(response.data))
+      .catch(error => console.error(error));
+
+    axios.get(`http://localhost:3001/api/admin/monthly-appointments?year=${new Date().getFullYear()}`)
+      .then(response => setMonthlyAppointments(response.data))
       .catch(error => console.error(error));
   }, []);
 
@@ -28,7 +72,44 @@ const AdminDashboard = () => {
     { title: 'Results', count: stats.results, color: 'secondary', icon: <FaFileAlt size={50} /> },
   ];
 
-  const maxCount = Math.max(...cardData.map(card => card.count), 1); 
+  const maxCount = Math.max(...cardData.map(card => card.count), 1);
+
+  const translatedMonths = monthlyAppointments.months.map(m => monthTranslations[m] || m);
+
+  const lineChartData = {
+    labels: translatedMonths.length > 0 ? translatedMonths : [],
+    datasets: [{
+      label: `Appointments in ${monthlyAppointments.year}`,
+      data: monthlyAppointments.counts.length > 0 ? monthlyAppointments.counts : [],
+      borderColor: 'rgb(81, 164, 133)', 
+      backgroundColor: 'rgba(81, 164, 133, 0.2)', 
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointHoverRadius: 7,
+    }],
+  };
+
+  const lineChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { color: 'rgb(81, 164, 133)', font: { size: 16, weight: 'bold' } } },
+      title: { display: true, text: 'Monthly Appointments Trend', font: { size: 20, weight: 'bold' }, color: 'rgb(81, 164, 133)' },
+      tooltip: { enabled: true }
+    },
+    scales: {
+      x: { 
+        ticks: { color: '#6c757d', font: { size: 14 } },
+        grid: { display: false }
+      },
+      y: { 
+        beginAtZero: true,
+        ticks: { color: '#6c757d', font: { size: 14 } },
+        grid: { color: '#e9ecef' }
+      }
+    }
+  };
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh' }}>
@@ -45,29 +126,40 @@ const AdminDashboard = () => {
               <div className="col-md-4 mb-4" key={index}>
                 <div className={`card border-${card.color} shadow-sm h-100`}>
                   <div className={`card-body text-${card.color} d-flex align-items-center`}>
-                    <div className="me-4">
-                      {card.icon}
-                    </div>
-                    <div>
+                    <div className="me-4">{card.icon}</div>
+                    <div style={{ flexGrow: 1 }}>
                       <h5 className="card-title">{card.title}</h5>
                       <h2>{card.count}</h2>
                     </div>
                   </div>
                   <div className="progress" style={{ height: '10px', margin: '0 1.25rem 1rem 1.25rem' }}>
-                    <div 
-                      className={`progress-bar bg-${card.color}`} 
-                      role="progressbar" 
-                      style={{ width: `${percent}%` }} 
-                      aria-valuenow={percent} 
-                      aria-valuemin="0" 
+                    <div
+                      className={`progress-bar bg-${card.color}`}
+                      role="progressbar"
+                      style={{ width: `${percent}%` }}
+                      aria-valuenow={percent}
+                      aria-valuemin="0"
                       aria-valuemax="100"
                     />
                   </div>
                 </div>
               </div>
-            )
+            );
           })}
         </div>
+
+        {monthlyAppointments.counts.length > 0 && (
+          <div 
+            className="card p-4 shadow-sm mt-4" 
+            style={{ height: '300px', overflow: 'hidden' }}
+          >
+            <Line 
+              data={lineChartData} 
+              options={lineChartOptions} 
+              style={{ height: '250px' }} 
+            />
+          </div>
+        )}
       </div>
     </div>
   );
