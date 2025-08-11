@@ -40,9 +40,14 @@ const getReport=(patientId,doctorId, appointmentId,callback)=>{
     db.query(query,[patientId,doctorId,appointmentId], callback);
 }
 
-const getReportByDoctor=(doctorId,callback)=>{
-    const query=`SELECT a.patient_id,a`
+
+
+const deleteReport=(resultId,callback)=>{
+    const query=`DELETE FROM results WHERE result_id=?`;
+    db.query(query,[resultId],(err,results)=>{
+        callback(err,results);
+    });
 }
 
 
-module.exports={createReport,getReport};
+module.exports={createReport,getReport, deleteReport};

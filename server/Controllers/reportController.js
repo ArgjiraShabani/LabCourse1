@@ -1,4 +1,4 @@
-const {createReport,getReport} =require('../Model/reportModel');
+const {createReport,getReport, deleteReport} =require('../Model/reportModel');
 
 const createReportHandler=(req,res)=>{
     const patientId=req.params.patient_id;
@@ -39,7 +39,35 @@ const getReportHandler=(req,res)=>{
       return res.status(404).json({ error: "Report not found" });
     }
 
-    res.json({ report: results[0] });
+    res.json({
+
+         result_id: results[0].result_id, 
+         first_name: results[0].first_name,
+         last_name: results[0].last_name,
+         symptoms: results[0].symptoms,
+         diagnose: results[0].diagnose,
+         alergies: results[0].alergies,
+         result_text: results[0].result_text,
+         attachment: results[0].attachment
+         
+        
+        });
     });
 };
-module.exports={createReportHandler,getReportHandler};
+
+const deleteReportHandler=(req,res)=>{
+    const resultId= req.params.result_id;
+    deleteReport(resultId,(err,results)=>{
+        if(err){
+            console.error("Database error", err);
+            return res.status(500).json({error: "Database error"});
+        }
+        if(results.affectedRows===0){
+            return res.status(404).json({error: "Report not found"});
+
+        }
+        res.json({message: "Report deleted successfully!"});
+    })
+
+}
+module.exports={createReportHandler,getReportHandler, deleteReportHandler};

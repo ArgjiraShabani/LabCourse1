@@ -3,10 +3,13 @@ const db=require('../db');
 const { param } = require('../Routes/doctorRoutes');
 
 const getPatientAppointments=(doctorId,callback)=>{
-    const query=`SELECT a.appointment_id,p.patient_id,p.first_name,p.last_name
+    const query=`SELECT a.appointment_id,p.patient_id,p.first_name,p.last_name,r.result_id
         FROM patients p inner join appointments a
         on p.patient_id=a.patient_id inner join doctors d
-        on d.doctor_id=a.doctor_id
+        on d.doctor_id=a.doctor_id left join results r
+        on r.appointment_id=a.appointment_id
+        and r.patient_id=p.patient_id
+        and r.doctor_id=d.doctor_id
         WHERE a.status='completed' and d.doctor_id=?;`
 
         db.query(query,[doctorId],callback);

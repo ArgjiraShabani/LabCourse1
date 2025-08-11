@@ -38,21 +38,23 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
     useEffect(()=>{
         const fetchReport=async()=>{
             try{
-                const response=await axios.get(`http://localhost:3001/getReports/${patient_id}/${appointment_id}`,{
+                const response=await axios.get(`http://localhost:3001/api/getReports/${patient_id}/${appointment_id}`,{
                     withCredentials: true
                 })
-                const report= response.data.report;
-                if(report && Object.keys(report).length>0){
+                console.log("Fetched report", response.data);
+                
+                
                     setFormData(prev=>({
-                        first_name: response.data.first_name,
-                        last_name: response.data.last_name,
-                        symptoms: response.data.symptoms,
-                        diagnose: response.data.diagnose,
-                        alergies: response.data.alergies,
-                        result_text: response.data.result_text,
+                        first_name: response.data.first_name || "",
+                        last_name: response.data.last_name || "",
+                        symptoms: response.data.symptoms || "",
+                        diagnose: response.data.diagnose || "",
+                        alergies: response.data.alergies || "",
+                        result_text: response.data.result_text || "",
+                        attachment: response.data.attachment || ""
                     }));
                     console.log("fetched data",response.data)
-                }
+                
             }catch(error){
                 if(error.response && error.response.status===404){
                     console.log("No report found for this patient and appointment.");
@@ -227,9 +229,20 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
                 <div className="row mb-3 ">
                 <label className="form-label" for="testresults">Test Results:</label>
                 <div className="col-sm-10">
-                 <input type="file" className="form-control" id="attachment"
-                 onChange={handleFileChange} readOnly={readOnly}/>
-                 {file && <p style={{marginTop: "0.5rem", color: "#333"}}>Uploaded file: {file.name}</p>}
+                    {!readOnly &&(
+                        <input type="file" className="form-control" id="attachment"
+                 onChange={handleFileChange}/>
+
+                    )}
+
+                    {readOnly && formData.attachment&&(
+                        <a href={`http://localhost:3001/reports/${formData.attachment}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{display: "block", marginTop: "0.5rem", color: "#007bff"}}>View attached file</a>
+                    )}
+                 
+                 {/*{file && <p style={{marginTop: "0.5rem", color: "#333"}}>Uploaded file: {file.name}</p>}*/}
                 </div>
 
 
