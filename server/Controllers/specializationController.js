@@ -1,5 +1,6 @@
 const  {createSpecialization,getSpecializations,deleteSpecialization, updateSpecialization}= require('../Model/specializationModel');
 
+
 const createSpecializationHandler=(req,res)=>{
     const {specialization_name}=req.body;
     if(!specialization_name){

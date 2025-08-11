@@ -34,7 +34,7 @@ function DoctorSpecializations(){
         fetchSpecializations();
     },[]);
     const fetchSpecializations=()=>{
-          axios.get("http://localhost:3001/api/specializations").then((response)=>{
+          axios.get("http://localhost:3001/api/specializations",{withCredentials: true}).then((response)=>{
             setSpecialization(response.data);
         }) .catch((error) => {
             console.error("Error fetching specializations:", error);
@@ -61,7 +61,7 @@ function DoctorSpecializations(){
         try{
             await axios.put(`http://localhost:3001/api/updateSpecialization/${id}`,{
                 specialization_name: editingName
-            });
+            },{withCredentials: true});
             swal.fire('Updated!', 'Specialization has been updated.','success');
             setEditingId(null);
             fetchSpecializations();
@@ -85,7 +85,7 @@ function DoctorSpecializations(){
         }
         try{
             await axios.post("http://localhost:3001/api/addSpecialization",
-            {specialization_name: specializationName});
+            {specialization_name: specializationName},{withCredentials: true});
             alert("Specialization added successfully!");
             setSpecializationName('');
             fetchSpecializations();

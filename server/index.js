@@ -36,6 +36,7 @@ app.use(
     credentials: true, // ✅ Allow cookies
   })
 );
+app.use("/reports", express.static(path.join(__dirname, "public/reports")));
 
 app.use(express.json());
 app.use(cookieParser());

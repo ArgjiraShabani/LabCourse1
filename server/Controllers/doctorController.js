@@ -55,7 +55,7 @@ const createDoctorHandler=async(req,res)=>{
 };
 
 const updateDoctorHandler=(req,res)=>{
-    const doctorId=req.user.id;
+    const doctorId=req.params.doctor_id;
 
     getDocPasswordById(doctorId,(err,results)=>{
         if(err){
@@ -168,14 +168,14 @@ const getDoctorByIdAdminHandler=(req,res)=>{
 const getPatientAppointments=(doctorId,callback)=>{
     
     const query=`
-     SELECT a.appointment_id, p.patient_id, p.first_name, p.last_name,
+     SELECT a.appointment_id, p.patient_id, p.first_name, p.last_name,r.result_id,
     CASE 
         WHEN r.appointment_id IS NOT NULL THEN 1
         ELSE 0
     END AS hasPrescription
     FROM appointments a
     JOIN patients p ON p.patient_id=a.patient_id
-    LEFT JOIN results r
+    INNER JOIN results r
     ON r.appointment_id=a.appointment_id AND r.doctor_id=a.doctor_id
     WHERE a.status= 'completed' AND a.doctor_id=?;
     `;

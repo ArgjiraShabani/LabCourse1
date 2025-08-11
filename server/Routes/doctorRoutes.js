@@ -35,14 +35,14 @@ const userStorage=multer.diskStorage({
 const userUpload=multer({storage: userStorage});
 
 router.post('/doctors',authenticateToken, userUpload.single('img'),createDoctorHandler);
-router.put('/updateDoctors/:doctor_id',authenticateToken,userUpload.single('img'),updateDoctorHandler);
+router.put('/updateDoctors/:doctor_id',authenticateToken, userUpload.single('img'),updateDoctorHandler);
 router.get('/viewDoctors',authenticateToken, getAllDoctorsHandlers);
-router.delete('/deleteDoctor/:doctor_id',authenticateToken,deleteDoctorHandler);
-router.get('/doctorId',authenticateToken,getDoctorByIdHandler);
+router.delete('/deleteDoctor/:doctor_id',authenticateToken, deleteDoctorHandler);
+router.get('/doctorId',authenticateToken,  getDoctorByIdHandler);
 router.get('/appointments',authenticateToken,getAppointments);
 router.get('/staff',getStaffHandler);
 router.get('/allDoctors', getAllActiveDoctorsHandler);
-router.get('/doctorInfo/:doctor_id', authenticateToken,getDoctorByIdAdminHandler); 
+router.get('/doctorInfo/:doctor_id', authenticateToken,   getDoctorByIdAdminHandler); 
 
 router.get('/standard-schedule', authenticateToken,getSchedulesByDoctorHandler);
 router.get('/weekly-schedule', authenticateToken, getWeeklyScheduleByDoctorHandler);

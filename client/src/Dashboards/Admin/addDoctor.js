@@ -52,7 +52,7 @@ function AdminDoctor(){
 
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/api/specializations').then((response)=>{
+        Axios.get('http://localhost:3001/api/specializations', {withCredentials: true}).then((response)=>{
             setSpecialization(response.data);
         })
     },[]);
@@ -82,7 +82,7 @@ function AdminDoctor(){
         if(img){
             formData.append("img",img);
         }
-        const response=await Axios.post('http://localhost:3001/api/doctors',formData);
+        const response=await Axios.post('http://localhost:3001/api/doctors',formData, {withCredentials: true});
             
             console.log("Doctor added successfully",response.data);
             reset();

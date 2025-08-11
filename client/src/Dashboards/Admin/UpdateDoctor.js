@@ -51,7 +51,7 @@ const UpdateDoctor=()=>{
     
     
     useEffect(()=>{
-        Axios.get(`http://localhost:3001/api/doctorId/${doctorId}`)
+        Axios.get(`http://localhost:3001/api/doctorInfo/${doctorId}`, {withCredentials: true})
         .then((response)=>{
             const data=response.data;
             console.log("Fetched data:",data);
@@ -90,7 +90,7 @@ const UpdateDoctor=()=>{
 
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/api/specializations').then((response)=>{
+        Axios.get('http://localhost:3001/api/specializations',{withCredentials: true}).then((response)=>{
             setSpecialization(response.data);
         })
     },[]);
@@ -115,8 +115,9 @@ const UpdateDoctor=()=>{
         if(img){
             data.append("img",img);
         }
+        
         const response=await
-        Axios.put(`http://localhost:3001/api/updateDoctors/${doctorId}`,data);
+        Axios.put(`http://localhost:3001/api/updateDoctors/${doctorId}`,data, {withCredentials: true});
         
             await swal.fire({
             title: "Success!",
@@ -129,7 +130,7 @@ const UpdateDoctor=()=>{
 
         }
     catch(error){
-            console.log("Error adding doctor:",error);
+            console.log("Error updating doctor:",error);
            
            await swal.fire({
                 title: "Error!",
