@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Sidebar from '../../Components/AdminSidebar';
+import Swal from 'sweetalert2';
 
 const ManageServices = () => {
   const [services, setServices] = useState([]);
@@ -22,6 +23,11 @@ const ManageServices = () => {
       });
       setDepartments(res.data);
     } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error fetching departments',
+      });
       console.error('Error fetching departments:', err);
     }
   };
@@ -33,6 +39,11 @@ const ManageServices = () => {
       });
       setServices(res.data);
     } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error fetching services',
+      });
       console.error('Error fetching services:', err);
     }
   };
@@ -44,15 +55,27 @@ const ManageServices = () => {
         await axios.put(`http://localhost:3001/api/services/${editingServiceId}`, {
           service_name: serviceName,
           department_Id: department_Id,
-        }, {
-          withCredentials: true,
+        }, { withCredentials: true });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated!',
+          text: 'Service has been updated successfully',
+          timer: 1500,
+          showConfirmButton: false,
         });
       } else {
         await axios.post('http://localhost:3001/api/services', {
           service_name: serviceName,
           department_Id: department_Id,
-        }, {
-          withCredentials: true,
+        }, { withCredentials: true });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Created!',
+          text: 'Service has been created successfully',
+          timer: 1500,
+          showConfirmButton: false,
         });
       }
 
@@ -62,26 +85,53 @@ const ManageServices = () => {
       setEditingServiceId(null);
       fetchServices();
     } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to save service',
+      });
       console.error('Error saving service:', err);
     }
   };
 
   const handleEdit = (service) => {
     setServiceName(service.service_name);
-    setDepartment_Id(service.department_id);
+    setDepartment_Id(service.department_Id);
     setEditMode(true);
     setEditingServiceId(service.service_id);
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3001/api/services/${id}`, {
-        withCredentials: true,
-      });
-      fetchServices();
-    } catch (err) {
-      console.error('Error deleting service:', err);
-    }
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the service!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#51A485',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:3001/api/services/${id}`, { withCredentials: true });
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Service has been deleted',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          fetchServices();
+        } catch (err) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to delete service',
+          });
+          console.error('Error deleting service:', err);
+        }
+      }
+    });
   };
 
   const groupedServices = departments.map(dept => ({

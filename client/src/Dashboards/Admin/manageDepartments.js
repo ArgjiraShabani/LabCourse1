@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Sidebar from '../../Components/AdminSidebar';
+import Swal from 'sweetalert2';
 
 const ManageDepartments = () => {
   const [departmentName, setDepartmentName] = useState('');
@@ -14,39 +15,51 @@ const ManageDepartments = () => {
     fetchDepartments();
   }, []);
 
-const fetchDepartments = async () => {
-  try {
-    const response = await axios.get('http://localhost:3001/api/departments', {
-      withCredentials: true,
-    });
-    setDepartments(response.data);
-  } catch (error) {
-    console.error('Error fetching departments:', error);
-  }
-};
+  const fetchDepartments = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/departments', {
+        withCredentials: true,
+      });
+      setDepartments(response.data);
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error fetching departments',
+      });
+      console.error('Error fetching departments:', error);
+    }
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append('department_name', departmentName);
     formData.append('description', description);
-    if (photo) {
-      formData.append('photo', photo);
-    }
+    if (photo) formData.append('photo', photo);
 
     try {
       await axios.post('http://localhost:3001/api/departments', formData, {
-
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-         withCredentials: true
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Created!',
+        text: 'Department has been created successfully',
+        timer: 1500,
+        showConfirmButton: false,
       });
       setDepartmentName('');
       setDescription('');
       setPhoto(null);
       fetchDepartments();
     } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to create department',
+      });
       console.error('Error creating department:', error);
     }
   };
@@ -64,17 +77,19 @@ const fetchDepartments = async () => {
     const formData = new FormData();
     formData.append('department_name', departmentName);
     formData.append('description', description);
-    if (photo) {
-      formData.append('photo', photo);
-      formData.append('image_path', photo.name);
-    }
+    if (photo) formData.append('photo', photo);
 
     try {
       await axios.put(`http://localhost:3001/api/departments/${editingDepartmentId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-         withCredentials: true
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
+      });
+      Swal.fire({
+        icon: 'success',
+        title: 'Updated!',
+        text: 'Department has been updated successfully',
+        timer: 1500,
+        showConfirmButton: false,
       });
       setDepartmentName('');
       setDescription('');
@@ -82,19 +97,48 @@ const fetchDepartments = async () => {
       setEditMode(false);
       fetchDepartments();
     } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update department',
+      });
       console.error('Error updating department:', error);
     }
   };
 
   const handleDelete = async (departmentId) => {
-    try {
-     await axios.delete(`http://localhost:3001/api/departments/${departmentId}`, {
-  withCredentials: true
-})
-      fetchDepartments();
-    } catch (error) {
-      console.error('Error deleting department:', error);
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the department!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#51A485',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://localhost:3001/api/departments/${departmentId}`, {
+            withCredentials: true,
+          });
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Department has been deleted',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          fetchDepartments();
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to delete department',
+          });
+          console.error('Error deleting department:', error);
+        }
+      }
+    });
   };
 
   return (
@@ -177,16 +221,10 @@ const fetchDepartments = async () => {
                   {dept.description}
                 </p>
                 <div className="d-flex mt-3" style={{ gap: '8px' }}>
-                  <button
-                    onClick={() => handleEdit(dept)}
-                    className="btn btn-outline-primary btn-sm"
-                  >
+                  <button onClick={() => handleEdit(dept)} className="btn btn-outline-primary btn-sm">
                     Edit
                   </button>
-                  <button
-                    onClick={() => handleDelete(dept.department_Id)}
-                    className="btn btn-outline-danger btn-sm"
-                  >
+                  <button onClick={() => handleDelete(dept.department_Id)} className="btn btn-outline-danger btn-sm">
                     Delete
                   </button>
                 </div>
