@@ -175,9 +175,11 @@ const getPatientAppointments=(doctorId,callback)=>{
     END AS hasPrescription
     FROM appointments a
     JOIN patients p ON p.patient_id=a.patient_id
-    INNER JOIN results r
+    LEFT JOIN results r
     ON r.appointment_id=a.appointment_id AND r.doctor_id=a.doctor_id
-    WHERE a.status= 'completed' AND a.doctor_id=?;
+    WHERE a.status= 'completed' AND a.doctor_id=?
+    GROUP BY a.appointment_id,p.patient_id,p.first_name,
+    p.last_name,r.result_id;
     `;
     db.query(query,[doctorId],callback);
 

@@ -2,7 +2,18 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
 
 import axios from "axios";
-function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,setFile,readOnly,onSubmitSuccess}){
+function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSubmitSuccess, result_id,isEditing}){
+
+    const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    symptoms: "",
+    diagnose: "",
+    alergies: "",
+    result_text: "",
+    attachment: "",
+  });
+
 
 
     const[patientInfo,setPatientInfo]=useState({});
@@ -38,9 +49,15 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
     useEffect(()=>{
         const fetchReport=async()=>{
             try{
-                const response=await axios.get(`http://localhost:3001/api/getReports/${patient_id}/${appointment_id}`,{
+                let url;
+                if(isEditing && result_id){
+                    url=`http://localhost:3001/api/getReportId/${result_id}`;
+                }else{
+                    url=`http://localhost:3001/api/getReports/${patient_id}/${appointment_id}`;
+                }
+                const response=await axios.get(url,{
                     withCredentials: true
-                })
+                });
                 console.log("Fetched report", response.data);
                 
                 
@@ -65,10 +82,10 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
                
             }
         };
-        if(patient_id  && appointment_id){
+        if(patient_id  && appointment_id || result_id){
             fetchReport();
         }
-    },[patient_id,appointment_id]);
+    },[patient_id,appointment_id, result_id,isEditing]);
 
     const handleChange=(e)=>{
         setFormData({...formData,[e.target.id]: e.target.value});
@@ -92,11 +109,14 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
         if(file) data.append("attachment",file);
 
         try{
-            
 
-        
-
-        const response=await axios.post(
+            if(isEditing && result_id){
+                await axios.put(`http://localhost:3001/api/updateReports/${result_id}`, data, {
+                    withCredentials: true
+                });
+                alert("Medical report updated successfully!");
+            }else{
+                await axios.post(
             `http://localhost:3001/api/reports/${patient_id}`,
             data,
             {
@@ -104,6 +124,14 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
             }
         );
         alert("Medical Report created successfully!");
+
+            }
+            
+
+        
+
+        
+        
         if(onSubmitSuccess){
             onSubmitSuccess(patient_id,appointment_id);
         }
@@ -248,7 +276,7 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
 
                 </div>
                 <div>
-                {!readOnly &&(
+                {!isEditing && !readOnly &&(
                     <>
 
                 <button type="submit" name="action" value="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Submit</button>
@@ -256,7 +284,15 @@ function Modal({closeModal,patient_id,appointment_id,formData,setFormData,file,s
                 </>
 
                 )}
-                <button type="button" onClick={handleEmailSend} name="action" value="email" className="btn " style={{backgroundColor: '#51A485',color: '#fff',width: '100px'}}>Send by email</button>
+                {isEditing && (
+                     <button type="submit" name="action" value="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Update</button>
+
+                )}
+                {!isEditing && (
+                     <button type="button" onClick={handleEmailSend} name="action" value="email" className="btn " style={{backgroundColor: '#51A485',color: '#fff',width: '100px'}}>Send by email</button>
+
+                )}
+               
                 </div>
               
                 </form>

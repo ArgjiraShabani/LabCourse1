@@ -17,6 +17,7 @@ function MedicalRecords(){
     const [modalFormData,setModalFormData]=useState({});
     const [modalFile,setModalFile]=useState(null);
     const [submittedPrescription,setSubmittedPrescription]=useState({});
+    const [isEditing, SetIsEditing]=useState(false);
     const swal=withReactContent(Swal);
 
     const confirmDeletion=(resultId)=>{
@@ -78,6 +79,18 @@ function MedicalRecords(){
       })
 
     }
+
+    const openEditModal=(p)=>{
+      setSelectedPatient({
+        patient_id: p.patient_id,
+        appointment_id: p.appointment_id,
+        result_id: p.result_id
+      });
+      setModalFile(null);
+      setModalFormData({});
+      SetIsEditing(true);
+      setOpenModal(true);
+    }
     
 
     return(
@@ -127,14 +140,17 @@ function MedicalRecords(){
                                             }} onClick={()=>{
                                               setSelectedPatient({
                                                 patient_id: p.patient_id,
-                                                appointment_id: p.appointment_id
+                                                appointment_id: p.appointment_id,
+                                                result_id: p.result_id || null
                                               });
                                               
                                               setModalFile(null);
+                                              SetIsEditing(false);
                                               
                                               setOpenModal(true);
        }}>{submittedPrescription[`${p.patient_id}_${p.appointment_id}`]? 'View prescription':'Write prescription'}</button></td>
        <td> <button
+                  onClick={()=>openEditModal(p)}
                    
                    style={{
                        background: 'none',
@@ -173,14 +189,17 @@ function MedicalRecords(){
          <Modal closeModal={()=>setOpenModal(false)} 
          patient_id={selectedPatient.patient_id} 
        appointment_id={selectedPatient.appointment_id}
+       result_id={selectedPatient.result_id}
+       isEditing={isEditing}
         
-        formData={modalFormData}
-        setFormData={setModalFormData}
+        
         file={modalFile}
         setFile={setModalFile}
-        readOnly={submittedPrescription[`${selectedPatient.patient_id}_${selectedPatient.appointment_id}`]}
+        readOnly={!isEditing && submittedPrescription[`${selectedPatient.patient_id}_${selectedPatient.appointment_id}`]}
         onSubmitSuccess={(patient_id, appointment_id)=>{
           setSubmittedPrescription((prev)=>({...prev,[`${selectedPatient.patient_id}_${selectedPatient.appointment_id}`]:true}));
+          fetchAppointments();
+         /* setSubmittedPrescription((prev)=>({...prev,[`${selectedPatient.patient_id}_${selectedPatient.appointment_id}`]:true}));
           axios.get(`http://localhost:3001/api/getReports/${patient_id}/${appointment_id}`,{
             withCredentials: true
           })
@@ -196,7 +215,7 @@ function MedicalRecords(){
 
             })
           })
-          .catch(err=>console.error("Failed to refetch after submit.", err));
+          .catch(err=>console.error("Failed to refetch after submit.", err));*/
         }
         }
         />)}

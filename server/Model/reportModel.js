@@ -40,6 +40,12 @@ const getReport=(patientId,doctorId, appointmentId,callback)=>{
     db.query(query,[patientId,doctorId,appointmentId], callback);
 }
 
+const getReportById=(resultId,callback)=>{
+    const query=`SELECT result_id,result_text,attachment,symptoms,alergies,diagnose,first_name,last_name
+    FROM results WHERE result_id=?`;
+    db.query(query,[resultId],callback);
+}
+
 
 
 const deleteReport=(resultId,callback)=>{
@@ -49,5 +55,58 @@ const deleteReport=(resultId,callback)=>{
     });
 }
 
+const updateReport=(resultId, reportData, callback)=>{
+    const{
+        first_name,
+        last_name,
+        symptoms,
+        alergies,
+        diagnose,
+        result_text,
+        attachment
+    }=reportData;
 
-module.exports={createReport,getReport, deleteReport};
+    let query, values;
+
+    if(attachment!=undefined){
+        query= `UPDATE results SET first_name=?,last_name=?,symptoms=?,
+alergies=?,diagnose=?, result_text=?, attachment=? WHERE  result_id=? `;
+
+    values=[
+        first_name,
+        last_name,
+        symptoms,
+        alergies,
+        diagnose,
+        result_text,
+        attachment,
+        resultId
+
+    ];
+
+    }else{
+        query= `UPDATE results SET first_name=?,last_name=?,symptoms=?,
+alergies=?,diagnose=?, result_text=? WHERE  result_id=? `;
+
+
+values=[
+        first_name,
+        last_name,
+        symptoms,
+        alergies,
+        diagnose,
+        result_text,
+        resultId
+
+    ];
+
+
+
+    }
+    
+
+   
+    db.query(query, values, callback);
+};
+
+module.exports={createReport,getReport, deleteReport, updateReport, getReportById};

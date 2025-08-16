@@ -1,4 +1,4 @@
-const {createReport,getReport, deleteReport} =require('../Model/reportModel');
+const {createReport,getReport, deleteReport, updateReport, getReportById} =require('../Model/reportModel');
 
 const createReportHandler=(req,res)=>{
     const patientId=req.params.patient_id;
@@ -54,9 +54,26 @@ const getReportHandler=(req,res)=>{
         });
     });
 };
+const getReportByIdHandler=(req,res)=>{
+    const resultId=req.params.result_id;
+
+    getReportById(resultId,(err,results)=>{
+        if(err){
+            console.error("Database error:" , err);
+            return res.status(500).json({error: "Database error"});
+        }
+        if(results.length===0){
+            return res.status(404).json({message: "Doctor not found"});
+        }
+        res.json(results[0]);
+
+    })
+
+}
 
 const deleteReportHandler=(req,res)=>{
     const resultId= req.params.result_id;
+
     deleteReport(resultId,(err,results)=>{
         if(err){
             console.error("Database error", err);
@@ -70,4 +87,40 @@ const deleteReportHandler=(req,res)=>{
     })
 
 }
-module.exports={createReportHandler,getReportHandler, deleteReportHandler};
+
+const updateReportHandler=(req,res)=>{
+    const resultId=req.params.result_id;
+
+    const reportData= {
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        symptoms: req.body.symptoms,
+        alergies: req.body.alergies,
+        diagnose: req.body.diagnose,
+        result_text: req.body.result_text,
+        attachment: req.file? req.file.filename: undefined
+        
+    };
+    if(reportData.attachment===undefined){
+        delete reportData.attachment;
+    }
+
+    updateReport(resultId,reportData,(err,results)=>{
+        if(err){
+            console.error("Database error", err);
+            return res.status(500).json({error: "Database error"});
+        }
+        if(results.affectedRows===0){
+            return res.status(404).json({error: "Report not found."})
+        }
+        res.json({message: "Report updated successfully"});
+
+    });
+
+
+
+
+
+   
+}
+module.exports={createReportHandler,getReportHandler, deleteReportHandler, updateReportHandler, getReportByIdHandler};
