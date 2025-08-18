@@ -42,4 +42,12 @@ router.get("/PatientAppointments", authenticateToken, authorizeRoles("admin"), (
   res.json({ message: "Welcome Admin", user: req.user });
 });
 
+router.get("/ManageDepartments/:id", authenticateToken, authorizeRoles("admin"), (req, res) => {
+  res.json({ message: "Welcome Admin to Manage Departments", user: req.user });
+});
+
+router.get("/ManageServices/:id", authenticateToken, authorizeRoles("admin"), (req, res) => {
+  res.json({ message: "Welcome Admin to Manage Services", user: req.user });
+});
+
 module.exports = router;

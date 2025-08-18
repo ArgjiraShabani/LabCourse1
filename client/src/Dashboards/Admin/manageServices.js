@@ -1,15 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Sidebar from '../../Components/AdminSidebar';
-import Swal from 'sweetalert2';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Sidebar from "../../Components/AdminSidebar";
+import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router-dom";
+
+const api = axios.create({
+  baseURL: "http://localhost:3001/api",
+  withCredentials: true,
+});
 
 const ManageServices = () => {
   const [services, setServices] = useState([]);
   const [departments, setDepartments] = useState([]);
-  const [serviceName, setServiceName] = useState('');
-  const [department_Id, setDepartment_Id] = useState('');
+  const [serviceName, setServiceName] = useState("");
+  const [department_Id, setDepartment_Id] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState(null);
+
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (!id) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Invalid user id.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/");
+      return;
+    }
+
+    axios
+      .get(`http://localhost:3001/adminDashboard/${id}`, { withCredentials: true })
+      .then((res) => {
+        if (res.data.user?.role !== "admin") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only admin can access this page.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        }
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Authentication failed.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+      });
+  }, [id, navigate]);
 
   useEffect(() => {
     fetchDepartments();
@@ -18,33 +63,19 @@ const ManageServices = () => {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/departments', {
-        withCredentials: true,
-      });
+      const res = await api.get("/departments");
       setDepartments(res.data);
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error fetching departments',
-      });
-      console.error('Error fetching departments:', err);
+      console.error("Error fetching departments:", err);
     }
   };
 
   const fetchServices = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/services', {
-        withCredentials: true,
-      });
+      const res = await api.get("/services");
       setServices(res.data);
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error fetching services',
-      });
-      console.error('Error fetching services:', err);
+      console.error("Error fetching services:", err);
     }
   };
 
@@ -52,45 +83,24 @@ const ManageServices = () => {
     e.preventDefault();
     try {
       if (editMode) {
-        await axios.put(`http://localhost:3001/api/services/${editingServiceId}`, {
+        await api.put(`/services/${editingServiceId}`, {
           service_name: serviceName,
-          department_Id: department_Id,
-        }, { withCredentials: true });
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Updated!',
-          text: 'Service has been updated successfully',
-          timer: 1500,
-          showConfirmButton: false,
+          department_Id,
         });
+        Swal.fire("Updated", "Service updated successfully!", "success");
       } else {
-        await axios.post('http://localhost:3001/api/services', {
-          service_name: serviceName,
-          department_Id: department_Id,
-        }, { withCredentials: true });
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Created!',
-          text: 'Service has been created successfully',
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        await api.post("/services", { service_name: serviceName, department_Id });
+        Swal.fire("Created", "Service created successfully!", "success");
       }
 
-      setServiceName('');
-      setDepartment_Id('');
+      setServiceName("");
+      setDepartment_Id("");
       setEditMode(false);
       setEditingServiceId(null);
       fetchServices();
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to save service',
-      });
-      console.error('Error saving service:', err);
+      console.error("Error saving service:", err);
+      Swal.fire("Error", "Could not save service", "error");
     }
   };
 
@@ -101,46 +111,36 @@ const ManageServices = () => {
     setEditingServiceId(service.service_id);
   };
 
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This will permanently delete the service!',
-      icon: 'warning',
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#51A485',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`http://localhost:3001/api/services/${id}`, { withCredentials: true });
-          Swal.fire({
-            icon: 'success',
-            title: 'Deleted!',
-            text: 'Service has been deleted',
-            timer: 1500,
-            showConfirmButton: false,
-          });
-          fetchServices();
-        } catch (err) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to delete service',
-          });
-          console.error('Error deleting service:', err);
-        }
-      }
+      confirmButtonColor: "#51A485",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await api.delete(`/services/${id}`);
+      Swal.fire("Deleted!", "Service has been deleted.", "success");
+      fetchServices();
+    } catch (err) {
+      console.error("Error deleting service:", err);
+      Swal.fire("Error", "Could not delete service", "error");
+    }
   };
 
-  const groupedServices = departments.map(dept => ({
+  const groupedServices = departments.map((dept) => ({
     ...dept,
-    services: services.filter(s => s.department_Id === dept.department_Id),
+    services: services.filter((s) => s.department_Id === dept.department_Id),
   }));
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
+    <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
       <div className="flex-grow-1 p-4">
         <h2>Manage Services</h2>
@@ -165,7 +165,7 @@ const ManageServices = () => {
               required
             >
               <option value="">Select Department</option>
-              {departments.map(dept => (
+              {departments.map((dept) => (
                 <option key={dept.department_Id} value={dept.department_Id}>
                   {dept.department_name}
                 </option>
@@ -173,33 +173,38 @@ const ManageServices = () => {
             </select>
           </div>
           <button type="submit" className="btn btn-success">
-            {editMode ? 'Update Service' : 'Create Service'}
+            {editMode ? "Update Service" : "Create Service"}
           </button>
         </form>
 
         <h4>Services by Department</h4>
         <div className="d-flex flex-wrap gap-4">
-          {groupedServices.map(dept => (
-            <div key={dept.department_Id} style={{ width: '300px' }}>
+          {groupedServices.map((dept) => (
+            <div key={dept.department_Id} style={{ width: "300px" }}>
               {dept.image_path && (
                 <img
                   src={`http://localhost:3001/uploads/${dept.image_path}`}
                   alt={dept.department_name}
-                  style={{
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '10px'
-                  }}
+                  style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px" }}
                 />
               )}
               <h5 className="mt-2 text-center">{dept.department_name}</h5>
               <div className="mt-2">
-                {dept.services.map(service => (
+                {dept.services.map((service) => (
                   <div key={service.service_id} className="border p-2 mb-2 rounded">
                     <h6>{service.service_name}</h6>
-                    <button onClick={() => handleEdit(service)} className="btn btn-sm btn-outline-primary me-2">Edit</button>
-                    <button onClick={() => handleDelete(service.service_id)} className="btn btn-sm btn-outline-danger">Delete</button>
+                    <button
+                      onClick={() => handleEdit(service)}
+                      className="btn btn-sm btn-outline-primary me-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(service.service_id)}
+                      className="btn btn-sm btn-outline-danger"
+                    >
+                      Delete
+                    </button>
                   </div>
                 ))}
               </div>

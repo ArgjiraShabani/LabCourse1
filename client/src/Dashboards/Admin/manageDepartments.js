@@ -1,15 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Sidebar from '../../Components/AdminSidebar';
-import Swal from 'sweetalert2';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Sidebar from "../../Components/AdminSidebar";
+import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router-dom";
+
+const api = axios.create({
+  baseURL: "http://localhost:3001/api",
+  withCredentials: true,
+});
 
 const ManageDepartments = () => {
-  const [departmentName, setDepartmentName] = useState('');
-  const [description, setDescription] = useState('');
+  const [departmentName, setDepartmentName] = useState("");
+  const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editingDepartmentId, setEditingDepartmentId] = useState(null);
+
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (!id) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Invalid user id.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/");
+      return;
+    }
+
+    axios
+      .get(`http://localhost:3001/adminDashboard/${id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data.user?.role !== "admin") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only admin can access this page.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        }
+      })
+      .catch(() => {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Authentication failed.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+      });
+  }, [id, navigate]);
 
   useEffect(() => {
     fetchDepartments();
@@ -17,50 +64,40 @@ const ManageDepartments = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/departments', {
-        withCredentials: true,
-      });
+      const response = await api.get("/departments");
       setDepartments(response.data);
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Error fetching departments',
-      });
-      console.error('Error fetching departments:', error);
+      console.error("Error fetching departments:", error);
     }
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('department_name', departmentName);
-    formData.append('description', description);
-    if (photo) formData.append('photo', photo);
+    formData.append("department_name", departmentName);
+    formData.append("description", description);
+    if (photo) {
+      formData.append("photo", photo);
+    }
 
     try {
-      await axios.post('http://localhost:3001/api/departments', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true,
+      await api.post("/departments", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       Swal.fire({
-        icon: 'success',
-        title: 'Created!',
-        text: 'Department has been created successfully',
+        icon: "success",
+        title: "Created",
+        text: "Department created successfully!",
         timer: 1500,
         showConfirmButton: false,
       });
-      setDepartmentName('');
-      setDescription('');
+      setDepartmentName("");
+      setDescription("");
       setPhoto(null);
       fetchDepartments();
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to create department',
-      });
-      console.error('Error creating department:', error);
+      console.error("Error creating department:", error);
+      Swal.fire("Error", "Could not create department", "error");
     }
   };
 
@@ -75,78 +112,68 @@ const ManageDepartments = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('department_name', departmentName);
-    formData.append('description', description);
-    if (photo) formData.append('photo', photo);
+    formData.append("department_name", departmentName);
+    formData.append("description", description);
+    if (photo) {
+      formData.append("photo", photo);
+      formData.append("image_path", photo.name);
+    }
 
     try {
-      await axios.put(`http://localhost:3001/api/departments/${editingDepartmentId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true,
+      await api.put(`/departments/${editingDepartmentId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       Swal.fire({
-        icon: 'success',
-        title: 'Updated!',
-        text: 'Department has been updated successfully',
+        icon: "success",
+        title: "Updated",
+        text: "Department updated successfully!",
         timer: 1500,
         showConfirmButton: false,
       });
-      setDepartmentName('');
-      setDescription('');
+      setDepartmentName("");
+      setDescription("");
       setPhoto(null);
       setEditMode(false);
       fetchDepartments();
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to update department',
-      });
-      console.error('Error updating department:', error);
+      console.error("Error updating department:", error);
+      Swal.fire("Error", "Could not update department", "error");
     }
   };
 
   const handleDelete = async (departmentId) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This will permanently delete the department!',
-      icon: 'warning',
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#51A485',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`http://localhost:3001/api/departments/${departmentId}`, {
-            withCredentials: true,
-          });
-          Swal.fire({
-            icon: 'success',
-            title: 'Deleted!',
-            text: 'Department has been deleted',
-            timer: 1500,
-            showConfirmButton: false,
-          });
-          fetchDepartments();
-        } catch (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to delete department',
-          });
-          console.error('Error deleting department:', error);
-        }
-      }
+      confirmButtonColor: "#51A485",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await api.delete(`/departments/${departmentId}`);
+      Swal.fire("Deleted!", "Department has been deleted.", "success");
+      fetchDepartments();
+    } catch (error) {
+      console.error("Error deleting department:", error);
+      Swal.fire("Error", "Could not delete department", "error");
+    }
   };
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
+    <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
       <div className="flex-grow-1 p-4">
         <h2>Manage Departments</h2>
-        <form onSubmit={editMode ? handleUpdate : handleCreate} className="mb-4" encType="multipart/form-data">
+        <form
+          onSubmit={editMode ? handleUpdate : handleCreate}
+          className="mb-4"
+          encType="multipart/form-data"
+        >
           <div className="mb-3">
             <label className="form-label">Department Name</label>
             <input
@@ -175,8 +202,12 @@ const ManageDepartments = () => {
               accept="image/*"
             />
           </div>
-          <button type="submit" className="btn btn-success">
-            {editMode ? 'Update' : 'Create'}
+          <button
+            type="submit"
+            className="btn btn-success"
+            disabled={!departmentName}
+          >
+            {editMode ? "Update" : "Create"}
           </button>
         </form>
 
@@ -187,11 +218,11 @@ const ManageDepartments = () => {
               key={dept.department_Id}
               className="card"
               style={{
-                width: '300px',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                backgroundColor: '#f9f9f9',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                width: "300px",
+                borderRadius: "16px",
+                overflow: "hidden",
+                backgroundColor: "#f9f9f9",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
               }}
             >
               {dept.image_path && (
@@ -200,10 +231,8 @@ const ManageDepartments = () => {
                   alt={dept.department_name}
                   className="card-img-top"
                   style={{
-                    height: '200px',
-                    objectFit: 'cover',
-                    borderTopLeftRadius: '16px',
-                    borderTopRightRadius: '16px',
+                    height: "200px",
+                    objectFit: "cover",
                   }}
                 />
               )}
@@ -212,19 +241,25 @@ const ManageDepartments = () => {
                 <p
                   className="card-text"
                   style={{
-                    maxHeight: '80px',
-                    overflowY: 'auto',
-                    fontSize: '0.95rem',
-                    color: '#555',
+                    maxHeight: "80px",
+                    overflowY: "auto",
+                    fontSize: "0.95rem",
+                    color: "#555",
                   }}
                 >
                   {dept.description}
                 </p>
-                <div className="d-flex mt-3" style={{ gap: '8px' }}>
-                  <button onClick={() => handleEdit(dept)} className="btn btn-outline-primary btn-sm">
+                <div className="d-flex mt-3" style={{ gap: "8px" }}>
+                  <button
+                    onClick={() => handleEdit(dept)}
+                    className="btn btn-outline-primary btn-sm"
+                  >
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(dept.department_Id)} className="btn btn-outline-danger btn-sm">
+                  <button
+                    onClick={() => handleDelete(dept.department_Id)}
+                    className="btn btn-outline-danger btn-sm"
+                  >
                     Delete
                   </button>
                 </div>

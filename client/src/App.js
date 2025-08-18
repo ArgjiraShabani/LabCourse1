@@ -70,8 +70,8 @@ function Layout() {
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
           <Route path='/myprofile/:id' element={<MyProfile/>}></Route>--------------
           <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
-          <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>
-          <Route path="/ManageServices/:id" element={<ManageServices />} />
+          <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>+++++++++++++
+          <Route path="/ManageServices/:id" element={<ManageServices />} />+++++++++++++++
           <Route path='/login' element={<Login/>}></Route>
           <Route path='/patient' element={<Patient/>}></Route>--------------------------
           <Route path='/registerPatient' element={<Register/>}></Route>
