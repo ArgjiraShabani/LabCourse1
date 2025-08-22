@@ -4,17 +4,14 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-
 function BookAppointment() {
   const [services, setServices] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
-  const navigate = useNavigate();
-  const { id } = useParams();
-
+  const [daysLimit, setDaysLimit] = useState(30);
+  const [maxDate, setMaxDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-
   const [formData, setFormData] = useState({
     name: "",
     lastname: "",
@@ -23,70 +20,68 @@ function BookAppointment() {
     purpose: "",
   });
 
-
-  function getNextSunday(date) {
-    const now = new Date(date);
-    const day = now.getDay();
-    const hour = now.getHours();
-
-    let diff;
-    if (day === 0 && hour >= 23) {
-      diff = 7;
-    } else {
-      diff = day === 0 ? 0 : 7 - day;
-    }
-
-    const nextSunday = new Date(now);
-    nextSunday.setDate(now.getDate() + diff);
-    return nextSunday;
-  }
-
   const today = new Date();
-  const maxDate = getNextSunday(today);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/api/settings", { withCredentials: true })
+      .then((res) => {
+        const limit = res.data?.booking_days_limit ?? 30;
+        setDaysLimit(limit);
+        const max = new Date(today);
+        max.setDate(max.getDate() + limit);
+        setMaxDate(max);
+      })
+      .catch((err) => {
+        console.error("Error fetching settings:", err.message);
+        const max = new Date(today);
+        max.setDate(max.getDate() + 30);
+        setMaxDate(max);
+      });
+  }, []);
 
   useEffect(() => {
     axios
-    .get(`http://localhost:3001/BookAppointments`, {
-      withCredentials: true, // this sends the JWT cookie
-    })
-    .then((res) => {
-      if (res.data.user?.role !== 'patient') {
-        // Not a patient? Block it.
-        Swal.fire({
-          icon: 'error',
-          title: 'Access Denied',
-          text: 'Only patients can access this page.',
-        });
-        navigate('/');
-      }
-    })
-    .catch((err) => {
-      navigate('/');
-    });
-}, [id]);
+      .get(`http://localhost:3001/BookAppointments`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data.user?.role !== "patient") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only patients can access this page.",
+          });
+          navigate("/");
+        }
+      })
+      .catch(() => navigate("/"));
+  }, [id, navigate]);
+
 
   useEffect(() => {
     axios
       .get("http://localhost:3001/services")
       .then((res) => setServices(res.data))
-      .catch((err) => console.error("Error fetching services:", err));
+      .catch((err) => console.error("Error fetching services:", err.message));
   }, []);
 
   useEffect(() => {
     if (formData.service_id && services.length > 0) {
       const selectedService = services.find(
-        (service) =>
-          parseInt(service.service_id) === parseInt(formData.service_id)
+        (s) => parseInt(s.service_id) === parseInt(formData.service_id)
       );
 
-      if (selectedService && selectedService.department_Id) {
+      if (selectedService?.department_Id) {
         axios
           .get(
             `http://localhost:3001/doctors/byDepartment/${selectedService.department_Id}`
           )
           .then((res) => setDoctors(res.data))
           .catch((err) => {
-            console.error("Error fetching doctors:", err);
+            console.error("Error fetching doctors:", err.message);
             setDoctors([]);
           });
       } else {
@@ -98,13 +93,13 @@ function BookAppointment() {
   }, [formData.service_id, services]);
 
   useEffect(() => {
-    const fetchAvailableSlots = async () => {
-      if (!selectedDate || !formData.doctor_id) {
-        setAvailableSlots([]);
-        return;
-      }
+    const fetchSlots = async () => {
+      if (!selectedDate || !formData.doctor_id) return;
 
-      const weekday = new Date(selectedDate).toLocaleDateString("en-US", {
+      const selDateObj = new Date(selectedDate);
+      if (selDateObj < today || selDateObj > maxDate) return;
+
+      const weekday = selDateObj.toLocaleDateString("en-US", {
         weekday: "long",
       });
 
@@ -130,26 +125,21 @@ function BookAppointment() {
             s.weekday === weekday
         );
 
-        console.log("Selected Date:", selectedDate);
-        console.log("Weekday:", weekday);
-        console.log("Custom Schedule:", custom);
-        console.log("Standard Schedule:", standard);
-
         const schedule = custom || standard;
-
         if (!schedule) {
           setAvailableSlots([]);
           return;
         }
 
-        const generateSlots = (startTime, endTime) => {
+        const generateSlots = (start, end) => {
           const slots = [];
-          let [h, m] = startTime.split(":").map(Number);
-          const [endH, endM] = endTime.split(":").map(Number);
+          let [h, m] = start.split(":").map(Number);
+          const [endH, endM] = end.split(":").map(Number);
 
           while (h < endH || (h === endH && m < endM)) {
-            const slot = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-            slots.push(slot);
+            slots.push(
+              `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+            );
             m += 30;
             if (m >= 60) {
               h++;
@@ -160,41 +150,28 @@ function BookAppointment() {
         };
 
         const allSlots = generateSlots(schedule.start_time, schedule.end_time);
-        console.log("All Slots:", allSlots);
 
-        try {
-          const res = await axios.get(
-            "http://localhost:3001/appointments/bookedSlots",
-            {
-              params: {
-                doctor_id: formData.doctor_id,
-                date: selectedDate,
-              },
-              withCredentials: true,
-            }
-          );
+        const bookedRes = await axios.get(
+          "http://localhost:3001/appointments/bookedSlots",
+          {
+            params: {
+              doctor_id: formData.doctor_id,
+              date: selectedDate,
+            },
+            withCredentials: true,
+          }
+        );
 
-          const bookedSlots = res.data;
-          console.log("Booked Slots:", bookedSlots);
-
-          const freeSlots = allSlots.filter(
-            (slot) => !bookedSlots.includes(slot)
-          );
-
-          console.log("Free Slots:", freeSlots);
-          setAvailableSlots(freeSlots);
-        } catch (err) {
-          console.error("Error fetching booked slots:", err);
-          setAvailableSlots(allSlots);
-        }
+        const bookedSlots = bookedRes.data;
+        setAvailableSlots(allSlots.filter((slot) => !bookedSlots.includes(slot)));
       } catch (err) {
-        console.error("Error fetching schedule:", err);
+        console.error("Error fetching available slots:", err.message);
         setAvailableSlots([]);
       }
     };
 
-    fetchAvailableSlots();
-  }, [formData.doctor_id, selectedDate]);
+    fetchSlots();
+  }, [formData.doctor_id, selectedDate, maxDate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -212,36 +189,39 @@ function BookAppointment() {
     setSelectedTimeSlot("");
   };
 
-  const handleTimeSlotChange = (e) => {
-    setSelectedTimeSlot(e.target.value);
-  };
-
-  
-
-
 const handleSubmit = (e) => {
   e.preventDefault();
-
   if (!selectedDate || !selectedTimeSlot) {
-    alert("Please select a date and time slot.");
+    Swal.fire({
+      icon: 'warning',
+      title: 'Missing Information',
+      text: 'Please select a date and time slot.',
+      confirmButtonColor: '#51A485',
+      confirmButtonText: 'OK'
+    });
     return;
   }
-
-  const appointment_datetime = `${selectedDate}T${selectedTimeSlot}`;
 
   axios
     .post(
       "http://localhost:3001/appointments",
       {
         ...formData,
-        patient_id: parseInt(id), 
-        appointment_datetime,
+        patient_id: parseInt(id),
+        appointment_datetime: `${selectedDate}T${selectedTimeSlot}`,
         status: "pending",
       },
       { withCredentials: true }
     )
     .then((res) => {
-      alert(res.data.message || "Appointment booked successfully!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Appointment Booked!',
+        text: res.data.message || 'Your appointment has been successfully booked.',
+        confirmButtonColor: '#51A485',
+        confirmButtonText: 'OK'
+      });
+
       setFormData({
         name: "",
         lastname: "",
@@ -254,8 +234,14 @@ const handleSubmit = (e) => {
       setAvailableSlots([]);
     })
     .catch((err) => {
-      console.error("Error while booking:", err);
-      alert("Booking failed. Please try again.");
+      console.error("Error while booking:", err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Booking Failed',
+        text: 'Please try again.',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
     });
 };
 
@@ -300,9 +286,9 @@ const handleSubmit = (e) => {
               required
             >
               <option value="">Select Service</option>
-              {services.map((service) => (
-                <option key={service.service_id} value={service.service_id}>
-                  {service.service_name}
+              {services.map((s) => (
+                <option key={s.service_id} value={s.service_id}>
+                  {s.service_name}
                 </option>
               ))}
             </select>
@@ -318,9 +304,9 @@ const handleSubmit = (e) => {
               required
             >
               <option value="">Select Doctor</option>
-              {doctors.map((doc) => (
-                <option key={doc.doctor_id} value={doc.doctor_id}>
-                  {doc.first_name} {doc.last_name}
+              {doctors.map((d) => (
+                <option key={d.doctor_id} value={d.doctor_id}>
+                  {d.first_name} {d.last_name}
                 </option>
               ))}
             </select>
@@ -342,8 +328,7 @@ const handleSubmit = (e) => {
 
           {selectedDate && availableSlots.length === 0 && (
             <div className="alert alert-warning">
-              There are no available time slots for this date. Please choose
-              another one.
+              No available slots for this date.
             </div>
           )}
 
@@ -353,7 +338,7 @@ const handleSubmit = (e) => {
               <select
                 className="form-control"
                 value={selectedTimeSlot}
-                onChange={handleTimeSlotChange}
+                onChange={(e) => setSelectedTimeSlot(e.target.value)}
                 required
               >
                 <option value="">Select Time Slot</option>
