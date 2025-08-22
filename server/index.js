@@ -31,6 +31,7 @@ const emailRoutes =require("./Routes/emailRoute");
 const logoutRoutes = require("./Routes/logoutRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 const adminController = require("./Controllers/adminController");
+const settingsRoutes = require('./Routes/settingsRoutes');
 
 app.use(
   cors({
@@ -54,6 +55,7 @@ app.use("/api", serviceRoutes);
 app.use("/doctor", pRDoctor);
 app.use("/", appointmentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.use("/uploads", express.static("public/uploads"));
 
