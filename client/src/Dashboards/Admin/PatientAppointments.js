@@ -32,7 +32,21 @@ function PatientAppointments() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
+  const today = new Date();
+  const [daysLimit, setDaysLimit] = useState(30);
+  const [maxDate, setMaxDate] = useState(new Date());
+
+  const [selectedDate, setSelectedDate] = useState("");
+  const [formData, setFormData] = useState({ doctor_id: "", service_id: "" });
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(schema),
   });
 
@@ -41,8 +55,26 @@ function PatientAppointments() {
   const watchDate = watch("date");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/PatientAppointments", { withCredentials: true })
-      .then(res => {
+    axios
+      .get("http://localhost:3001/api/settings", { withCredentials: true })
+      .then((res) => {
+        const limit = res.data?.booking_days_limit ?? 30;
+        setDaysLimit(limit);
+        const max = new Date(today);
+        max.setDate(max.getDate() + limit);
+        setMaxDate(max);
+      })
+      .catch(() => {
+        const max = new Date(today);
+        max.setDate(max.getDate() + 30);
+        setMaxDate(max);
+      });
+  }, []);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/PatientAppointments", { withCredentials: true })
+      .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
             icon: "error",
@@ -55,55 +87,27 @@ function PatientAppointments() {
         setUserRole(res.data.user.role);
         setLoading(false);
       })
-      .catch(err => {
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Please login.",
-          });
-          navigate("/login");
-        } else {
-          console.error("Unexpected error", err);
-        }
-      });
+      .catch(() => navigate("/login"));
   }, [navigate]);
 
   useEffect(() => {
     if (userRole !== "admin") return;
 
-    axios.all([
-      axios.get("http://localhost:3001/all-patient-appointments", { withCredentials: true }),
-      axios.get("http://localhost:3001/services", { withCredentials: true }),
-      axios.get("http://localhost:3001/patient/patients-dropdown", { withCredentials: true })
-    ])
-      .then(axios.spread((appsRes, servicesRes, patientsRes) => {
-        const formattedAppointments = appsRes.data.map(item => {
-          if (item.appointment_datetime) {
-            const datePart = item.appointment_datetime.split("T")[0];
-            const [year, month, day] = datePart.split("-");
-            const formattedDate = `${month}-${day}-${year}`;
-            return { ...item, appointment_datetime: formattedDate };
-          }
-          return item;
-        });
-        setAppointments(formattedAppointments);
-        setServices(servicesRes.data);
-        setPatients(patientsRes.data);
-      }))
-      .catch(err => {
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Please login.",
-          });
-          navigate("/login");
-        } else {
-          console.error("Unexpected error", err);
-        }
-      });
-  }, [userRole, navigate]);
+    axios
+      .all([
+        axios.get("http://localhost:3001/all-patient-appointments", { withCredentials: true }),
+        axios.get("http://localhost:3001/services", { withCredentials: true }),
+        axios.get("http://localhost:3001/patient/patients-dropdown", { withCredentials: true }),
+      ])
+      .then(
+        axios.spread((appsRes, servicesRes, patientsRes) => {
+          setAppointments(appsRes.data);
+          setServices(servicesRes.data);
+          setPatients(patientsRes.data);
+        })
+      )
+      .catch((err) => console.error(err));
+  }, [userRole]);
 
   useEffect(() => {
     if (!watchService) {
@@ -112,11 +116,14 @@ function PatientAppointments() {
       setAvailableSlots([]);
       return;
     }
-    const service = services.find(s => s.service_id === parseInt(watchService));
+    const service = services.find((s) => s.service_id === parseInt(watchService));
     if (!service) return;
 
-    axios.get(`http://localhost:3001/doctors/byDepartment/${service.department_Id}`, { withCredentials: true })
-      .then(res => setDoctors(res.data))
+    axios
+      .get(`http://localhost:3001/doctors/byDepartment/${service.department_Id}`, {
+        withCredentials: true,
+      })
+      .then((res) => setDoctors(res.data))
       .catch(() => setDoctors([]));
 
     setValue("doctor_id", "");
@@ -124,72 +131,159 @@ function PatientAppointments() {
   }, [watchService, services, setValue]);
 
   useEffect(() => {
-    if (!watchDate || !watchDoctor) {
-      setAvailableSlots([]);
-      return;
-    }
+    setFormData((prev) => ({ ...prev, doctor_id: watchDoctor }));
+    setSelectedDate(watchDate);
+  }, [watchDoctor, watchDate]);
+
+  useEffect(() => {
+    const generateSlots = (start, end) => {
+      const slots = [];
+      let [h, m] = start.split(":").map(Number);
+      const [endH, endM] = end.split(":").map(Number);
+
+      while (h < endH || (h === endH && m <= endM)) {
+        slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+        m += 30;
+        if (m >= 60) {
+          h++;
+          m -= 60;
+        }
+      }
+      return slots;
+    };
 
     const fetchSlots = async () => {
+      if (!selectedDate || !formData.doctor_id) return;
+
+      const todayDate = new Date();
+      const selDateObj = new Date(selectedDate);
+      if (selDateObj < todayDate || selDateObj > maxDate) return;
+
       try {
-        const [standardRes, customRes, bookedRes] = await Promise.all([
+        const [standardRes, customRes] = await Promise.all([
           axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
           axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
-          axios.get("http://localhost:3001/appointments/bookedSlots", { params: { doctor_id: watchDoctor, date: watchDate }, withCredentials: true }),
         ]);
 
-        const weekday = new Date(watchDate).toLocaleDateString("en-US", { weekday: "long" });
+        const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
+        const custom = customRes.data.find(
+          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
+        );
+        const standard = standardRes.data.find(
+          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
+        );
 
-        const customSchedule = customRes.data.find(s => s.doctor_id === parseInt(watchDoctor) && s.weekday === weekday);
-        const standardSchedule = standardRes.data.find(s => s.doctor_id === parseInt(watchDoctor) && s.weekday === weekday);
-        const schedule = customSchedule || standardSchedule;
+        let todaySchedule = custom || standard;
 
-        if (!schedule) {
-          setAvailableSlots([]);
-          return;
+        const prevDay = new Date(selDateObj);
+        prevDay.setDate(prevDay.getDate() - 1);
+        const prevWeekday = prevDay.toLocaleDateString("en-US", { weekday: "long" });
+
+        const prevCustom = customRes.data.find(
+          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === prevWeekday
+        );
+        const prevStandard = standardRes.data.find(
+          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === prevWeekday
+        );
+
+        let prevSchedule = prevCustom || prevStandard;
+
+        let allSlots = [];
+
+        if (prevSchedule) {
+          const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
+          const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
+          if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
+            allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
+          }
         }
 
-        let slots = [];
-        let [h, m] = schedule.start_time.split(":").map(Number);
-        const [endH, endM] = schedule.end_time.split(":").map(Number);
+        if (todaySchedule) {
+          const [startH, startM] = todaySchedule.start_time.split(":").map(Number);
+          const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
 
-        while (h < endH || (h === endH && m < endM)) {
-          slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-          m += 30;
-          if (m >= 60) { h++; m -= 60; }
+          if (endH < startH || (endH === startH && endM < startM)) {
+            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
+          } else {
+            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
+          }
         }
 
-        const freeSlots = slots.filter(slot => !bookedRes.data.includes(slot));
-        setAvailableSlots(freeSlots);
+        const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
+          params: { doctor_id: formData.doctor_id, date: selectedDate },
+          withCredentials: true,
+        });
 
+        const bookedSlots = bookedRes.data;
+        setAvailableSlots(allSlots.filter((slot) => !bookedSlots.includes(slot)));
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching available slots:", err.message);
         setAvailableSlots([]);
       }
     };
 
     fetchSlots();
-  }, [watchDate, watchDoctor]);
+  }, [formData.doctor_id, selectedDate, maxDate]);
 
   const openForm = (appointment = null) => {
     if (appointment) {
-      const [month, day, year] = appointment.appointment_datetime.split("-");
       reset({
         patient_id: appointment.patient_id,
         name: appointment.patient_name,
         lastname: appointment.patient_lastname,
         service_id: appointment.service_id,
         doctor_id: appointment.doctor_id,
-        date: `${year}-${month}-${day}`,
-        time: appointment.appointment_time || "09:00",
+        date: appointment.appointment_datetime.split("T")[0],
+        time: appointment.appointment_time || "",
         purpose: appointment.purpose,
       });
       setEditingId(appointment.id);
     } else {
-      reset({ patient_id: "", name: "", lastname: "", service_id: "", doctor_id: "", date: "", time: "", purpose: "" });
+      reset({
+        patient_id: "",
+        name: "",
+        lastname: "",
+        service_id: "",
+        doctor_id: "",
+        date: "",
+        time: "",
+        purpose: "",
+      });
       setEditingId(null);
       setAvailableSlots([]);
     }
     setShowForm(true);
+  };
+
+  const onSubmit = (data) => {
+    if (!data.date || !data.time) {
+      Swal.fire("Missing Info", "Please select date and time.", "warning");
+      return;
+    }
+
+    const payload = {
+      ...data,
+      appointment_datetime: `${data.date}T${data.time}`,
+      status: "pending",
+    };
+
+    const req = editingId
+      ? axios.put(`http://localhost:3001/appointments/${editingId}`, payload, {
+          withCredentials: true,
+        })
+      : axios.post("http://localhost:3001/appointments", payload, {
+          withCredentials: true,
+        });
+
+    req
+      .then(() => {
+        Swal.fire(editingId ? "Updated!" : "Booked!", "", "success");
+        setShowForm(false);
+        axios
+          .get("http://localhost:3001/all-patient-appointments", { withCredentials: true })
+          .then((res) => setAppointments(res.data));
+      })
+      .catch(() => Swal.fire("Error", "Something went wrong", "error"));
   };
 
   const handleDelete = (id) => {
@@ -200,39 +294,16 @@ function PatientAppointments() {
       confirmButtonText: "Delete",
     }).then((result) => {
       if (result.isConfirmed) {
-        axios.delete(`http://localhost:3001/all-patient-appointments/${id}`, { withCredentials: true })
+        axios
+          .delete(`http://localhost:3001/all-patient-appointments/${id}`, {
+            withCredentials: true,
+          })
           .then(() => {
-            setAppointments(prev => prev.filter(a => a.id !== id));
+            setAppointments((prev) => prev.filter((a) => a.id !== id));
             Swal.fire("Deleted!", "", "success");
           })
-          .catch(err => {
-            console.error(err);
-            Swal.fire("Failed to delete", "", "error");
-          });
+          .catch(() => Swal.fire("Failed", "", "error"));
       }
-    });
-  };
-
-  const onSubmit = (data) => {
-    const payload = {
-      ...data,
-      appointment_datetime: `${data.date}T${data.time}`,
-      status: "pending",
-    };
-
-    const req = editingId
-      ? axios.put(`http://localhost:3001/appointments/${editingId}`, payload, { withCredentials: true })
-      : axios.post("http://localhost:3001/appointments", payload, { withCredentials: true });
-
-    req.then(() => {
-      Swal.fire(editingId ? "Updated!" : "Booked!", "", "success");
-      setShowForm(false);
-      axios.get("http://localhost:3001/all-patient-appointments", { withCredentials: true })
-        .then(res => setAppointments(res.data))
-        .catch(err => console.error(err));
-    }).catch(err => {
-      console.error(err);
-      Swal.fire("Something went wrong", "", "error");
     });
   };
 
@@ -245,7 +316,9 @@ function PatientAppointments() {
       <div className="container py-4 flex-grow-1">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>Appointments</h2>
-          <Button variant="success" size="sm" onClick={() => openForm()}>Book Appointment</Button>
+          <Button variant="success" size="sm" onClick={() => openForm()}>
+            Book Appointment
+          </Button>
         </div>
 
         <div className="table-responsive">
@@ -264,20 +337,28 @@ function PatientAppointments() {
             <tbody>
               {appointments.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center">No appointments found</td>
+                  <td colSpan="7" className="text-center">
+                    No appointments found
+                  </td>
                 </tr>
               ) : (
-                appointments.map(app => (
+                appointments.map((app) => (
                   <tr key={app.id}>
                     <td>{app.id}</td>
-                    <td>{app.patient_name} {app.patient_lastname}</td>
+                    <td>
+                      {app.patient_name} {app.patient_lastname}
+                    </td>
                     <td>{app.doctor_name || `${app.doctor_firstname} ${app.doctor_lastname}`}</td>
                     <td>{app.appointment_datetime}</td>
                     <td>{app.purpose}</td>
                     <td>{app.service_name}</td>
-                    <td style={{display:"flex", gap:"5px"}}>
-                      <Button size="sm" variant="outline-success" onClick={() => openForm(app)}>Edit</Button>
-                      <Button size="sm" variant="danger" onClick={() => handleDelete(app.id)}>Delete</Button>
+                    <td style={{ display: "flex", gap: "5px" }}>
+                      <Button size="sm" variant="outline-success" onClick={() => openForm(app)}>
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="danger" onClick={() => handleDelete(app.id)}>
+                        Delete
+                      </Button>
                     </td>
                   </tr>
                 ))
@@ -296,7 +377,11 @@ function PatientAppointments() {
                   <label>Patient</label>
                   <select {...register("patient_id")} className={`form-control ${errors.patient_id ? "is-invalid" : ""}`}>
                     <option value="">Select Patient</option>
-                    {patients.map(p => <option key={p.patient_id} value={p.patient_id}>{p.first_name} {p.last_name}</option>)}
+                    {patients.map((p) => (
+                      <option key={p.patient_id} value={p.patient_id}>
+                        {p.first_name} {p.last_name}
+                      </option>
+                    ))}
                   </select>
                   <div className="invalid-feedback">{errors.patient_id?.message}</div>
                 </div>
@@ -317,7 +402,11 @@ function PatientAppointments() {
                   <label>Service</label>
                   <select {...register("service_id")} className={`form-control ${errors.service_id ? "is-invalid" : ""}`}>
                     <option value="">Select Service</option>
-                    {services.map(s => <option key={s.service_id} value={s.service_id}>{s.service_name}</option>)}
+                    {services.map((s) => (
+                      <option key={s.service_id} value={s.service_id}>
+                        {s.service_name}
+                      </option>
+                    ))}
                   </select>
                   <div className="invalid-feedback">{errors.service_id?.message}</div>
                 </div>
@@ -326,29 +415,45 @@ function PatientAppointments() {
                   <label>Doctor</label>
                   <select {...register("doctor_id")} className={`form-control ${errors.doctor_id ? "is-invalid" : ""}`} disabled={!watchService}>
                     <option value="">Select Doctor</option>
-                    {doctors.map(d => <option key={d.doctor_id} value={d.doctor_id}>{d.first_name} {d.last_name}</option>)}
+                    {doctors.map((d) => (
+                      <option key={d.doctor_id} value={d.doctor_id}>
+                        {d.first_name} {d.last_name}
+                      </option>
+                    ))}
                   </select>
                   <div className="invalid-feedback">{errors.doctor_id?.message}</div>
                 </div>
 
                 <div className="mb-3">
                   <label>Date</label>
-                  <input type="date" {...register("date")} className={`form-control ${errors.date ? "is-invalid" : ""}`} min={new Date().toISOString().split("T")[0]} />
+                  <input
+                    type="date"
+                    {...register("date")}
+                    className={`form-control ${errors.date ? "is-invalid" : ""}`}
+                    min={today.toISOString().split("T")[0]}
+                    max={maxDate.toISOString().split("T")[0]}
+                  />
                   <div className="invalid-feedback">{errors.date?.message}</div>
                 </div>
 
-                {availableSlots.length > 0 && (
+                {watchDate && availableSlots.length > 0 && (
                   <div className="mb-3">
                     <label>Time Slot</label>
                     <select {...register("time")} className={`form-control ${errors.time ? "is-invalid" : ""}`}>
                       <option value="">Select Time Slot</option>
-                      {availableSlots.map(slot => <option key={slot} value={slot}>{slot}</option>)}
+                      {availableSlots.map((slot) => (
+                        <option key={slot} value={slot}>
+                          {slot}
+                        </option>
+                      ))}
                     </select>
                     <div className="invalid-feedback">{errors.time?.message}</div>
                   </div>
                 )}
 
-                {watchDate && availableSlots.length === 0 && <div className="alert alert-warning">No available slots for this date.</div>}
+                {watchDate && availableSlots.length === 0 && (
+                  <div className="alert alert-warning">No available slots for this date.</div>
+                )}
 
                 <div className="mb-3">
                   <label>Purpose</label>
@@ -356,14 +461,17 @@ function PatientAppointments() {
                 </div>
 
                 <div className="d-flex">
-                  <Button type="submit" size="sm" variant="success" className="me-2">{editingId ? "Update" : "Book"}</Button>
-                  <Button type="button" size="sm" variant="danger" onClick={() => setShowForm(false)}>Cancel</Button>
+                  <Button type="submit" size="sm" variant="success" className="me-2">
+                    {editingId ? "Update" : "Book"}
+                  </Button>
+                  <Button type="button" size="sm" variant="danger" onClick={() => setShowForm(false)}>
+                    Cancel
+                  </Button>
                 </div>
               </form>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
