@@ -202,6 +202,7 @@ const updateAppointmentByAdmin = (appointmentId, data, callback) => {
   );
 };
 
+
 module.exports = {
   getAllServices,
   getDoctorsByDepartment,
@@ -214,5 +215,6 @@ module.exports = {
   updateAppointmentStatus,
   getAllAppointmentsByDoctor,
   getAppointmentById,
-  updateAppointmentByAdmin
+  updateAppointmentByAdmin,
+  
 };

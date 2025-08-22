@@ -1,7 +1,7 @@
 const bcrypt=require('bcrypt');
 const {createDoctor} = require('../Model/doctorModel');
 const {getDocPasswordById,updateDoctorById,getAllDoctors,
-    deleteDoctor,getDoctorById,getStaff,getAllActiveDoctors
+    deleteDoctor,getDoctorById,getStaff,getAllActiveDoctors,getAllPatients, getAppointmentNumber
 }=require('../Model/doctorModel');
 const db=require('../db');
 
@@ -216,6 +216,29 @@ const getAllActiveDoctorsHandler = (req, res) => {
   });
 };
 
+const getAllPatientsHandler=(req,res)=>{
+    const doctorId= req.user.id;
+    getAllPatients(doctorId,(err,results)=>{
+        if(err){
+            console.error('Database error:',err);
+            return res.status(500).json({error: 'Database error'});
+        }
+        const {first_name,last_name, total_patients}=results[0];
+        res.json({first_name,last_name,total_patients});
+    });
+}
+const getAppointmentNumberHandler=(req,res)=>{
+    const doctorId=req.user.id;
+    getAppointmentNumber(doctorId,(err,results)=>{
+        if(err){
+            console.error('Database error:',err);
+            return res.status(500).json({error: 'Database error'});
+        }
+        const {total_appointments }=results[0];
+        res.json({total_appointments });
+    });
+}
+
 
 module.exports={
     createDoctorHandler,
@@ -226,7 +249,9 @@ module.exports={
     getAppointments,
     getStaffHandler,
     getAllActiveDoctorsHandler,
-    getDoctorByIdAdminHandler
+    getDoctorByIdAdminHandler,
+    getAllPatientsHandler,
+    getAppointmentNumberHandler
     
 };
   

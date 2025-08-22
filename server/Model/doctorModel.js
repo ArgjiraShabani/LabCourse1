@@ -138,6 +138,26 @@ const getAllActiveDoctors = (callback) => {
   });
 };
 
+const getAllPatients=(doctorId,callback)=>{
+  const query= `SELECT d.first_name, d.last_name, COUNT(a.patient_id) AS total_patients
+FROM doctors d left join appointments a
+ON d.doctor_id=a.doctor_id
+WHERE d.doctor_id=?
+GROUP BY  d.doctor_id;`;
+  db.query(query,[doctorId],(err,results)=>{
+    callback(err,results);
+  });
+};
+const getAppointmentNumber=(doctorId,callback)=>{
+  const query=`SELECT COUNT(a.appointment_id) AS total_appointments
+FROM doctors d left join appointments a
+ON d.doctor_id=a.doctor_id
+WHERE d.doctor_id=?
+GROUP BY  d.doctor_id`;
+db.query(query,[doctorId],callback);
+}
+
+
 
 module.exports={
     createDoctor,
@@ -147,5 +167,7 @@ module.exports={
     deleteDoctor,
     getDoctorById,
     getStaff,
-    getAllActiveDoctors
+    getAllActiveDoctors,
+    getAllPatients,
+    getAppointmentNumber
 };
