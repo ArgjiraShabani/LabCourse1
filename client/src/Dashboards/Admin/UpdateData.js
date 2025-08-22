@@ -47,6 +47,55 @@ function UpdateData(){
       }
     });
 }, []);
+const [bookingDaysLimit, setBookingDaysLimit] = useState(30);
+
+useEffect(() => {
+  axios
+    .get("http://localhost:3001/api/settings", { withCredentials: true })
+    .then((res) => {
+      if (res.data && res.data.booking_days_limit !== undefined && res.data.booking_days_limit !== null) {
+        setBookingDaysLimit(Number(res.data.booking_days_limit)); 
+      }
+    })
+    .catch((err) => console.error("Error fetching settings:", err));
+}, []);
+
+const handleSaveSettings = () => {
+  Swal.fire({
+    title: "Are you sure about updating settings?",
+    showCancelButton: true,
+    confirmButtonColor: "#51A485",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Save",
+  }).then((result) => {
+    if (result.isConfirmed) {
+       console.log("Saving settings:", bookingDaysLimit);
+      axios
+        .put(
+          "http://localhost:3001/api/settings",
+          { booking_days_limit: Number(bookingDaysLimit) || 0 }, 
+          { withCredentials: true }
+        )
+        .then(() => {
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Settings updated!",
+            showConfirmButton: false,
+            timer: 1100,
+          });
+        })
+        .catch((err) => {
+          console.error("Error updating settings:", err);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Could not update settings.",
+          });
+        });
+    }
+  });
+};
 
     const [blood,setBlood]=useState([]);
     const [role,setRole]=useState([]);
@@ -123,7 +172,7 @@ const {
        fetchBlood();
     },[]);
 
-  /* function fetchRoles(){
+     /* function fetchRoles(){
      axios.get("http://localhost:3001/api/roles").then((response)=>{
             console.log(response.data);
             setRole(response.data);
@@ -314,7 +363,7 @@ function handleDeleteBlood(id,nameData){
 
 
 
-    /*function handleAddRole(event){
+      /*function handleAddRole(event){
       
       Swal.fire({
             title: "Are you sure about adding?",
@@ -424,7 +473,7 @@ function handleDeleteBlood(id,nameData){
       <Sidebar role="admin" />
       <div className="container py-4 flex-grow-1">
       
- {/*<div className="container py-4 flex-grow-1">
+       {/*<div className="container py-4 flex-grow-1">
       <label>Add Role:</label>
       <form className="d-flex" onSubmit={handleSubmitRole(handleAddRole)}>
       
@@ -604,7 +653,25 @@ function handleDeleteBlood(id,nameData){
             </tbody>
           </table>
         </div>
-        
+    <div className="container mt-4">
+      <label>Booking Days Limit:</label>
+      <div className="d-flex">
+        <input
+          type="number"
+          className="form-control me-2"
+          value={bookingDaysLimit}
+          onChange={(e) => setBookingDaysLimit(e.target.value) || 0}
+          min={1}
+        />
+        <Button
+          style={{ backgroundColor: "#51A485", borderColor: "white" }}
+          onClick={handleSaveSettings}
+        >
+          Save
+        </Button>
+      </div>
+    </div>
+
       </div>
     </div>
     )
