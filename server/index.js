@@ -32,6 +32,7 @@ const logoutRoutes = require("./Routes/logoutRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 const adminController = require("./Controllers/adminController");
 const settingsRoutes = require('./Routes/settingsRoutes');
+const initAdminUser=require("./Routes/initAdmin");
 
 app.use(
   cors({
@@ -43,7 +44,7 @@ app.use("/reports", express.static(path.join(__dirname, "public/reports")));
 
 app.use(express.json());
 app.use(cookieParser());
-
+initAdminUser();
 app.use("/", loginRoutes);
 app.use("/", logoutRoutes);
 app.use("/", pRPatient);

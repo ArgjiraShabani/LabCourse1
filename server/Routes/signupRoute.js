@@ -2,6 +2,7 @@ const db = require("../db"); // Your MySQL connection
 const express = require("express");
 const router = express.Router();
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 
 
 
@@ -55,13 +56,18 @@ router.post('/signup',(req,res)=>{
                                       }  
                                         if(data.length>0){
                                           const genderId=data[0].gender_id;
-                                              db.query("INSERT INTO patients(first_name,last_name,email,password,phone,role_id,gender_id,status_id,date_of_birth,blood_id,image_path)value(?,?,?,?,?,?,?,?,?,?,?)",[name,lastname,email,password,phone,roleId,genderId,statusId,birth,bloodId,image],(err,data)=>{
-                                                   if(err){
-                                                        return res.json("Error");
-                                                      }
-                                                      return res.json("");
-                                                      
-                                              });
+                                         bcrypt.hash(password, 10).then((hashedPassword) => {
+                                                  db.query("INSERT INTO patients (first_name, last_name, email, password, phone, role_id, gender_id, status_id, date_of_birth, blood_id, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                                                  [name, lastname, email, hashedPassword, phone, roleId, genderId, statusId, birth, bloodId, image], (err, data) => {
+                                                    if (err) {
+                                                      return res.json("Insert error: " + err.message);
+                                                    }
+                                                    return res.json("");
+                                                  });
+                                                }).catch((err) => {
+                                                  return res.json("Password hash error: " + err.message);
+                                                });
+                                            
                                            }else{
                                               return res.json("Gender not found!");
                                            }

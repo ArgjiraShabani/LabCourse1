@@ -3,12 +3,15 @@ import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaUserInjured, FaCalendarCheck, FaUserMd , FaSmile} from "react-icons/fa";
+
 
 const API_BASE_URL = "http://localhost:3001";
 
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [editingAppointment, setEditingAppointment] = useState(null);
+  const [numberAppointments,setNumberAppointments]=useState(null);
   const [formData, setFormData] = useState({
     name: "",
     lastname: "",
@@ -22,7 +25,11 @@ const MyAppointments = () => {
       .get(`${API_BASE_URL}/my-appointments`, {
         withCredentials: true,
       })
-      .then((res) => setAppointments(res.data))
+      .then((res) =>{
+           setAppointments(res.data);
+           setNumberAppointments(res.data.length);
+           
+  })
       .catch((err) => {
         console.error("Error fetching appointments:", err);
         Swal.fire({
@@ -32,7 +39,7 @@ const MyAppointments = () => {
           confirmButtonColor: "#51A485",
         }).then(() => navigate("/login"));
       });
-  }, [navigate]);
+  }, [navigate,appointments]);
 
   const cancelAppointment = (appointmentId) => {
     Swal.fire({
@@ -166,7 +173,36 @@ const MyAppointments = () => {
       <Sidebar role="patient" id={id} />
       <div className="container py-4 flex-grow-1">
         <h2 className="mb-4 fw-bold">My Appointments</h2>
-
+        <div 
+          style={{
+            width: "100%",
+            //maxWidth: "1200px",
+            backgroundColor: "#fff",
+            borderRadius: "12px",
+            padding: "30px",
+            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
+            marginBottom: "20px"
+          }}>
+                <div className="row g-4">
+                    
+                      <div className="col-12">
+                        <div
+                        className="card text-white h-100"
+                        style={{backgroundColor: "#4e73df", borderRadius: "15px"}}
+                        >
+                          <div className="card-body d-flex align-items-center">
+                            <FaCalendarCheck size={40} className="me-3"/>
+                            <div>
+                              <h5 className="card-title">Appointments</h5>
+                              <h3>{numberAppointments}</h3>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                     </div>
+                   
+                </div>
+                
         <div className="table-responsive">
           <table className="table table-bordered table-hover align-middle">
             <thead className="table-light">
