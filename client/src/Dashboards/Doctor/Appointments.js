@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
   baseURL: "http://localhost:3001",
@@ -10,29 +11,61 @@ const api = axios.create({
 
 const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchAppointments();
-  }, []);
+    const checkUserRole = async () => {
+      try {
+        const res = await axios.get("http://localhost:3001/me", { withCredentials: true });
+        const currentUser = res.data.user;
 
-  const fetchAppointments = () => {
-    api
-      .get("/doctor-appointments")
-      .then((response) => {
-        const sorted = response.data.sort(
-          (a, b) =>
-            new Date(a.appointment_datetime) - new Date(b.appointment_datetime)
-        );
-        setAppointments(sorted);
-      })
-      .catch((error) => {
-        console.error("Error fetching appointments:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "An error occurred while fetching appointments.",
-        });
+        if (!currentUser || currentUser.role !== "doctor") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only doctors can access this page.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+          return;
+        }
+
+        setUser(currentUser);
+        fetchAppointments();
+      } catch (err) {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/login");
+        } else {
+          console.error("Unexpected error", err);
+        }
+      }
+    };
+
+    checkUserRole();
+  }, [navigate]);
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await api.get("/doctor-appointments");
+      const sorted = response.data.sort(
+        (a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime)
+      );
+      setAppointments(sorted);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while fetching appointments.",
       });
+    }
   };
 
   const isToday = (dateStr) => {
@@ -78,25 +111,16 @@ const Appointment = () => {
             });
           })
           .catch((err) => {
-            const message =
-              err.response?.data?.error || "Status update failed.";
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: message,
-            });
+            const message = err.response?.data?.error || "Status update failed.";
+            Swal.fire({ icon: "error", title: "Error", text: message });
             console.error("Error updating status:", err.response || err);
           });
       }
     });
   };
 
-  const todaysAppointments = appointments.filter((a) =>
-    isToday(a.appointment_datetime)
-  );
-  const otherAppointments = appointments.filter(
-    (a) => !isToday(a.appointment_datetime)
-  );
+  const todaysAppointments = appointments.filter((a) => isToday(a.appointment_datetime));
+  const otherAppointments = appointments.filter((a) => !isToday(a.appointment_datetime));
 
   const renderTable = (appointmentsList, disableStatusChange) => (
     <table className="table table-bordered table-striped">
@@ -115,30 +139,16 @@ const Appointment = () => {
       <tbody>
         {appointmentsList.length > 0 ? (
           appointmentsList.map((appointment, index) => {
-            const status = (appointment.status || "pending")
-              .toLowerCase()
-              .trim();
-
+            const status = (appointment.status || "pending").toLowerCase().trim();
             const appointmentId = appointment.id || appointment.appointment_id;
-            const patientName =
-              appointment.patient_name ||
-              appointment.name || 
-              "";
-            const patientLastname =
-              appointment.patient_lastname ||
-              appointment.lastname || 
-              "";
+            const patientName = appointment.patient_name || appointment.name || "";
+            const patientLastname = appointment.patient_lastname || appointment.lastname || "";
 
             return (
-              <tr
-                key={appointmentId}
-                className={status === "completed" ? "table-success" : ""}
-              >
+              <tr key={appointmentId} className={status === "completed" ? "table-success" : ""}>
                 <td>{index + 1}</td>
                 <td>{`${patientName} ${patientLastname}`}</td>
-                <td>
-                  {new Date(appointment.appointment_datetime).toLocaleString()}
-                </td>
+                <td>{new Date(appointment.appointment_datetime).toLocaleString()}</td>
                 <td>{appointment.purpose}</td>
                 <td>{appointment.booked_by}</td>
                 <td>{appointment.service_name}</td>
@@ -147,11 +157,7 @@ const Appointment = () => {
                   {status !== "completed" && !disableStatusChange ? (
                     <button
                       onClick={() =>
-                        updateStatus(
-                          appointmentId,
-                          "completed",
-                          appointment.appointment_datetime
-                        )
+                        updateStatus(appointmentId, "completed", appointment.appointment_datetime)
                       }
                       className="btn btn-success btn-sm"
                     >

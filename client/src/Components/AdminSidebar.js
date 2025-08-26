@@ -58,7 +58,7 @@ const Sidebar = ({ role, id }) => {
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/ManageDepartments/${id}`}
+                  to={`/ManageDepartments`}
                   className="nav-link text-white hover-link"
                 >
                   Departments
@@ -66,7 +66,7 @@ const Sidebar = ({ role, id }) => {
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/ManageServices/${id}`}
+                  to={`/ManageServices`}
                   className="nav-link text-white hover-link"
                 >
                   Services
@@ -143,7 +143,7 @@ const Sidebar = ({ role, id }) => {
                   <ul className="submenu list-unstyled ps-3">
                     <li className="nav-item mb-2">
                       <Link
-                        to={`/ManageSchedule/${id}`}
+                        to={`/ManageSchedule`}
                         className="nav-link text-white hover-link"
                       >
                         Standard Schedule
@@ -151,7 +151,7 @@ const Sidebar = ({ role, id }) => {
                     </li>
                     <li className="nav-item mb-2">
                       <Link
-                        to={`/WeeklySchedule/${id}`}
+                        to={`/WeeklySchedule`}
                         className="nav-link text-white hover-link"
                       >
                         Weekly Schedule
@@ -159,7 +159,7 @@ const Sidebar = ({ role, id }) => {
                     </li>
                   </ul>
                 )}
-              </li>
+                </li>
               <li className="nav-item mb-2">
                 <Link
                   to={`/FeedbacksAdmin/`}

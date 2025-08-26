@@ -1,4 +1,3 @@
-
 import './App.css';
 import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
@@ -70,17 +69,17 @@ function Layout() {
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
           <Route path='/myprofile/:id' element={<MyProfile/>}></Route>--------------
           <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
-          <Route path="/ManageDepartments/:id" element={<ManageDepartments />}></Route>+++++++++++++
-          <Route path="/ManageServices/:id" element={<ManageServices />} />+++++++++++++++
+          <Route path="/ManageDepartments" element={<ManageDepartments />}></Route>
+          <Route path="/ManageServices" element={<ManageServices />} />
           <Route path='/login' element={<Login/>}></Route>
           <Route path='/patient' element={<Patient/>}></Route>--------------------------
           <Route path='/registerPatient' element={<Register/>}></Route>
-          <Route path="/ManageSchedule/:id" element={<ManageSchedule />} />++++++++++++++
+           <Route path="/ManageSchedule" element={<ManageSchedule />} />++++++++++++++
           <Route path='/signUp' element={<SignUp/>}></Route>
           <Route path="/DoctorSchedule" element={<DoctorSchedule />} />+++++++++++++++++++++++
           <Route path="/BookAppointments" element={<BookAppointments />} />---------------
           <Route path="/FeedbacksAdmin/" element={<FeedbacksAdmin />} />------------------
-          <Route path="/WeeklySchedule/:id" element={<WeeklySchedule />} />+++++++++++++++++++
+          <Route path="/WeeklySchedule" element={<WeeklySchedule />} />+++++++++++++++++++
           <Route path="/Appointment/:id" element={<Appointment />} />
           <Route path="/patientAppointments" element={<PatientAppointments/>}/>+++++++++++++++++++++
           <Route path='/logout' element={<LogOut/>}/>---------------------------

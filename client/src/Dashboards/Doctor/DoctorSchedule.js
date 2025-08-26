@@ -8,6 +8,7 @@ const apiDoctor = axios.create({
   baseURL: "http://localhost:3001/doctor",
   withCredentials: true,
 });
+
 const apiSchedule = axios.create({
   baseURL: "http://localhost:3001/api",
   withCredentials: true,
@@ -42,16 +43,27 @@ const DoctorSchedule = () => {
           navigate("/");
         }
       })
-      .catch(() => {
-        Swal.fire({
-          icon: "error",
-          title: "Access Denied",
-          text: "Authentication failed. Please login.",
-          confirmButtonColor: "#51A485",
-        });
-        navigate("/");
+      .catch((err) => {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        } else {
+          console.error("Unexpected error", err);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Unexpected error occurred.",
+            confirmButtonColor: "#51A485",
+          });
+        }
       });
   }, [navigate]);
+
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
@@ -62,13 +74,10 @@ const DoctorSchedule = () => {
 
         const weekly = resWeekly.data;
         const standard = resStandard.data;
+
         const formatted = {};
         days.forEach((day) => {
-          formatted[day] = {
-            start_time: "-",
-            end_time: "-",
-            isException: false,
-          };
+          formatted[day] = { start_time: "-", end_time: "-", isException: false };
         });
 
         standard.forEach((item) => {

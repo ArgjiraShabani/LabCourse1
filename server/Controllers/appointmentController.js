@@ -76,18 +76,18 @@ const deleteAppointment = (req, res) => {
 };
 
 const getMyAppointments = (req, res) => {
-  const patientId = req.user.id; 
-
-  if (!patientId) {
-    return res.status(400).json({ error: "patient_id is required" });
+  if (!req.user) {
+    return res.status(401).json({ error: "Not logged in" });
   }
+
+  const patientId = req.user.id;
 
   appointmentModel.getAppointmentsByPatient(patientId, (err, results) => {
     if (err) {
       console.error("Error fetching appointments:", err);
       return res.status(500).json({ error: "Internal server error" });
     }
-    res.json(results);
+    res.json({ user: req.user, appointments: results });
   });
 };
 

@@ -19,7 +19,7 @@ async function initAdminUser() {
         const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
         const insertQuery = 'INSERT INTO admin (first_name,last_name,email, password,role_id) VALUES (?,?,?,?,?)';
-        await db.promise().query(insertQuery, ["Admin","Admin",email, hashedPassword,4]);
+        await db.promise().query(insertQuery, ["Admin","Admin",email, hashedPassword,1]);
 
         console.log('Admin user created successfully.');
     } catch (err) {
@@ -28,3 +28,4 @@ async function initAdminUser() {
 }
 
 module.exports = initAdminUser;
+
