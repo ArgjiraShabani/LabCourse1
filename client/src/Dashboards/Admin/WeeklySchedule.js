@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { startOfWeek, addDays, format, parseISO } from "date-fns";
+
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
   withCredentials: true,
@@ -18,7 +19,6 @@ const WeeklySchedule = () => {
   const [error, setError] = useState("");
   const [schedules, setSchedules] = useState([]);
   const navigate = useNavigate();
-  const { id } = useParams();
 
   const days = [
     "Monday",
@@ -31,39 +31,33 @@ const WeeklySchedule = () => {
   ];
 
   useEffect(() => {
-    if (!id) {
-      Swal.fire({
-        icon: "error",
-        title: "Access Denied",
-        text: "Invalid user id.",
-      });
-      navigate("/");
-      return;
-    }
-
     axios
-      .get(`http://localhost:3001/WeeklySchedule/${id}`, {
-        withCredentials: true,
-      })
+      .get(`http://localhost:3001/WeeklySchedule`, { withCredentials: true })
       .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
             icon: "error",
             title: "Access Denied",
             text: "Only admin can access this page.",
+            confirmButtonColor: "#51A485",
           });
           navigate("/");
         }
       })
-      .catch(() => {
-        Swal.fire({
-          icon: "error",
-          title: "Access Denied",
-          text: "Authentication failed.",
-        });
-        navigate("/");
+      .catch((err) => {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        } else {
+          console.error("Unexpected error", err);
+        }
       });
-  }, [id, navigate]);
+  }, [navigate]);
 
   const getWeekDates = () => {
     const today = new Date();
@@ -79,17 +73,9 @@ const WeeklySchedule = () => {
     fetchAllSchedules();
   }, []);
 
-  useEffect(() => {
-    if (selectedDoctor) {
-      fetchWeeklySchedule(selectedDoctor);
-    } else {
-      setWeeklyData({});
-    }
-  }, [selectedDoctor, weekDates]);
-
   const fetchDoctors = async () => {
     try {
-      const res = await api.get("/allDoctors");
+      const res = await api.get("/alldoctors");
       setDoctors(res.data);
       setError("");
     } catch (err) {
@@ -98,28 +84,8 @@ const WeeklySchedule = () => {
     }
   };
 
-  const fetchWeeklySchedule = async (doctorId) => {
-    try {
-      const res = await api.get(`/weekly-schedules/${doctorId}`);
-      const scheduleMap = {};
-      res.data.forEach((item) => {
-        scheduleMap[item.date] = {
-          ...item,
-          start_time: item.start_time?.slice(0, 5),
-          end_time: item.end_time?.slice(0, 5),
-          schedule_id: item.schedule_id,
-          is_custom: item.is_custom || false,
-        };
-      });
-      setWeeklyData(scheduleMap);
-      setError("");
-    } catch (err) {
-      console.error("Error fetching weekly schedule:", err);
-      setError("Error while fetching the weekly schedule");
-    }
-  };
-
-  const fetchAllSchedules = async () => {
+  // Merr të gjitha oraret e veçanta
+  const fetchAllSchedules = useCallback(async () => {
     try {
       const res = await api.get("/weekly-schedules");
       setSchedules(res.data);
@@ -128,8 +94,38 @@ const WeeklySchedule = () => {
       console.error("Error fetching schedules:", err);
       setError("Error while fetching existing schedules");
     }
-  };
+  }, []);
+  const fetchWeeklySchedule = useCallback(
+    async (doctorId) => {
+      try {
+        const res = await api.get(`/weekly-schedules/${doctorId}`);
+        const scheduleMap = {};
+        res.data.forEach((item) => {
+          scheduleMap[item.date] = {
+            ...item,
+            start_time: item.start_time?.slice(0, 5),
+            end_time: item.end_time?.slice(0, 5),
+            schedule_id: item.schedule_id,
+            is_custom: item.is_custom || false,
+          };
+        });
+        setWeeklyData(scheduleMap);
+        setError("");
+      } catch (err) {
+        console.error("Error fetching weekly schedule:", err);
+        setError("Error while fetching the weekly schedule");
+      }
+    },
+    []
+  );
 
+  useEffect(() => {
+    if (selectedDoctor) {
+      fetchWeeklySchedule(selectedDoctor);
+    } else {
+      setWeeklyData({});
+    }
+  }, [selectedDoctor, weekDates, fetchWeeklySchedule]);
   const handleChange = (date, field, value) => {
     setWeeklyData((prev) => ({
       ...prev,
@@ -198,8 +194,8 @@ const WeeklySchedule = () => {
         timer: 1500,
         showConfirmButton: false,
       });
-      fetchWeeklySchedule(selectedDoctor);
-      fetchAllSchedules();
+      await fetchWeeklySchedule(selectedDoctor);
+      await fetchAllSchedules();
     } catch (err) {
       console.error("Error saving schedule:", err);
       setError("Error while saving the schedule");
@@ -225,18 +221,22 @@ const WeeklySchedule = () => {
     });
   };
 
-  const handleDeleteSchedule = async (scheduleId) => {
+  const handleDeleteSchedule = async (schedule_id) => {
     try {
-      await api.delete(`/weekly-schedules/${scheduleId}`);
+      await api.delete(`/weekly-schedules/${schedule_id}`);
       Swal.fire({
         icon: "success",
         title: "Deleted",
-        text: "Schedule deleted successfully",
+        text: "Schedule deleted successfully!",
         timer: 1500,
         showConfirmButton: false,
       });
-      fetchAllSchedules();
-      if (selectedDoctor) fetchWeeklySchedule(selectedDoctor);
+
+      await fetchAllSchedules();
+
+      if (selectedDoctor) {
+        await fetchWeeklySchedule(selectedDoctor);
+      }
     } catch (err) {
       console.error("Error deleting schedule:", err);
       setError("Error while deleting the schedule");
@@ -267,7 +267,12 @@ const WeeklySchedule = () => {
         </div>
 
         {selectedDoctor && (
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSave();
+            }}
+          >
             {weekDates.map((date) => (
               <div key={date} className="border p-3 rounded mb-3">
                 <strong>{format(parseISO(date), "EEEE, dd MMM yyyy")}</strong>
@@ -299,13 +304,13 @@ const WeeklySchedule = () => {
             ))}
 
             <button
+              type="submit"
               className="btn mt-3"
               style={{
                 backgroundColor: "#51A485",
                 borderColor: "#51A485",
                 color: "white",
               }}
-              onClick={handleSave}
               disabled={loading}
             >
               {loading ? "Saving..." : "Save Changes"}
@@ -331,7 +336,7 @@ const WeeklySchedule = () => {
                   .filter(
                     (item) =>
                       !selectedDoctor ||
-                      item.doctor_id === parseInt(selectedDoctor)
+                      item.doctor_id === parseInt(selectedDoctor, 10)
                   )
                   .reduce((acc, item) => {
                     let existing = acc.find(
