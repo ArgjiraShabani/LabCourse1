@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'; 
 import Sidebar from '../../Components/AdminSidebar';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { 
   FaUserShield, FaProcedures, FaUserMd, FaBuilding, FaCalendarCheck, FaFileAlt 
 } from 'react-icons/fa';
@@ -17,7 +19,7 @@ import {
   Legend,
 } from 'chart.js';
 
-import { Bar, Line } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -29,6 +31,11 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+const api = axios.create({
+  baseURL: "http://localhost:3001/api",
+  withCredentials: true,
+});
 
 const monthTranslations = {
   'Jan': 'Jan', 'Feb': 'Feb', 'Mar': 'Mar', 'Apr': 'Apr', 'May': 'May', 'Jun': 'Jun',
@@ -53,12 +60,41 @@ const AdminDashboard = () => {
     counts: []
   });
 
+  const navigate = useNavigate();
   useEffect(() => {
-    axios.get('http://localhost:3001/api/admin/stats')
+    axios.get(`http://localhost:3001/AdminDashboard`, { withCredentials: true }) 
+      .then((res) => {
+        if (res.data.user?.role !== "admin") {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only admin can access this page.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        }
+      })
+      .catch((err) => {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        } else {
+          console.error("Unexpected error", err);
+        }
+      });
+  }, [navigate]);
+
+  useEffect(() => {
+    api.get("/admin/stats")
       .then(response => setStats(response.data))
       .catch(error => console.error(error));
 
-    axios.get(`http://localhost:3001/api/admin/monthly-appointments?year=${new Date().getFullYear()}`)
+    api.get(`/admin/monthly-appointments?year=${new Date().getFullYear()}`)
       .then(response => setMonthlyAppointments(response.data))
       .catch(error => console.error(error));
   }, []);
@@ -73,7 +109,6 @@ const AdminDashboard = () => {
   ];
 
   const maxCount = Math.max(...cardData.map(card => card.count), 1);
-
   const translatedMonths = monthlyAppointments.months.map(m => monthTranslations[m] || m);
 
   const lineChartData = {
@@ -99,29 +134,20 @@ const AdminDashboard = () => {
       tooltip: { enabled: true }
     },
     scales: {
-      x: { 
-        ticks: { color: '#6c757d', font: { size: 14 } },
-        grid: { display: false }
-      },
-      y: { 
-        beginAtZero: true,
-        ticks: { color: '#6c757d', font: { size: 14 } },
-        grid: { color: '#e9ecef' }
-      }
+      x: { ticks: { color: '#6c757d', font: { size: 14 } }, grid: { display: false } },
+      y: { beginAtZero: true, ticks: { color: '#6c757d', font: { size: 14 } }, grid: { color: '#e9ecef' } }
     }
   };
 
   return (
     <div className="d-flex" style={{ minHeight: '100vh' }}>
       <Sidebar role="admin" />
-
       <div className="flex-grow-1 p-4">
         <h2 className="mb-4">Welcome to the Admin Dashboard</h2>
 
         <div className="row">
           {cardData.map((card, index) => {
             const percent = (card.count / maxCount) * 100;
-
             return (
               <div className="col-md-4 mb-4" key={index}>
                 <div className={`card border-${card.color} shadow-sm h-100`}>
@@ -149,15 +175,8 @@ const AdminDashboard = () => {
         </div>
 
         {monthlyAppointments.counts.length > 0 && (
-          <div 
-            className="card p-4 shadow-sm mt-4" 
-            style={{ height: '300px', overflow: 'hidden' }}
-          >
-            <Line 
-              data={lineChartData} 
-              options={lineChartOptions} 
-              style={{ height: '250px' }} 
-            />
+          <div className="card p-4 shadow-sm mt-4" style={{ height: '300px', overflow: 'hidden' }}>
+            <Line data={lineChartData} options={lineChartOptions} style={{ height: '250px' }} />
           </div>
         )}
       </div>

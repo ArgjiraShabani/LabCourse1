@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -18,43 +18,36 @@ const ManageServices = () => {
   const [editingServiceId, setEditingServiceId] = useState(null);
 
   const navigate = useNavigate();
-  const { id } = useParams();
 
-  useEffect(() => {
-    if (!id) {
-      Swal.fire({
-        icon: "error",
-        title: "Access Denied",
-        text: "Invalid user id.",
-        confirmButtonColor: "#51A485",
-      });
-      navigate("/");
-      return;
-    }
-
-    axios
-      .get(`http://localhost:3001/adminDashboard/${id}`, { withCredentials: true })
-      .then((res) => {
-        if (res.data.user?.role !== "admin") {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Only admin can access this page.",
-            confirmButtonColor: "#51A485",
-          });
-          navigate("/");
-        }
-      })
-      .catch(() => {
+   useEffect(() => {
+  api
+    .get("/ManageServices")
+    .then((res) => {
+      if (res.data.user?.role !== "admin") {
         Swal.fire({
           icon: "error",
           title: "Access Denied",
-          text: "Authentication failed.",
+          text: "Only admin can access this page.",
           confirmButtonColor: "#51A485",
         });
         navigate("/");
-      });
-  }, [id, navigate]);
+      }
+    })
+    .catch((err) => {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    });
+}, []);
+
 
   useEffect(() => {
     fetchDepartments();

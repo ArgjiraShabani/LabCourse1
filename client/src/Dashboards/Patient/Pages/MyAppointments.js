@@ -3,6 +3,7 @@ import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaUserInjured, FaCalendarCheck, FaUserMd , FaSmile} from "react-icons/fa";
 
 const api = axios.create({
   baseURL: "http://localhost:3001",
@@ -12,6 +13,7 @@ const api = axios.create({
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [editingAppointment, setEditingAppointment] = useState(null);
+   const [numberAppointments,setNumberAppointments]=useState(null);
   const [formData, setFormData] = useState({ name: "", lastname: "", purpose: "" });
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
@@ -45,7 +47,10 @@ const MyAppointments = () => {
           return;
         }
 
-        setAppointments(res.data.appointments || []);
+         const appointments = res.data.appointments || [];
+  setAppointments(appointments);
+  setNumberAppointments(appointments.length);
+
         setLoading(false);
       })
       .catch((err) => {
@@ -67,7 +72,7 @@ const MyAppointments = () => {
           });
         }
       });
-  }, [navigate]);
+  }, [navigate,appointments]);
 
   const cancelAppointment = (appointmentId) => {
     Swal.fire({
@@ -186,87 +191,136 @@ const MyAppointments = () => {
   }
 
   return (
-    <div className="d-flex" style={{ minHeight: "100vh" }}>
-      <Sidebar role="patient" id={id} />
-      <div className="container py-4 flex-grow-1">
-        <h2 className="mb-4 fw-bold">My Appointments</h2>
-
-        {appointments.length === 0 && <div className="alert alert-info">No appointments found.</div>}
-
-        {appointments.length > 0 && (
-          <div className="table-responsive">
-            <table className="table table-bordered table-hover align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>ID</th>
-                  <th>First Name</th>
-                  <th>Last Name</th>
-                  <th>Doctor</th>
-                  <th>Date & Time</th>
-                  <th>Purpose</th>
-                  <th>Service</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((appointment) => (
-                  <tr key={appointment.id}>
-                    <td>{appointment.id || "-"}</td>
-                    <td>{appointment.patient_name || "-"}</td>
-                    <td>{appointment.patient_lastname || "-"}</td>
-                    <td>
-                      {(appointment.doctor_firstname || "-") + " " + (appointment.doctor_lastname || "")}
-                    </td>
-                    <td>
-                      {appointment.appointment_datetime
-                        ? new Date(appointment.appointment_datetime).toLocaleString()
-                        : "-"}
-                    </td>
-                    <td>{appointment.purpose || "-"}</td>
-                    <td>{appointment.service_name || "-"}</td>
-                    <td>
-                      <button onClick={() => cancelAppointment(appointment.id)} className="btn btn-danger btn-sm me-2">
-                        Cancel
-                      </button>
-                      <button onClick={() => editAppointment(appointment.id)} className="btn btn-primary btn-sm">
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {editingAppointment && (
-          <div className="card mt-4">
-            <div className="card-body">
-              <h5 className="card-title">Edit Appointment #{editingAppointment}</h5>
-              <div className="mb-3">
-                <label className="form-label">First Name</label>
-                <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
+  <div className="d-flex" style={{ minHeight: "100vh" }}>
+    <Sidebar role="patient" id={id} />
+    <div 
+      style={{
+        width: "100%",
+        backgroundColor: "#fff",
+        borderRadius: "12px",
+        padding: "30px",
+        boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
+        marginBottom: "20px"
+      }}
+    >
+      <div className="row g-4">
+        <div className="col-12">
+          <div
+            className="card text-white h-100"
+            style={{ backgroundColor: "#4e73df", borderRadius: "15px" }}
+          >
+            <div className="card-body d-flex align-items-center">
+              <FaCalendarCheck size={40} className="me-3" />
+              <div>
+                <h5 className="card-title">Appointments</h5>
+                <h3>{numberAppointments}</h3>
               </div>
-              <div className="mb-3">
-                <label className="form-label">Last Name</label>
-                <input type="text" name="lastname" className="form-control" value={formData.lastname} onChange={handleChange} />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Purpose</label>
-                <input type="text" name="purpose" className="form-control" value={formData.purpose} onChange={handleChange} />
-              </div>
-              <button className="btn btn-success me-2" onClick={handleSave}>
-                Save
-              </button>
-              <button className="btn btn-secondary" onClick={handleCancelEdit}>
-                Cancel
-              </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
+
+      {appointments.length > 0 && (
+        <div className="table-responsive mt-4">
+          <table className="table table-bordered table-hover align-middle">
+            <thead className="table-light">
+              <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Doctor</th>
+                <th>Date & Time</th>
+                <th>Purpose</th>
+                <th>Service</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {appointments.map((appointment) => (
+                <tr key={appointment.id}>
+                  <td>{appointment.id || "-"}</td>
+                  <td>{appointment.patient_name || "-"}</td>
+                  <td>{appointment.patient_lastname || "-"}</td>
+                  <td>
+                    {(appointment.doctor_firstname || "-") +
+                      " " +
+                      (appointment.doctor_lastname || "")}
+                  </td>
+                  <td>
+                    {appointment.appointment_datetime
+                      ? new Date(appointment.appointment_datetime).toLocaleString()
+                      : "-"}
+                  </td>
+                  <td>{appointment.purpose || "-"}</td>
+                  <td>{appointment.service_name || "-"}</td>
+                  <td>
+                    <button
+                      onClick={() => cancelAppointment(appointment.id)}
+                      className="btn btn-danger btn-sm me-2"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => editAppointment(appointment.id)}
+                      className="btn btn-primary btn-sm"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {editingAppointment && (
+        <div className="card mt-4">
+          <div className="card-body">
+            <h5 className="card-title">Edit Appointment #{editingAppointment}</h5>
+            <div className="mb-3">
+              <label className="form-label">First Name</label>
+              <input
+                type="text"
+                name="name"
+                className="form-control"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Last Name</label>
+              <input
+                type="text"
+                name="lastname"
+                className="form-control"
+                value={formData.lastname}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Purpose</label>
+              <input
+                type="text"
+                name="purpose"
+                className="form-control"
+                value={formData.purpose}
+                onChange={handleChange}
+              />
+            </div>
+            <button className="btn btn-success me-2" onClick={handleSave}>
+              Save
+            </button>
+            <button className="btn btn-secondary" onClick={handleCancelEdit}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 };
 
 export default MyAppointments;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -26,9 +26,7 @@ const ManageSchedule = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [schedules, setSchedules] = useState([]);
-
   const navigate = useNavigate();
-  const { id } = useParams();
 
   const days = [
     "Monday",
@@ -41,21 +39,8 @@ const ManageSchedule = () => {
   ];
 
   useEffect(() => {
-    if (!id) {
-      Swal.fire({
-        icon: "error",
-        title: "Access Denied",
-        text: "Invalid user id.",
-        confirmButtonColor: "#51A485",
-      });
-      navigate("/");
-      return;
-    }
-
     axios
-      .get(`http://localhost:3001/ManageSchedule/${id}`, {
-        withCredentials: true,
-      })
+      .get(`http://localhost:3001/ManageSchedule`, { withCredentials: true })
       .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
@@ -67,16 +52,21 @@ const ManageSchedule = () => {
           navigate("/");
         }
       })
-      .catch(() => {
-        Swal.fire({
-          icon: "error",
-          title: "Access Denied",
-          text: "Authentication failed.",
-          confirmButtonColor: "#51A485",
-        });
-        navigate("/");
-      });
-  }, [id, navigate]);
+      .catch((err) => {
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                 Swal.fire({
+                                          icon: "error",
+                                          title: "Access Denied",
+                                          text: "Please login.",
+                                          confirmButtonColor: "#51A485",
+                                        });
+      
+              navigate('/');
+            } else {
+              console.error("Unexpected error", err);
+            }
+          });
+      }, []);
 
   useEffect(() => {
     fetchDoctors();
@@ -127,15 +117,10 @@ const ManageSchedule = () => {
         const res = await api.get(`/standardSchedules/${formData.doctor_id}`);
         const doctorSchedule = res.data;
 
-        const updatedSchedule = {
-          Monday: { start_time: "", end_time: "", schedule_id: null },
-          Tuesday: { start_time: "", end_time: "", schedule_id: null },
-          Wednesday: { start_time: "", end_time: "", schedule_id: null },
-          Thursday: { start_time: "", end_time: "", schedule_id: null },
-          Friday: { start_time: "", end_time: "", schedule_id: null },
-          Saturday: { start_time: "", end_time: "", schedule_id: null },
-          Sunday: { start_time: "", end_time: "", schedule_id: null },
-        };
+        const updatedSchedule = days.reduce((acc, day) => {
+          acc[day] = { start_time: "", end_time: "", schedule_id: null };
+          return acc;
+        }, {});
 
         doctorSchedule.forEach((entry) => {
           updatedSchedule[entry.weekday] = {
@@ -156,7 +141,6 @@ const ManageSchedule = () => {
 
     fetchDoctorSchedule();
   }, [formData.doctor_id]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
