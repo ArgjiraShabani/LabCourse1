@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
@@ -11,18 +11,8 @@ const api = axios.create({
 
 const ManageSchedule = () => {
   const [doctors, setDoctors] = useState([]);
-  const [formData, setFormData] = useState({
-    doctor_id: "",
-    schedule: {
-      Monday: { start_time: "", end_time: "", schedule_id: null },
-      Tuesday: { start_time: "", end_time: "", schedule_id: null },
-      Wednesday: { start_time: "", end_time: "", schedule_id: null },
-      Thursday: { start_time: "", end_time: "", schedule_id: null },
-      Friday: { start_time: "", end_time: "", schedule_id: null },
-      Saturday: { start_time: "", end_time: "", schedule_id: null },
-      Sunday: { start_time: "", end_time: "", schedule_id: null },
-    },
-  });
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [weeklyData, setWeeklyData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [schedules, setSchedules] = useState([]);
@@ -40,7 +30,7 @@ const ManageSchedule = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/ManageSchedule`, { withCredentials: true })
+      .get(`/ManageSchedule`, { withCredentials: true })
       .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
@@ -53,98 +43,81 @@ const ManageSchedule = () => {
         }
       })
       .catch((err) => {
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                 Swal.fire({
-                                          icon: "error",
-                                          title: "Access Denied",
-                                          text: "Please login.",
-                                          confirmButtonColor: "#51A485",
-                                        });
-      
-              navigate('/');
-            } else {
-              console.error("Unexpected error", err);
-            }
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
           });
-      }, []);
-
-  useEffect(() => {
-    fetchDoctors();
-    fetchSchedules();
-  }, []);
+          navigate("/");
+        } else console.error(err);
+      });
+  }, [navigate]);
 
   const fetchDoctors = async () => {
     try {
       const res = await api.get("/allDoctors");
       setDoctors(res.data);
     } catch (err) {
-      setError("Error fetching the list of doctors");
+      console.error(err);
+      setError("Error fetching doctors");
     }
   };
 
-  const fetchSchedules = async () => {
+  const fetchAllSchedules = useCallback(async () => {
     try {
       const res = await api.get("/standardSchedules");
       setSchedules(res.data);
     } catch (err) {
-      console.error("Error fetching schedules:", err);
+      console.error(err);
+      setError("Error fetching schedules");
     }
-  };
+  }, []);
 
-  const handleChange = (e, day = null) => {
-    const { name, value } = e.target;
-    if (day) {
-      setFormData((prev) => ({
-        ...prev,
-        schedule: {
-          ...prev.schedule,
-          [day]: {
-            ...prev.schedule[day],
-            [name]: value,
-          },
-        },
-      }));
-    } else {
-      setFormData({ ...formData, [name]: value });
+  const fetchDoctorSchedule = useCallback(async (doctorId) => {
+    try {
+      const res = await api.get(`/standardSchedules/${doctorId}`);
+      const scheduleMap = {};
+      res.data.forEach((item) => {
+        scheduleMap[item.weekday] = {
+          start_time: item.start_time?.slice(0, 5),
+          end_time: item.end_time?.slice(0, 5),
+          schedule_id: item.schedule_id,
+        };
+      });
+      setWeeklyData(scheduleMap);
+    } catch (err) {
+      console.error(err);
+      setError("Error fetching doctor's schedule");
     }
-  };
+  }, []);
 
   useEffect(() => {
-    const fetchDoctorSchedule = async () => {
-      if (!formData.doctor_id) return;
+    fetchDoctors();
+    fetchAllSchedules();
+  }, [fetchAllSchedules]);
 
-      try {
-        const res = await api.get(`/standardSchedules/${formData.doctor_id}`);
-        const doctorSchedule = res.data;
+  useEffect(() => {
+    if (selectedDoctor) {
+      fetchDoctorSchedule(selectedDoctor);
+    } else {
+      setWeeklyData({});
+    }
+  }, [selectedDoctor, fetchDoctorSchedule]);
 
-        const updatedSchedule = days.reduce((acc, day) => {
-          acc[day] = { start_time: "", end_time: "", schedule_id: null };
-          return acc;
-        }, {});
+  const handleChange = (day, field, value) => {
+    setWeeklyData((prev) => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [field]: value,
+      },
+    }));
+  };
 
-        doctorSchedule.forEach((entry) => {
-          updatedSchedule[entry.weekday] = {
-            start_time: entry.start_time?.slice(0, 5) || "",
-            end_time: entry.end_time?.slice(0, 5) || "",
-            schedule_id: entry.schedule_id,
-          };
-        });
-
-        setFormData((prev) => ({
-          ...prev,
-          schedule: updatedSchedule,
-        }));
-      } catch (err) {
-        console.error("Failed to load doctor's schedule:", err);
-      }
-    };
-
-    fetchDoctorSchedule();
-  }, [formData.doctor_id]);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.doctor_id) {
+  const handleSave = async () => {
+    if (!selectedDoctor) {
       Swal.fire({
         icon: "warning",
         title: "Warning",
@@ -153,100 +126,71 @@ const ManageSchedule = () => {
       });
       return;
     }
+
     const result = await Swal.fire({
       title: "Save Changes?",
-      text: "Do you want to save the changes to the schedule?",
+      text: "Do you want to save changes for this doctor?",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Yes, save it!",
       cancelButtonText: "Cancel",
       confirmButtonColor: "#51A485",
-      cancelButtonColor: "#d33",
     });
-
     if (!result.isConfirmed) return;
 
     setLoading(true);
-    setError("");
-
-    const { doctor_id, schedule } = formData;
-
     try {
-      const requests = days
-        .map((day) => {
-          const { start_time, end_time, schedule_id } = schedule[day];
-          if (!start_time || !end_time) return null;
-
-          if (schedule_id) {
-            return api.put(`/standardSchedules/${schedule_id}`, {
-              start_time,
-              end_time,
+      const requests = days.map((day) => {
+        const dayData = weeklyData[day];
+        if (dayData?.start_time && dayData?.end_time) {
+          if (dayData.schedule_id) {
+            return api.put(`/standardSchedules/${dayData.schedule_id}`, {
+              start_time: dayData.start_time,
+              end_time: dayData.end_time,
             });
           } else {
             return api.post("/standardSchedules", {
-              doctor_id,
+              doctor_id: selectedDoctor,
               weekday: day,
-              start_time,
-              end_time,
+              start_time: dayData.start_time,
+              end_time: dayData.end_time,
             });
           }
-        })
-        .filter(Boolean);
-
-      await Promise.all(requests);
-
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Schedule saved/updated successfully!",
-        timer: 1500,
-        showConfirmButton: false,
+        }
+        return null;
       });
-
-      setFormData({
-        doctor_id: "",
-        schedule: days.reduce((acc, day) => {
-          acc[day] = { start_time: "", end_time: "", schedule_id: null };
-          return acc;
-        }, {}),
-      });
-
-      fetchSchedules();
+      await Promise.all(requests.filter(Boolean));
+      Swal.fire({ icon: "success", title: "Saved", timer: 1500, showConfirmButton: false });
+      fetchDoctorSchedule(selectedDoctor);
+      fetchAllSchedules();
     } catch (err) {
-      console.error("Error saving the schedule", err);
-      setError("Error saving the schedule");
+      console.error(err);
+      setError("Error saving schedule");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteSchedule = async (schedule_id) => {
-    const result = await Swal.fire({
-      title: "Are you sure you want to delete this schedule?",
-      text: "This action cannot be undone!",
+  const handleDeleteDay = async (doctorId, day) => {
+    const confirm = await Swal.fire({
+      title: `Delete all schedules for ${day}?`,
+      text: "This cannot be undone!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes, delete!",
       cancelButtonText: "Cancel",
       confirmButtonColor: "#51A485",
-      cancelButtonColor: "#d33",
     });
-
-    if (!result.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
     try {
-      await api.delete(`/standardSchedules/${schedule_id}`);
-      Swal.fire({
-        icon: "success",
-        title: "Deleted",
-        text: "Schedule deleted successfully!",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-      fetchSchedules();
+      await api.delete(`/standardSchedules/day/${doctorId}/${day}`);
+      Swal.fire({ icon: "success", title: "Deleted", timer: 1500, showConfirmButton: false });
+      fetchDoctorSchedule(doctorId);
+      fetchAllSchedules();
     } catch (err) {
-      console.error("Error deleting the schedule:", err);
-      setError("Error deleting the schedule");
+      console.error(err);
+      setError("Error deleting day schedule");
     }
   };
 
@@ -254,73 +198,80 @@ const ManageSchedule = () => {
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
       <div className="container mt-4">
-        <h2>Set Schedule for Doctor</h2>
+        <h2>Set Weekly Schedule for Doctor</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label>Doctor:</label>
-            <select
-              name="doctor_id"
-              className="form-select"
-              value={formData.doctor_id}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select a doctor</option>
-              {doctors.map((doctor) => (
-                <option key={doctor.id} value={doctor.id}>
-                  {doctor.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="mb-3">
+          <label>Select Doctor:</label>
+          <select
+            className="form-select"
+            value={selectedDoctor}
+            onChange={(e) => setSelectedDoctor(e.target.value)}
+          >
+            <option value="">Choose a doctor</option>
+            {doctors.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <h5>Schedules for the days of the week:</h5>
-          {days.map((day) => (
-            <div key={day} className="mb-4 border p-3 rounded">
-              <h6>{day}</h6>
-              <div className="row">
-                <div className="col-md-6 mb-2">
-                  <label>Start time:</label>
-                  <input
-                    type="time"
-                    name="start_time"
-                    className="form-control"
-                    value={formData.schedule[day].start_time}
-                    onChange={(e) => handleChange(e, day)}
-                  />
-                </div>
-                <div className="col-md-6 mb-2">
-                  <label>End time:</label>
-                  <input
-                    type="time"
-                    name="end_time"
-                    className="form-control"
-                    value={formData.schedule[day].end_time}
-                    onChange={(e) => handleChange(e, day)}
-                  />
+        {selectedDoctor && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSave();
+            }}
+          >
+            {days.map((day) => (
+              <div key={day} className="border p-3 rounded mb-3">
+                <strong>{day}</strong>
+                <div className="row mt-2">
+                  <div className="col-md-6">
+                    <label>Start Time:</label>
+                    <input
+                      type="time"
+                      className="form-control"
+                      value={weeklyData[day]?.start_time || ""}
+                      onChange={(e) => handleChange(day, "start_time", e.target.value)}
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <label>End Time:</label>
+                    <input
+                      type="time"
+                      className="form-control"
+                      value={weeklyData[day]?.end_time || ""}
+                      onChange={(e) => handleChange(day, "end_time", e.target.value)}
+                    />
+                  </div>
+                  {weeklyData[day]?.schedule_id && (
+                    <div className="col-12 mt-2">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDeleteDay(selectedDoctor, day)}
+                      >
+                        Delete Day
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+            <button
+              type="submit"
+              className="btn mt-3"
+              style={{ backgroundColor: "#51A485", color: "white" }}
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Save Schedule"}
+            </button>
+          </form>
+        )}
 
-          <button
-            type="submit"
-            className="btn mt-3"
-            style={{
-              backgroundColor: "#51A485",
-              borderColor: "#51A485",
-              color: "white",
-            }}
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save Schedule"}
-          </button>
-        </form>
-
-        <hr className="my-4" />
-        <h4 className="mb-3">Standard Schedule</h4>
+        <h4 className="mt-5">Standard Schedule Table</h4>
         <div className="table-responsive">
           <table className="table table-bordered">
             <thead className="table-light">
@@ -335,14 +286,9 @@ const ManageSchedule = () => {
               {schedules.length > 0 ? (
                 schedules
                   .reduce((acc, item) => {
-                    let existing = acc.find(
-                      (s) => s.doctor_id === item.doctor_id
-                    );
+                    let existing = acc.find((s) => s.doctor_id === item.doctor_id);
                     if (!existing) {
-                      existing = {
-                        doctor_id: item.doctor_id,
-                        doctor_name: item.doctor_name,
-                      };
+                      existing = { doctor_id: item.doctor_id, doctor_name: item.doctor_name };
                       days.forEach((day) => (existing[day] = {}));
                       acc.push(existing);
                     }
@@ -364,9 +310,7 @@ const ManageSchedule = () => {
                           {schedule[day]?.schedule_id && (
                             <button
                               className="btn btn-sm btn-danger ms-2"
-                              onClick={() =>
-                                handleDeleteSchedule(schedule[day].schedule_id)
-                              }
+                              onClick={() => handleDeleteDay(schedule.doctor_id, day)}
                             >
                               Delete
                             </button>
