@@ -9,6 +9,7 @@ const {
   addStandardScheduleHandler,
   updateStandardScheduleHandler,
   deleteStandardScheduleHandler,
+  deleteDayScheduleHandler, 
 } = require("../Controllers/standardScheduleController");
 
 router.get(
@@ -44,6 +45,13 @@ router.delete(
   authenticateToken,
   authorizeRoles("admin"),
   deleteStandardScheduleHandler
+);
+
+router.delete(
+  "/standardSchedules/day/:doctor_id/:day",
+  authenticateToken,
+  authorizeRoles("admin"),
+  deleteDayScheduleHandler
 );
 
 module.exports = router;

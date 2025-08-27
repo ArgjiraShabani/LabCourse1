@@ -55,10 +55,21 @@ const deleteSchedule = (schedule_id, callback) => {
   });
 };
 
+const deleteDaySchedulesByDoctor = (doctor_id, weekday, callback) => {
+  const query = `
+    DELETE FROM standard_schedules 
+    WHERE doctor_id = ? AND weekday = ?
+  `;
+  db.query(query, [doctor_id, weekday], (err, result) => {
+    callback(err, result);
+  });
+};
+
 module.exports = {
   getAllSchedules,
   getSchedulesByDoctorId,
   addSchedule,
   updateSchedule,
   deleteSchedule,
+  deleteDaySchedulesByDoctor, 
 };

@@ -4,6 +4,7 @@ const {
   addSchedule,
   updateSchedule,
   deleteSchedule,
+  deleteDaySchedulesByDoctor,
 } = require("../Model/standardScheduleModel");
 
 const getStandardSchedulesHandler = (req, res) => {
@@ -17,7 +18,7 @@ const getStandardSchedulesHandler = (req, res) => {
 };
 
 const getSchedulesByDoctorHandler = (req, res) => {
-  const doctor_id = req.user.id; 
+  const doctor_id = req.user.id;
 
   getSchedulesByDoctorId(doctor_id, (err, schedules) => {
     if (err) {
@@ -27,7 +28,6 @@ const getSchedulesByDoctorHandler = (req, res) => {
     res.json(schedules);
   });
 };
-
 
 const addStandardScheduleHandler = (req, res) => {
   const { doctor_id, weekday, start_time, end_time } = req.body;
@@ -54,9 +54,7 @@ const updateStandardScheduleHandler = (req, res) => {
   updateSchedule(schedule_id, start_time, end_time, (err, result) => {
     if (err) {
       console.error("Error while updating the schedule:", err.message);
-      return res
-        .status(500)
-        .json({ error: "Error while updating the schedule" });
+      return res.status(500).json({ error: "Error while updating the schedule" });
     }
     res.json({ message: "The schedule was updated successfully" });
   });
@@ -67,11 +65,25 @@ const deleteStandardScheduleHandler = (req, res) => {
   deleteSchedule(schedule_id, (err, result) => {
     if (err) {
       console.error("Error while deleting the schedule:", err.message);
-      return res
-        .status(500)
-        .json({ error: "Error while deleting the schedule" });
+      return res.status(500).json({ error: "Error while deleting the schedule" });
     }
     res.json({ message: "The schedule was deleted successfully" });
+  });
+};
+
+const deleteDayScheduleHandler = (req, res) => {
+  const { doctor_id, day } = req.params;
+
+  if (!doctor_id || !day) {
+    return res.status(400).json({ error: "Doctor ID or day is missing" });
+  }
+
+  deleteDaySchedulesByDoctor(doctor_id, day, (err, result) => {
+    if (err) {
+      console.error("Error while deleting day schedules:", err.message);
+      return res.status(500).json({ error: "Error while deleting schedules for the day" });
+    }
+    res.json({ message: `All schedules for ${day} deleted successfully` });
   });
 };
 
@@ -81,4 +93,5 @@ module.exports = {
   addStandardScheduleHandler,
   updateStandardScheduleHandler,
   deleteStandardScheduleHandler,
+  deleteDayScheduleHandler,
 };
