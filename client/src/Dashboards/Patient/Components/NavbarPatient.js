@@ -27,7 +27,7 @@ function NavbarPatient(){
     
       <div >
       <Link
-            to={`/myAppointment/${id}`}
+            to={`/myAppointments`}
             className="btn btn-secondary btn-sm me-2"
               style={{backgroundColor: '#51A485',
                 border: 'none',

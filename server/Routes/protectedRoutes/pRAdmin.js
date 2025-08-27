@@ -9,8 +9,7 @@ app.use(require("cookie-parser")());
 const app = express();
 */
 
-
-router.get("/adminDashboard/:id", authenticateToken, authorizeRoles("admin"), (req, res) => {
+router.get("/adminDashboard", authenticateToken, authorizeRoles("admin"), (req, res) => {
   res.json({ message: "Welcome Admin", user: req.user });
 });
 
@@ -26,11 +25,11 @@ router.get("/updateData", authenticateToken, authorizeRoles("admin"), (req, res)
   res.json({ message: "Welcome Admin", user: req.user });
 });
 
-router.get("/ManageSchedule/:id",authenticateToken,authorizeRoles("admin","doctor"),(req,res)=>{
+router.get("/ManageSchedule",authenticateToken,authorizeRoles("admin","doctor"),(req,res)=>{
   res.json({message : "Welcome Admin", user: req.user});
 });
 
-router.get("/WeeklySchedule/:id",authenticateToken,authorizeRoles("admin","doctor"),(req,res)=>{
+router.get("/WeeklySchedule",authenticateToken,authorizeRoles("admin","doctor"),(req,res)=>{
   res.json({message : "Welcome Admin", user: req.user});
 })
 
@@ -42,11 +41,11 @@ router.get("/PatientAppointments", authenticateToken, authorizeRoles("admin"), (
   res.json({ message: "Welcome Admin", user: req.user });
 });
 
-router.get("/ManageDepartments/:id", authenticateToken, authorizeRoles("admin"), (req, res) => {
+router.get("/ManageDepartments", authenticateToken, authorizeRoles("admin"), (req, res) => {
   res.json({ message: "Welcome Admin to Manage Departments", user: req.user });
 });
 
-router.get("/ManageServices/:id", authenticateToken, authorizeRoles("admin"), (req, res) => {
+router.get("/ManageServices", authenticateToken, authorizeRoles("admin"), (req, res) => {
   res.json({ message: "Welcome Admin to Manage Services", user: req.user });
 });
 

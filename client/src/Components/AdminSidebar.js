@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
+import { FaBars, FaTimes } from "react-icons/fa";
+
 
 const Sidebar = ({ role, id }) => {
   const [doctorMenuOpen, setDoctorMenuOpen] = useState(false);
   const [scheduleMenuOpen, setScheduleMenuOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const toggleDoctorMenu = () => {
     setDoctorMenuOpen(!doctorMenuOpen);
@@ -12,10 +15,48 @@ const Sidebar = ({ role, id }) => {
  const toggleScheduleMenu = () => {
   setScheduleMenuOpen(!scheduleMenuOpen);
 };
+const toggleSidebar = () => setIsOpen(!isOpen);
+
   return (
     <>
       <style>
         {`
+        .sidebar {
+            background-color: #51A485;
+            width: 250px;
+            min-height: 100vh;
+            transition: transform 0.3s ease-in-out;
+          }
+          @media (max-width: 768px) {
+            .sidebar {
+              position: fixed;
+              top: 0;
+              left: 0;
+              transform: translateX(-100%);
+              z-index: 1000;
+            }
+            .sidebar.open {
+              transform: translateX(0);
+            }
+            .menu-toggle {
+              display: block;
+              position: fixed;
+              top: 15px;
+              left: 15px;
+              z-index: 1100;
+              background: #51A485;
+              color: #fff;
+              border: none;
+              padding: 8px 12px;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+          }
+          @media (min-width: 769px) {
+            .menu-toggle {
+              display: none;
+            }
+          }
           .nav-link {
             transition: background-color 0.3s ease;
           }
@@ -36,21 +77,26 @@ const Sidebar = ({ role, id }) => {
         `}
       </style>
 
+      <button className="menu-toggle" onClick={toggleSidebar}>
+        {isOpen ? <FaTimes size={20}/> : <FaBars size={20}/>}
+      </button>
+
       <div
-        className="text-white p-3"
-        style={{
-          backgroundColor: "#51A485",
-          width: "250px",
-          minHeight: "100vh",
-        }}
-      >
+  className={`sidebar text-white p-3 ${isOpen ? "open" : ""}`}
+  style={{
+    backgroundColor: "#51A485",
+    width: "250px",
+    minHeight: "100vh",
+  }}
+>
+
         {role === "admin" ? (
           <>
             <h4 className="text-center mb-4">Admin Panel</h4>
             <ul className="nav flex-column">
               <li className="nav-item mb-2">
                 <Link
-                  to={`/adminDashboard/${id}`}
+                  to={`/adminDashboard`}
                   className="nav-link text-white active shadow-link"
                 >
                   Dashboard
@@ -259,7 +305,7 @@ const Sidebar = ({ role, id }) => {
               </li>*/}
               <li className="nav-item mb-2">
                 <Link
-                  to={`/myAppointment/${id}`}
+                  to={`/myAppointments`}
                   className="nav-link text-white  hover-link"
                 >
                   My Appointments
@@ -267,7 +313,7 @@ const Sidebar = ({ role, id }) => {
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/bookAppointment/${id}`}
+                  to={`/bookAppointment`}
                   className="nav-link text-white hover-link"
                 >
                   Book Appointments

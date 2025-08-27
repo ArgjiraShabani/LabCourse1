@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../../Components/AdminSidebar";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { FaUserInjured, FaCalendarCheck, FaUserMd , FaSmile} from "react-icons/fa";
+import { FaCalendarCheck } from "react-icons/fa";
 
 const api = axios.create({
   baseURL: "http://localhost:3001",
@@ -13,10 +13,10 @@ const api = axios.create({
 const MyAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [editingAppointment, setEditingAppointment] = useState(null);
-   const [numberAppointments,setNumberAppointments]=useState(null);
+  const [numberAppointments, setNumberAppointments] = useState(null);
   const [formData, setFormData] = useState({ name: "", lastname: "", purpose: "" });
   const [loading, setLoading] = useState(true);
-  const { id } = useParams();
+  const [userId, setUserId] = useState(null); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,10 +47,11 @@ const MyAppointments = () => {
           return;
         }
 
-         const appointments = res.data.appointments || [];
-  setAppointments(appointments);
-  setNumberAppointments(appointments.length);
+        setUserId(user.id);
 
+        const appointments = res.data.appointments || [];
+        setAppointments(appointments);
+        setNumberAppointments(appointments.length);
         setLoading(false);
       })
       .catch((err) => {
@@ -191,19 +192,19 @@ const MyAppointments = () => {
   }
 
   return (
-  <div className="d-flex" style={{ minHeight: "100vh" }}>
-    <Sidebar role="patient" id={id} />
-    <div 
-      style={{
-        width: "100%",
-        backgroundColor: "#fff",
-        borderRadius: "12px",
-        padding: "30px",
-        boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
-        marginBottom: "20px"
-      }}
-    >
-      <div className="row g-4">
+    <div className="d-flex" style={{ minHeight: "100vh" }}>
+      <Sidebar role="patient" id={userId} />
+      <div
+        style={{
+          width: "100%",
+          backgroundColor: "#fff",
+          borderRadius: "12px",
+          padding: "30px",
+          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
+          marginBottom: "20px",
+        }}
+      >
+        <div className="row g-4">
         <div className="col-12">
           <div
             className="card text-white h-100"
@@ -317,9 +318,9 @@ const MyAppointments = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
-  </div>
-);
+  );
 
 };
 

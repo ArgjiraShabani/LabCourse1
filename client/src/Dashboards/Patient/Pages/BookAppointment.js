@@ -1,6 +1,6 @@
 import Sidebar from "../../../Components/AdminSidebar";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useState,useEffect } from "react";
 
@@ -26,7 +26,7 @@ function BookAppointment() {
   });
 
   const navigate = useNavigate();
-  const { id } = useParams();
+  const [patientId, setPatientId] = useState(null);
 
   const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -80,7 +80,9 @@ function BookAppointment() {
             confirmButtonColor: "#51A485",
           });
           navigate("/");
-        }
+      } else {
+        setPatientId(res.data.user.id);
+      }
       })
       .catch((err) => {
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
@@ -232,7 +234,7 @@ if (selDateObj < todayOnly || selDateObj > maxDate) return;
         "http://localhost:3001/appointments",
         {
           ...formData,
-          patient_id: parseInt(id),
+          patient_id: patientId,
           appointment_datetime: `${selectedDate}T${selectedTimeSlot}`,
           status: "pending",
         },
@@ -268,7 +270,7 @@ if (selDateObj < todayOnly || selDateObj > maxDate) return;
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
-      <Sidebar role="patient" id={id} />
+       <Sidebar role="patient" id={patientId} />
       <div className="container mt-5">
         <h2>Book Appointment</h2>
         <form onSubmit={handleSubmit}>

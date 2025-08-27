@@ -37,7 +37,7 @@ function Login(){
               } else if (res.data.role === 'patient') {
                 navigate(`/homePagePatient/${res.data.id}`)
               } else {
-                navigate(`/adminDashboard/${res.data.id}`);
+                navigate(`/adminDashboard`);
               }
             }
           })

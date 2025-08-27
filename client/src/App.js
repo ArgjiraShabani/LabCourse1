@@ -55,7 +55,7 @@ function Layout() {
           <Route path="/staff" element={<MedicalStaff />} />
           <Route path='/staff/:id' element={<MedicalStaffPatient />}/>-----------------
 
-          <Route path="/adminDashboard/:id" element={<AdminDashboard />} />
+           <Route path="/adminDashboard" element={<AdminDashboard />} />++++++++++++++
           <Route path="/doctors" element={<AdminDoctor/>}/>
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
           <Route path='/viewDoctors' element={<ViewDoctors/>}/>
@@ -68,7 +68,7 @@ function Layout() {
           <Route path="/doctordashboard/:doctor_id" element={<DoctorDashboard/>} />
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
           <Route path='/myprofile/:id' element={<MyProfile/>}></Route>--------------
-          <Route path='/bookAppointment/:id' element={<BookAppointment/>}></Route>
+          <Route path='/bookAppointment' element={<BookAppointment/>}></Route>+++++++++++++
           <Route path="/ManageDepartments" element={<ManageDepartments />}></Route>
           <Route path="/ManageServices" element={<ManageServices />} />
           <Route path='/login' element={<Login/>}></Route>
@@ -85,7 +85,7 @@ function Layout() {
           <Route path='/logout' element={<LogOut/>}/>---------------------------
           <Route path='/updatePatient/:id' element={<UpdatePatient/>}/>---------------
 
-          <Route path='/myAppointment/:id' element={<MyAppointments/>}></Route>+++++++++++++++++
+          <Route path='/myAppointments' element={<MyAppointments/>}></Route>+++++++++++++++++
         </Routes>
       </main>
      

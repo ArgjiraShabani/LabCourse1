@@ -253,7 +253,7 @@ function HomePagePatient() {
         </p>
         <div class="d-grid gap-2 col-6 mx-auto">
           <Link
-            to={`/bookAppointment/${id}`}
+            to={"/bookAppointment"}
             className="btn btn-primary"
             style={{
               backgroundColor: "#51A485",
