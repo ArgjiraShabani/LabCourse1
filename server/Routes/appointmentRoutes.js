@@ -21,8 +21,8 @@ router.get("/appointments/byPatient", authenticateToken, appointmentController.g
 router.get("/doctor-appointments", authenticateToken, appointmentController.getDoctorAppointments);
 
 router.put("/appointments/:id/status", authenticateToken, appointmentController.updateAppointmentStatus);
-router.get("/appointments/:id", authenticateToken, appointmentController.getAppointmentById);
+router.get("/appointments", authenticateToken, appointmentController.getAppointmentById);
 
-router.delete("/appointments/:id", authenticateToken, authorizeRoles("admin"), appointmentController.deleteAppointment);
-router.put("/appointments/:id", authenticateToken, authorizeRoles("admin"), appointmentController.updateAppointmentAdminHandler);
+router.delete("/appointments", authenticateToken, authorizeRoles("admin"), appointmentController.deleteAppointment);
+router.put("/appointments", authenticateToken, authorizeRoles("admin"), appointmentController.updateAppointmentAdminHandler);
 module.exports = router;

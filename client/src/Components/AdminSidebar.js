@@ -213,7 +213,7 @@ const Sidebar = ({ role, id }) => {
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/Appointment/${id}`}
+                  to={`/Appointment`}
                   className="nav-link text-white hover-link"
                 >
                   Patient Appointments
