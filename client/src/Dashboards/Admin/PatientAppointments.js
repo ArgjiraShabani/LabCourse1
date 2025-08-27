@@ -32,12 +32,45 @@ function PatientAppointments() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
+  const [filterPatient, setFilterPatient] = useState("");
+  const [filterDoctor, setFilterDoctor] = useState("");
+  const [filterService, setFilterService] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+
   const today = new Date();
   const [daysLimit, setDaysLimit] = useState(30);
   const [maxDate, setMaxDate] = useState(new Date());
 
   const [selectedDate, setSelectedDate] = useState("");
   const [formData, setFormData] = useState({ doctor_id: "", service_id: "" });
+
+  const allPatients = Array.from(
+    new Set(appointments.map((a) => `${a.patient_name} ${a.patient_lastname}`))
+  );
+  const allDoctors = Array.from(
+    new Set(
+      appointments.map(
+        (a) => a.doctor_name || `${a.doctor_firstname} ${a.doctor_lastname}`
+      )
+    )
+  );
+  const allServices = Array.from(
+    new Set(appointments.map((a) => a.service_name))
+  );
+
+  const filteredAppointments = appointments.filter((app) => {
+    const patientFullName = `${app.patient_name} ${app.patient_lastname}`;
+    const doctorFullName =
+      app.doctor_name || `${app.doctor_firstname} ${app.doctor_lastname}`;
+    const dateOnly = app.appointment_datetime.split("T")[0];
+
+    return (
+      (filterPatient === "" || patientFullName === filterPatient) &&
+      (filterDoctor === "" || doctorFullName === filterDoctor) &&
+      (filterService === "" || app.service_name === filterService) &&
+      (filterDate === "" || dateOnly === filterDate)
+    );
+  });
 
   const {
     register,
@@ -73,7 +106,9 @@ function PatientAppointments() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/PatientAppointments", { withCredentials: true })
+      .get("http://localhost:3001/PatientAppointments", {
+        withCredentials: true,
+      })
       .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
@@ -95,9 +130,13 @@ function PatientAppointments() {
 
     axios
       .all([
-        axios.get("http://localhost:3001/all-patient-appointments", { withCredentials: true }),
+        axios.get("http://localhost:3001/all-patient-appointments", {
+          withCredentials: true,
+        }),
         axios.get("http://localhost:3001/services", { withCredentials: true }),
-        axios.get("http://localhost:3001/patient/patients-dropdown", { withCredentials: true }),
+        axios.get("http://localhost:3001/patient/patients-dropdown", {
+          withCredentials: true,
+        }),
       ])
       .then(
         axios.spread((appsRes, servicesRes, patientsRes) => {
@@ -116,13 +155,18 @@ function PatientAppointments() {
       setAvailableSlots([]);
       return;
     }
-    const service = services.find((s) => s.service_id === parseInt(watchService));
+    const service = services.find(
+      (s) => s.service_id === parseInt(watchService)
+    );
     if (!service) return;
 
     axios
-      .get(`http://localhost:3001/doctors/byDepartment/${service.department_Id}`, {
-        withCredentials: true,
-      })
+      .get(
+        `http://localhost:3001/doctors/byDepartment/${service.department_Id}`,
+        {
+          withCredentials: true,
+        }
+      )
       .then((res) => setDoctors(res.data))
       .catch(() => setDoctors([]));
 
@@ -142,7 +186,9 @@ function PatientAppointments() {
       const [endH, endM] = end.split(":").map(Number);
 
       while (h < endH || (h === endH && m <= endM)) {
-        slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+        slots.push(
+          `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+        );
         m += 30;
         if (m >= 60) {
           h++;
@@ -161,29 +207,45 @@ function PatientAppointments() {
 
       try {
         const [standardRes, customRes] = await Promise.all([
-          axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
-          axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
+          axios.get("http://localhost:3001/api/standardSchedules", {
+            withCredentials: true,
+          }),
+          axios.get("http://localhost:3001/api/weekly-schedules", {
+            withCredentials: true,
+          }),
         ]);
 
-        const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
+        const weekday = selDateObj.toLocaleDateString("en-US", {
+          weekday: "long",
+        });
         const custom = customRes.data.find(
-          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
+          (s) =>
+            s.doctor_id === parseInt(formData.doctor_id) &&
+            s.weekday === weekday
         );
         const standard = standardRes.data.find(
-          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
+          (s) =>
+            s.doctor_id === parseInt(formData.doctor_id) &&
+            s.weekday === weekday
         );
 
         let todaySchedule = custom || standard;
 
         const prevDay = new Date(selDateObj);
         prevDay.setDate(prevDay.getDate() - 1);
-        const prevWeekday = prevDay.toLocaleDateString("en-US", { weekday: "long" });
+        const prevWeekday = prevDay.toLocaleDateString("en-US", {
+          weekday: "long",
+        });
 
         const prevCustom = customRes.data.find(
-          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === prevWeekday
+          (s) =>
+            s.doctor_id === parseInt(formData.doctor_id) &&
+            s.weekday === prevWeekday
         );
         const prevStandard = standardRes.data.find(
-          (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === prevWeekday
+          (s) =>
+            s.doctor_id === parseInt(formData.doctor_id) &&
+            s.weekday === prevWeekday
         );
 
         let prevSchedule = prevCustom || prevStandard;
@@ -191,31 +253,57 @@ function PatientAppointments() {
         let allSlots = [];
 
         if (prevSchedule) {
-          const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
-          const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
-          if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
-            allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
+          const [prevStartH, prevStartM] = prevSchedule.start_time
+            .split(":")
+            .map(Number);
+          const [prevEndH, prevEndM] = prevSchedule.end_time
+            .split(":")
+            .map(Number);
+          if (
+            prevEndH < prevStartH ||
+            (prevEndH === prevStartH && prevEndM < prevStartM)
+          ) {
+            allSlots = [
+              ...allSlots,
+              ...generateSlots("00:00", prevSchedule.end_time),
+            ];
           }
         }
 
         if (todaySchedule) {
-          const [startH, startM] = todaySchedule.start_time.split(":").map(Number);
+          const [startH, startM] = todaySchedule.start_time
+            .split(":")
+            .map(Number);
           const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
 
           if (endH < startH || (endH === startH && endM < startM)) {
-            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
+            allSlots = [
+              ...allSlots,
+              ...generateSlots(todaySchedule.start_time, "23:59"),
+            ];
           } else {
-            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
+            allSlots = [
+              ...allSlots,
+              ...generateSlots(
+                todaySchedule.start_time,
+                todaySchedule.end_time
+              ),
+            ];
           }
         }
 
-        const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
-          params: { doctor_id: formData.doctor_id, date: selectedDate },
-          withCredentials: true,
-        });
+        const bookedRes = await axios.get(
+          "http://localhost:3001/appointments/bookedSlots",
+          {
+            params: { doctor_id: formData.doctor_id, date: selectedDate },
+            withCredentials: true,
+          }
+        );
 
         const bookedSlots = bookedRes.data;
-        setAvailableSlots(allSlots.filter((slot) => !bookedSlots.includes(slot)));
+        setAvailableSlots(
+          allSlots.filter((slot) => !bookedSlots.includes(slot))
+        );
       } catch (err) {
         console.error("Error fetching available slots:", err.message);
         setAvailableSlots([]);
@@ -280,7 +368,9 @@ function PatientAppointments() {
         Swal.fire(editingId ? "Updated!" : "Booked!", "", "success");
         setShowForm(false);
         axios
-          .get("http://localhost:3001/all-patient-appointments", { withCredentials: true })
+          .get("http://localhost:3001/all-patient-appointments", {
+            withCredentials: true,
+          })
           .then((res) => setAppointments(res.data));
       })
       .catch(() => Swal.fire("Error", "Something went wrong", "error"));
@@ -316,12 +406,64 @@ function PatientAppointments() {
       <div className="container py-4 flex-grow-1">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2>Appointments</h2>
-          <Button variant="success" size="sm" onClick={() => openForm()}>
+          <Button
+            style={{ backgroundColor: "#51A485", borderColor: "#51A485" }}
+            size="md"
+            onClick={() => openForm()}
+          >
             Book Appointment
           </Button>
         </div>
 
         <div className="table-responsive">
+          <div className="mb-3 d-flex gap-2">
+            <select
+              className="form-select"
+              onChange={(e) => setFilterPatient(e.target.value)}
+              style={{ border: "2px solid #51A485", borderRadius: "5px" }}
+            >
+              <option value="">All Patients</option>
+              {allPatients.map((name, i) => (
+                <option key={i} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="form-select"
+              onChange={(e) => setFilterDoctor(e.target.value)}
+              style={{ border: "2px solid #51A485", borderRadius: "5px" }}
+            >
+              <option value="">All Doctors</option>
+              {allDoctors.map((name, i) => (
+                <option key={i} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="form-select"
+              onChange={(e) => setFilterService(e.target.value)}
+              style={{ border: "2px solid #51A485", borderRadius: "5px" }}
+            >
+              <option value="">All Services</option>
+              {allServices.map((name, i) => (
+                <option key={i} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="date"
+              className="form-control"
+              onChange={(e) => setFilterDate(e.target.value)}
+              style={{ border: "2px solid #51A485", borderRadius: "5px" }}
+            />
+          </div>
+
           <table className="table table-bordered table-hover align-middle">
             <thead>
               <tr>
@@ -335,28 +477,43 @@ function PatientAppointments() {
               </tr>
             </thead>
             <tbody>
-              {appointments.length === 0 ? (
+              {filteredAppointments.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center">
                     No appointments found
                   </td>
                 </tr>
               ) : (
-                appointments.map((app) => (
+                filteredAppointments.map((app) => (
                   <tr key={app.id}>
                     <td>{app.id}</td>
                     <td>
                       {app.patient_name} {app.patient_lastname}
                     </td>
-                    <td>{app.doctor_name || `${app.doctor_firstname} ${app.doctor_lastname}`}</td>
+                    <td>
+                      {app.doctor_name ||
+                        `${app.doctor_firstname} ${app.doctor_lastname}`}
+                    </td>
                     <td>{app.appointment_datetime}</td>
                     <td>{app.purpose}</td>
                     <td>{app.service_name}</td>
                     <td style={{ display: "flex", gap: "5px" }}>
-                      <Button size="sm" variant="outline-success" onClick={() => openForm(app)}>
+                      <Button
+                        size="sm"
+                        style={{
+                          backgroundColor: "#51A485",
+                          borderColor: "#51A485",
+                          color: "#fff",
+                        }}
+                        onClick={() => openForm(app)}
+                      >
                         Edit
                       </Button>
-                      <Button size="sm" variant="danger" onClick={() => handleDelete(app.id)}>
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => handleDelete(app.id)}
+                      >
                         Delete
                       </Button>
                     </td>
@@ -368,14 +525,25 @@ function PatientAppointments() {
         </div>
 
         {showForm && (
-          <div className="modal" style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <div
+            className="modal"
+            style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
             <div className="modal-dialog">
-              <form className="modal-content p-3" onSubmit={handleSubmit(onSubmit)}>
+              <form
+                className="modal-content p-3"
+                onSubmit={handleSubmit(onSubmit)}
+              >
                 <h5>{editingId ? "Edit Appointment" : "Book Appointment"}</h5>
 
                 <div className="mb-3">
                   <label>Patient</label>
-                  <select {...register("patient_id")} className={`form-control ${errors.patient_id ? "is-invalid" : ""}`}>
+                  <select
+                    {...register("patient_id")}
+                    className={`form-control ${
+                      errors.patient_id ? "is-invalid" : ""
+                    }`}
+                  >
                     <option value="">Select Patient</option>
                     {patients.map((p) => (
                       <option key={p.patient_id} value={p.patient_id}>
@@ -383,24 +551,43 @@ function PatientAppointments() {
                       </option>
                     ))}
                   </select>
-                  <div className="invalid-feedback">{errors.patient_id?.message}</div>
+                  <div className="invalid-feedback">
+                    {errors.patient_id?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
                   <label>First Name</label>
-                  <input {...register("name")} className={`form-control ${errors.name ? "is-invalid" : ""}`} />
+                  <input
+                    {...register("name")}
+                    className={`form-control ${
+                      errors.name ? "is-invalid" : ""
+                    }`}
+                  />
                   <div className="invalid-feedback">{errors.name?.message}</div>
                 </div>
 
                 <div className="mb-3">
                   <label>Last Name</label>
-                  <input {...register("lastname")} className={`form-control ${errors.lastname ? "is-invalid" : ""}`} />
-                  <div className="invalid-feedback">{errors.lastname?.message}</div>
+                  <input
+                    {...register("lastname")}
+                    className={`form-control ${
+                      errors.lastname ? "is-invalid" : ""
+                    }`}
+                  />
+                  <div className="invalid-feedback">
+                    {errors.lastname?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
                   <label>Service</label>
-                  <select {...register("service_id")} className={`form-control ${errors.service_id ? "is-invalid" : ""}`}>
+                  <select
+                    {...register("service_id")}
+                    className={`form-control ${
+                      errors.service_id ? "is-invalid" : ""
+                    }`}
+                  >
                     <option value="">Select Service</option>
                     {services.map((s) => (
                       <option key={s.service_id} value={s.service_id}>
@@ -408,12 +595,20 @@ function PatientAppointments() {
                       </option>
                     ))}
                   </select>
-                  <div className="invalid-feedback">{errors.service_id?.message}</div>
+                  <div className="invalid-feedback">
+                    {errors.service_id?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
                   <label>Doctor</label>
-                  <select {...register("doctor_id")} className={`form-control ${errors.doctor_id ? "is-invalid" : ""}`} disabled={!watchService}>
+                  <select
+                    {...register("doctor_id")}
+                    className={`form-control ${
+                      errors.doctor_id ? "is-invalid" : ""
+                    }`}
+                    disabled={!watchService}
+                  >
                     <option value="">Select Doctor</option>
                     {doctors.map((d) => (
                       <option key={d.doctor_id} value={d.doctor_id}>
@@ -421,7 +616,9 @@ function PatientAppointments() {
                       </option>
                     ))}
                   </select>
-                  <div className="invalid-feedback">{errors.doctor_id?.message}</div>
+                  <div className="invalid-feedback">
+                    {errors.doctor_id?.message}
+                  </div>
                 </div>
 
                 <div className="mb-3">
@@ -429,7 +626,9 @@ function PatientAppointments() {
                   <input
                     type="date"
                     {...register("date")}
-                    className={`form-control ${errors.date ? "is-invalid" : ""}`}
+                    className={`form-control ${
+                      errors.date ? "is-invalid" : ""
+                    }`}
                     min={today.toISOString().split("T")[0]}
                     max={maxDate.toISOString().split("T")[0]}
                   />
@@ -439,7 +638,12 @@ function PatientAppointments() {
                 {watchDate && availableSlots.length > 0 && (
                   <div className="mb-3">
                     <label>Time Slot</label>
-                    <select {...register("time")} className={`form-control ${errors.time ? "is-invalid" : ""}`}>
+                    <select
+                      {...register("time")}
+                      className={`form-control ${
+                        errors.time ? "is-invalid" : ""
+                      }`}
+                    >
                       <option value="">Select Time Slot</option>
                       {availableSlots.map((slot) => (
                         <option key={slot} value={slot}>
@@ -447,12 +651,16 @@ function PatientAppointments() {
                         </option>
                       ))}
                     </select>
-                    <div className="invalid-feedback">{errors.time?.message}</div>
+                    <div className="invalid-feedback">
+                      {errors.time?.message}
+                    </div>
                   </div>
                 )}
 
                 {watchDate && availableSlots.length === 0 && (
-                  <div className="alert alert-warning">No available slots for this date.</div>
+                  <div className="alert alert-warning">
+                    No available slots for this date.
+                  </div>
                 )}
 
                 <div className="mb-3">
@@ -461,10 +669,25 @@ function PatientAppointments() {
                 </div>
 
                 <div className="d-flex">
-                  <Button type="submit" size="sm" variant="success" className="me-2">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    style={{
+                      backgroundColor: "#51A485",
+                      borderColor: "#51A485",
+                      color: "#fff",
+                    }}
+                    className="me-2"
+                  >
                     {editingId ? "Update" : "Book"}
                   </Button>
-                  <Button type="button" size="sm" variant="danger" onClick={() => setShowForm(false)}>
+
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="danger"
+                    onClick={() => setShowForm(false)}
+                  >
                     Cancel
                   </Button>
                 </div>
