@@ -57,6 +57,7 @@ function tryRefreshToken(req, res, next) {
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
       sameSite: "strict",
+      path: '/',
       secure: process.env.NODE_ENV === "production", // must be false in dev if no HTTPS
       maxAge: 24 * 60 * 60 * 1000
     });

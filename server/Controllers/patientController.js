@@ -81,30 +81,88 @@ const removePhotoHandler=(req,res)=>{
     };
   });
 };
-
+/*
 const changePasswordHandler=(req,res)=>{
   const oldPassword=req.body.oldPassword;
   const newPassword=req.body.password;
   const id=req.body.id;
-  getOldPassword([oldPassword,id],(err,result)=>{
+  getOldPassword([id],(err,result)=>{
     if(err){
       console.log(err);
-    }else{
+    }
       if(result.length>0){
-        changePassword([newPassword,id],(err,result)=>{
+        const storedPassword=result[0].password;
+         bcrypt.compare(oldPassword, storedHashedPassword)
+          .then(isMatch => {
+            if (!isMatch) {
+              return res.status(401).json("Old password is wrong!");
+            }
+        bcrypt.hash(newPassword, 10).then((hashedPassword) => {
+        changePassword([hashedPassword,id],(err,result)=>{
           if(err){
             console.log(err);
-          }else{
-            res.json("Changed");
+            return res.status(500).json("Failed to update password");
           }
+            res.json("Changed");
+          
         });
-      }else{;
-      res.json("Old password is wrong!");
-      };
-    };
+        })
+      .catch(hashErr => {
+            console.error(hashErr);
+            res.status(500).json("Error hashing new password");
+          });
+        })
+        .catch(compareErr => {
+        console.error(compareErr);
+        res.status(500).json("Error comparing passwords");
+    });
   });
 };
+*/
+const changePasswordHandler = (req, res) => {
+  const oldPassword = req.body.oldPassword;
+  const newPassword = req.body.password;
+  const id = req.body.id;
 
+  getOldPassword([id], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json("Internal server error");
+    }
+
+    if (result.length > 0) {
+      const storedPassword = result[0].password;
+
+      bcrypt.compare(oldPassword, storedPassword)
+        .then(isMatch => {
+          if (!isMatch) {
+            return res.status(401).json("Old password is wrong!");
+          }
+
+          bcrypt.hash(newPassword, 10)
+            .then(hashedPassword => {
+              changePassword([hashedPassword, id], (err, result) => {
+                if (err) {
+                  console.error(err);
+                  return res.status(500).json("Failed to update password");
+                }
+                res.json("Changed");
+              });
+            })
+            .catch(hashErr => {
+              console.error(hashErr);
+              res.status(500).json("Error hashing new password");
+            });
+        })
+        .catch(compareErr => {
+          console.error(compareErr);
+          res.status(500).json("Error comparing passwords");
+        });
+    } else {
+      res.status(404).json("User not found");
+    }
+  });
+};
 
 const updatePatientHandler=(req,res)=>{
   const id=req.params.id;

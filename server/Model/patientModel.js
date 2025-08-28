@@ -43,7 +43,7 @@ const removePhoto=(id,callback)=>{
 };
 
 const getOldPassword=(params,callback)=>{
-    const sql='SELECT patients.password,patients.first_name FROM patients WHERE patients.password=? AND patients.patient_id=?';
+    const sql='SELECT patients.password,patients.first_name FROM patients WHERE patients.patient_id=?';
     db.query(sql,params,callback);
 };
 

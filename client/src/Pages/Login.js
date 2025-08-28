@@ -1,5 +1,5 @@
 import  axios  from "axios";
-import { useState } from "react";
+import { useState ,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Navbar from "../Components/Navbar";
@@ -20,6 +20,13 @@ function Login(){
     });
 
     const navigate=useNavigate();
+
+      useEffect(() => {
+    axios.post('http://localhost:3001/logout', {}, { withCredentials: true })
+      .then(() => console.log('Auth cookies cleared'))
+      .catch(err => console.error('Logout cleanup failed:', err));
+  }, []);
+
    
        const submitForm = (data) => {
           
