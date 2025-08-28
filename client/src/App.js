@@ -24,7 +24,7 @@ import BookAppointments from './Pages/BookAppointments';
 import WeeklySchedule from './Dashboards/Admin/WeeklySchedule';
 import MedicalStaffPatient from './Dashboards/Patient/Pages/StaffPatient';
 import Patient from './Dashboards/Admin/Patient';
-import Register from './Dashboards/Doctor/registerPatient';
+import Register from './Dashboards/Admin/registerPatient';
 import DoctorSchedule from './Dashboards/Doctor/DoctorSchedule';
 import DoctorProfile from './Dashboards/Doctor/DoctorProfile';
 import MedicalRecords from './Dashboards/Doctor/MedicalRecords';

@@ -30,7 +30,7 @@ const upload=multer({storage: userStorage});
 
 router.get('/infoPatient/:id',authenticateToken,getPatientByIdHandler);
 router.get('/patient',authenticateToken,getAllPatientsHandler);
-router.delete('/deletePatient/:id',authenticateToken,deletePatientByIdHandler);
+router.put('/deletePatient/:id',authenticateToken,deletePatientByIdHandler);
 router.post('/removePhotoPatient/:id',authenticateToken,removePhotoHandler);
 router.patch('/changePassword',authenticateToken,changePasswordHandler);
 router.put('/updatePatient/:id',authenticateToken,upload.single('image'),updatePatientHandler);

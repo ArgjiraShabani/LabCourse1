@@ -78,12 +78,10 @@ const getAllDoctors=(callback)=>{
     d.phone,
     r.role_name,
     d.date_of_birth,
-    g.gender_name,
   s.specialization_name,
   dep.department_name ,
   d.education
   FROM doctors d inner join roles r on d.role_id=r.role_id
-   inner join gender g on d.gender_id=g.gender_id
     inner join specialization s on d.specialization_id=s.specialization_id
    inner join departments dep on d.department_id=dep.department_id`;
    db.query(sqlGet,callback);

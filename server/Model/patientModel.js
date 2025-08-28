@@ -24,16 +24,16 @@ const getPatientById=(patientId,callback)=>{
 };
 
 const getAllPatients=(callback)=>{
-    const sql=`SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name
+    const sql=`SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name,patients.isdeleted
      FROM patients left join gender
      on patients.gender_id=gender.gender_id left join status
-     on patients.status_id=status.status_id`;
+     on patients.status_id=status.status_id where patients.isdeleted=false`;
 
      db.query(sql,callback);
 };
 
 const deletePatientById=(id,callback)=>{
-    const sql=`DELETE from patients where patient_id=?`;
+    const sql=`UPDATE patients set isdeleted=true where patient_id=?`;
     db.query(sql,id,callback);
 };
 

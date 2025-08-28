@@ -128,9 +128,11 @@ function FeedbacksPatient(){
           <table className="table table-bordered table-hover align-middle" style={{minWidth:"400px"}}>
             <thead>
               <tr>
-                <th style={{ backgroundColor: '#51A485', color: 'white' }}>Message</th>
+                <th style={{ backgroundColor: '#51A485', color: 'white', width:'60%'}}>Message</th>
                 <th style={{ backgroundColor: '#51A485', color: 'white'}}>Date</th>
-                <th style={{ backgroundColor: '#51A485', color: 'white' }}>Delete</th>
+                <th style={{ backgroundColor: '#51A485', color: 'white'}}>Edit</th>
+                <th style={{ backgroundColor: '#51A485', color: 'white'}}>Delete</th>
+
               </tr>
             </thead>
             <tbody> 
@@ -140,7 +142,10 @@ function FeedbacksPatient(){
               <tr>
             <td>{value.feedback_text}</td>
             <td >{value.created_at}</td>
-            <td style={{display:"flex",justifyContent:"center"}}>
+            <td>
+                  <Button variant="danger" onClick={() =>{deleteFeedback(value.feedback_id)}}>Edit</Button>
+            </td>
+            <td>
                   <Button variant="danger" onClick={() =>{deleteFeedback(value.feedback_id)}}>Delete</Button>
             </td>
 

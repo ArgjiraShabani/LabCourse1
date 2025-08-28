@@ -48,5 +48,9 @@ router.get("/ManageDepartments", authenticateToken, authorizeRoles("admin"), (re
 router.get("/ManageServices", authenticateToken, authorizeRoles("admin"), (req, res) => {
   res.json({ message: "Welcome Admin to Manage Services", user: req.user });
 });
+router.get("/registerPatient",authenticateToken,authorizeRoles("admin"),(req,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
+})
+
 
 module.exports = router;

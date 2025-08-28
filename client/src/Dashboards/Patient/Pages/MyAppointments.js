@@ -205,6 +205,7 @@ const MyAppointments = () => {
         }}
       >
         <div className="row g-4">
+          <h2>My Appointments</h2>
         <div className="col-12">
           <div
             className="card text-white h-100"

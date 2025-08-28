@@ -60,15 +60,15 @@ function Register(){
    
     const navigate=useNavigate();
      useEffect(() => {
-        axios.get(`http://localhost:3001/doctor/registerPatient`, {
+        axios.get(`http://localhost:3001/registerPatient`, {
       withCredentials: true, // this sends the JWT cookie
         })
           .then((res) => {
-            if (res.data.user?.role !== "doctor") {
+            if (res.data.user?.role !== "admin") {
               Swal.fire({
                 icon: "error",
                 title: "Access Denied",
-                text: "Only doctors can access this page.",
+                text: "Only admin can access this page.",
                 confirmButtonColor: "#51A485",
               });
               navigate("/");
@@ -201,7 +201,7 @@ function Register(){
     return (
         <>
         <div style={{display:"flex"}}>
-            <Sidebar role={"doctor"}/>
+            <Sidebar role={"admin"}/>
             <div className="container mt-5">
                 <h2 style={{textAlign:"center",marginBottom:"50px"}}>Register Patient</h2> 
                 <form   className="mt-4" onSubmit={handleSubmit(formSubmit)} style={{borderRadius:'10px',borderWidth:'1px',borderColor:"white",boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',padding:"50px",margin:"50px"}}>

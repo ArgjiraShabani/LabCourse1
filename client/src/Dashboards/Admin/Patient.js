@@ -166,11 +166,11 @@ useEffect(() => {
             confirmButtonText: "Delete"
             }).then((result) => {
             if (result.isConfirmed) {
-                Axios.delete(`http://localhost:3001/patient/deletePatient/${id}`,{
-                    withCredentials: true
+                Axios.put(`http://localhost:3001/patient/deletePatient/${id}`,{},{
+                    withCredentials:true
                     })
                      .then(response=>{
-                        const updatedList = patientList.filter(patient => patient.patient_id !== id);
+                        const updatedList = patientList.filter(patient => patient.patient_id!==id);
                     setPatientList(updatedList);
                        Swal.fire({
                         position: "center",

@@ -133,8 +133,8 @@ function handleDelete(id){
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Patient ID</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>First Name</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Last Name</th>
-              <th style={{ backgroundColor: '#51A485', color: 'white' }}>Message</th>
-              <th style={{ backgroundColor: '#51A485', color: 'white',width:"200px" }}>Date</th>
+              <th style={{ backgroundColor: '#51A485', color: 'white',width:'50%'}}>Message</th>
+              <th style={{ backgroundColor: '#51A485', color: 'white' }}>Date</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Delete</th>
             </tr>
           </thead>
@@ -147,7 +147,7 @@ function handleDelete(id){
                   <td>{value.last_name}</td>
                   <td>{value.feedback_text}</td>
                   <td>{value.created_at}</td>
-                  <td style={{display:"flex",justifyContent:"center"}}>
+                  <td>
                   <Button variant="danger" onClick={()=>{handleDelete(value.feedback_id)}}>Delete</Button>
                   </td>
                 </tr>

@@ -168,6 +168,14 @@ const toggleSidebar = () => setIsOpen(!isOpen);
               </li>
               <li className="nav-item mb-2">
                 <Link
+                  to="/registerPatient"
+                  className="nav-link text-white hover-link"
+                >
+                  Register Patients
+                </Link>
+              </li>
+              <li className="nav-item mb-2">
+                <Link
                    to={`/patientAppointments`}
                   className="nav-link text-white hover-link"
                 >Patient Appointments</Link>
@@ -241,14 +249,7 @@ const toggleSidebar = () => setIsOpen(!isOpen);
                   Dashboard
                 </a>
               </li>
-              <li className="nav-item mb-2">
-                <Link
-                  to="/registerPatient"
-                  className="nav-link text-white hover-link"
-                >
-                  Patients
-                </Link>
-              </li>
+              
               <li className="nav-item mb-2">
                 <Link
                   to="/DoctorSchedule/"
