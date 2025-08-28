@@ -19,12 +19,11 @@ import { Link } from "react-router-dom";
 
 function HomePagePatient() {
   const navigate = useNavigate();
- const param=useParams();
-  const {id}=param;
+   const [id,setId]=useState(null);
 
   useEffect(() => {
   axios
-    .get(`http://localhost:3001/homePagePatient/${id}`, {
+    .get(`http://localhost:3001/homePagePatient`, {
       withCredentials: true, // this sends the JWT cookie
     })
     .then((res) => {
@@ -37,6 +36,7 @@ function HomePagePatient() {
         });
         navigate('/');
       }
+      setId(res.data.user.id);
     })
     .catch((err) => {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
@@ -268,7 +268,7 @@ function HomePagePatient() {
             Book your appointment
           </Link>
           <Link
-            to={`/staff/${id}`}
+            to={`/staffPatient`}
             className="btn btn-primary"
             style={{
               backgroundColor: "#51A485",
@@ -375,7 +375,7 @@ function HomePagePatient() {
                       </div>
                 </form>
               <div className="col-12" style={{marginTop:"10px"}}>
-                   <Link to={`/feedbacksPatient/${id}`} className="btn w-100 py-2" style={{backgroundColor:"#51A485",color:"white"}}>Check my Feedbacks</Link>
+                   <Link to={`/feedbacksPatient`} className="btn w-100 py-2" style={{backgroundColor:"#51A485",color:"white"}}>Check my Feedbacks</Link>
                </div>
               </div>
             </div>

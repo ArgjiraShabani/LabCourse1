@@ -23,6 +23,7 @@ const MyAppointments = () => {
     api
       .get("/my-appointments")
       .then((res) => {
+        
         const user = res.data.user;
 
         if (!user) {

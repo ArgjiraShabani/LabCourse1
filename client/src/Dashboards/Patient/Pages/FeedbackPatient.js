@@ -12,13 +12,13 @@ import Swal from 'sweetalert2';
 function FeedbacksPatient(){
   const [info,setInfo]=useState([]);
   const param=useParams();
-  const {id}=param; 
+const [id,setId]=useState("");
   const navigate = useNavigate();
 
 
   useEffect(() => {
   axios
-    .get(`http://localhost:3001/feedbacksPatient/${id}`, {
+    .get(`http://localhost:3001/feedbacksPatient`, {
       withCredentials: true, // this sends the JWT cookie
     })
     .then((res) => {
@@ -31,6 +31,7 @@ function FeedbacksPatient(){
         });
         navigate('/');
       }
+      setId(res.data.user.id);
     })
     .catch((err) => {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {

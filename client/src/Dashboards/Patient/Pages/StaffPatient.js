@@ -15,13 +15,13 @@ function MedicalStaffPatient(){
 
     const [staffList,setstaffList]=useState([]);
     const param=useParams();
-    const {id}=param;
+    const [id,setId]=useState("");
     const navigate = useNavigate();
      
 
      useEffect(() => {
   Axios
-    .get(`http://localhost:3001/staff/${id}`, {
+    .get(`http://localhost:3001/staffPatient`, {
       withCredentials: true, // this sends the JWT cookie
     })
     .then((res) => {
@@ -34,6 +34,7 @@ function MedicalStaffPatient(){
         });
         navigate('/');
       }
+      setId(res.data.user.id);
     })
     .catch((err) => {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {

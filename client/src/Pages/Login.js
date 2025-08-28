@@ -35,7 +35,7 @@ function Login(){
               if (res.data.role === 'doctor') {
                 navigate(`/doctordashboard/${res.data.id}`);
               } else if (res.data.role === 'patient') {
-                navigate(`/homePagePatient/${res.data.id}`)
+                navigate(`/homePagePatient`)
               } else {
                 navigate(`/adminDashboard`);
               }

@@ -322,7 +322,7 @@ const toggleSidebar = () => setIsOpen(!isOpen);
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/myprofile/${id}`}
+                  to={`/myprofile`}
                   className="nav-link text-white hover-link"
                 >
                   My Profile
@@ -330,7 +330,7 @@ const toggleSidebar = () => setIsOpen(!isOpen);
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/feedbacksPatient/${id}`}
+                  to={`/feedbacksPatient`}
                   className="nav-link text-white hover-link"
                 >
                   My Feedbacks
@@ -343,7 +343,7 @@ const toggleSidebar = () => setIsOpen(!isOpen);
               </li>
                */}
               <li className="nav-item mt-4">
-                <Link to={`/homePagePatient/${id}`} className="nav-link text-white">
+                <Link to={`/homePagePatient`} className="nav-link text-white">
                   Home
                 </Link>
               </li>

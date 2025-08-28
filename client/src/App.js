@@ -51,9 +51,9 @@ function Layout() {
       <main className="flex-grow-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path='/homePagePatient/:id' element={<HomePagePatient />}/>-----------
+          <Route path='/homePagePatient' element={<HomePagePatient />}/>-----------
           <Route path="/staff" element={<MedicalStaff />} />
-          <Route path='/staff/:id' element={<MedicalStaffPatient />}/>-----------------
+          <Route path='/staffPatient' element={<MedicalStaffPatient />}/>-----------------
 
            <Route path="/adminDashboard" element={<AdminDashboard />} />++++++++++++++
           <Route path="/doctors" element={<AdminDoctor/>}/>
@@ -62,12 +62,12 @@ function Layout() {
           <Route path='/doctorSpecializations' element={<DoctorSpecializations/>}/>
           <Route path='/doctorProfile/:doctor_id' element={<DoctorProfile/>}/>
           <Route path='/medicalRecords/:id' element={<MedicalRecords/>}/>
-          <Route path='/feedbacksPatient/:id' element={<FeedbacksPatient/>}></Route>---------------
+          <Route path='/feedbacksPatient' element={<FeedbacksPatient/>}></Route>---------------
           <Route path='/updateData' element={<UpdateData/>}></Route>---------------------------
 
           <Route path="/doctordashboard/:doctor_id" element={<DoctorDashboard/>} />
           <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
-          <Route path='/myprofile/:id' element={<MyProfile/>}></Route>--------------
+          <Route path='/myprofile' element={<MyProfile/>}></Route>--------------
           <Route path='/bookAppointment' element={<BookAppointment/>}></Route>+++++++++++++
           <Route path="/ManageDepartments" element={<ManageDepartments />}></Route>
           <Route path="/ManageServices" element={<ManageServices />} />

@@ -13,16 +13,17 @@ import Swal from "sweetalert2";
 const MyProfile = () => {
   const navigate = useNavigate();
   const param=useParams();
-  const {id}=param; 
+  const [id,setId]=useState("");
 
     const [info,setInfo]=useState(null);
 
    useEffect(() => {
   axios
-    .get(`http://localhost:3001/myprofile/${id}`, {
+    .get(`http://localhost:3001/myprofile`, {
       withCredentials: true, // this sends the JWT cookie
     })
     .then((res) => {
+  
       if (res.data.user?.role !== 'patient') {
         // Not a patient? Block it.
         Swal.fire({
@@ -30,8 +31,10 @@ const MyProfile = () => {
           title: 'Access Denied',
           text: 'Only patients can access this page.',
         });
+        
         navigate('/');
       }
+        setId(res.data.user.id);
     })
     .catch((err) => {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
