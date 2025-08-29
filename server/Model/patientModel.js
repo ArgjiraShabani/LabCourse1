@@ -20,7 +20,7 @@ const getPatientById=(patientId,callback)=>{
     const sql=`SELECT * from patients left join gender
      on patients.gender_id=gender.gender_id left join blood 
      on patients.blood_id=blood.blood_id where patients.patient_id = ?`;
-     db.query(sql,[patientId],callback);
+     db.query(sql,patientId,callback);
 };
 
 const getAllPatients=(callback)=>{
@@ -117,6 +117,10 @@ const deleteFeedback=(id,callback)=>{
     const sql='DELETE FROM feedbacks WHERE feedback_id=?';
     db.query(sql,id,callback);
 };
+const updateFeedback=(params,callback)=>{
+    const sql='UPDATE feedbacks set feedback_text=? WHERE feedback_id=?';
+    db.query(sql,params,callback);
+};
 
 const getPatientForUpdation=(id,callback)=>{
     const sql='Select p.first_name,p.last_name,p.email,p.phone,p.date_of_birth,p.gender_id from patients p left join gender g on p.gender_id=g.gender_id where p.patient_id=?';
@@ -157,5 +161,6 @@ module.exports={
     getPatientForUpdation,
     updatePatientAdmin,
     getPatientsForDropdown,
+    updateFeedback
     
 }

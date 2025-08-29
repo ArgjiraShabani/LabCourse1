@@ -23,17 +23,18 @@ const {getPatientAppointments,
       deleteFeedback,
       getPatientForUpdation,
       updatePatientAdmin,
-      getPatientsForDropdown,} =require('../Model/patientModel');
+      getPatientsForDropdown,
+      updateFeedback} =require('../Model/patientModel');
 
 
 const getPatientByIdHandler=(req,res)=>{
       const patientId=req.params.id;
+      console.log(patientId)
 
     getPatientById(patientId,(err,results)=>{
         if(err){
       res.json(err)
   }else{
-    console.log(results[0])
        const data = results[0];
 
         if (data.date_of_birth instanceof Date) {
@@ -345,6 +346,19 @@ const deleteFeedbackHandler=(req,res)=>{
   });
 };
 
+const updateFeedbackHandler=(req,res)=>{
+
+  const id=req.params.id;
+  const newFeedback=req.body.feedback_text;
+  updateFeedback([newFeedback,id],(err,result)=>{
+    if(err){
+      return res.json("Error");
+    }else{
+      res.send(result)
+    };
+  });
+}
+
 const getPatientForUpdationHandler=(req,res)=>{
   const id=req.params.id;
   getPatientForUpdation(id,(err,result)=>{
@@ -407,5 +421,6 @@ module.exports={
     deleteFeedbackHandler,
     getPatientForUpdationHandler,
     updatePatientAdminHandler,
-    getPatientsForDropdownHandler
+    getPatientsForDropdownHandler,
+    updateFeedbackHandler,
 }

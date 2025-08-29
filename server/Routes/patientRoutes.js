@@ -15,7 +15,8 @@ const {getPatientByIdHandler,
     deleteFeedbackHandler,
     getPatientForUpdationHandler,
     updatePatientAdminHandler,
-    getPatientsForDropdownHandler}=require('../Controllers/patientController');
+    getPatientsForDropdownHandler,
+    updateFeedbackHandler}=require('../Controllers/patientController');
 
 
 const userStorage=multer.diskStorage({
@@ -36,8 +37,9 @@ router.patch('/changePassword',authenticateToken,changePasswordHandler);
 router.put('/updatePatient/:id',authenticateToken,upload.single('image'),updatePatientHandler);
 router.post('/registerPatient',authenticateToken,upload.single('image'),registerPatientHandler);
 router.post('/feedbacks',authenticateToken,setFeedbacksHandler);
-router.get('/feedbacksPatient/:id',authenticateToken,getFeedbacksPatientHandler);
+router.get('/feedbackPatient/:id',authenticateToken,getFeedbacksPatientHandler);
 router.delete('/deleteFeedback/:id',authenticateToken,deleteFeedbackHandler);
+router.patch('/updateFeedback/:id',authenticateToken,updateFeedbackHandler);
 router.get('/patientInfoForUpdation/:id',authenticateToken,getPatientForUpdationHandler);
 router.put('/updatePatientAdmin/:id',authenticateToken,updatePatientAdminHandler);
 router.get('/patients-dropdown', getPatientsForDropdownHandler);

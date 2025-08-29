@@ -17,9 +17,17 @@ async function initAdminUser() {
         }
 
         const hashedPassword = await bcrypt.hash(plainPassword, 10);
+       
+        const [roleRows] = await db.promise().query('SELECT role_id FROM roles WHERE role_name = ?', ['admin']);
+
+        if (roleRows.length === 0) {
+            console.error('Admin role not found in roles table.');
+            return;
+        }
+        const roleId = roleRows[0].role_id;
 
         const insertQuery = 'INSERT INTO admin (first_name,last_name,email, password,role_id) VALUES (?,?,?,?,?)';
-        await db.promise().query(insertQuery, ["Admin","Admin",email, hashedPassword,1]);
+        await db.promise().query(insertQuery, ["Admin","Admin",email, hashedPassword,roleId]);
 
         console.log('Admin user created successfully.');
     } catch (err) {
