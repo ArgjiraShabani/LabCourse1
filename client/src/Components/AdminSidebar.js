@@ -246,7 +246,7 @@ const toggleSidebar = () => setIsOpen(!isOpen);
             <ul className="nav flex-column">
               <li className="nav-item mb-2">
                 <Link
-                  to={`/doctordashboard/${id}`}
+                  to={`/doctordashboard`}
                   className="nav-link text-white hover-link"
                 >
                   Dashboard Overview

@@ -40,7 +40,7 @@ function Login(){
               
 
               if (res.data.role === 'doctor') {
-                navigate(`/doctordashboard/${res.data.id}`);
+                navigate(`/doctordashboard`);
               } else if (res.data.role === 'patient') {
                 navigate(`/homePagePatient`)
               } else {
