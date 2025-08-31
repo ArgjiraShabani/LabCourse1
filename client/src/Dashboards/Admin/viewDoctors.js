@@ -131,7 +131,14 @@ const ViewDoctors=()=>{
     </tr>
   </thead>
   <tbody>
-    {doctorList.map((doctor)=>(
+    {doctorList.length===0?(
+        <tr>
+            <td colSpan="9" style={{ textAlign: "center", padding: "15px", color: "#888" }}>
+        No doctors found.
+      </td>
+        </tr>
+    ):(
+    doctorList.map((doctor)=>(
         <tr key={doctor.doctor_id}>
         <td >{doctor.doctor_id}</td>
         <td >{doctor.first_name}</td>
@@ -170,7 +177,7 @@ const ViewDoctors=()=>{
         
       </tr>
 
-    ))}
+    )))}
     
     
   </tbody>

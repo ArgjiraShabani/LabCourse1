@@ -60,7 +60,7 @@ function Layout() {
           <Route path="/updateDoctors/:id" element={<UpdateDoctor/>}/>
           <Route path='/viewDoctors' element={<ViewDoctors/>}/>
           <Route path='/doctorSpecializations' element={<DoctorSpecializations/>}/>
-          <Route path='/doctorProfile/:doctor_id' element={<DoctorProfile/>}/>
+          <Route path='/doctorProfile' element={<DoctorProfile/>}/>
           <Route path='/medicalRecords/:id' element={<MedicalRecords/>}/>
           <Route path='/feedbacksPatient' element={<FeedbacksPatient/>}></Route>---------------
           <Route path='/updateData' element={<UpdateData/>}></Route>---------------------------

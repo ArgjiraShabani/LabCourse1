@@ -40,7 +40,7 @@ router.post('/doctors',authenticateToken, userUpload.single('img'),createDoctorH
 router.put('/updateDoctors/:doctor_id',authenticateToken, userUpload.single('img'),updateDoctorHandler);
 router.get('/viewDoctors',authenticateToken, getAllDoctorsHandlers);
 router.delete('/deleteDoctor/:doctor_id',authenticateToken, deleteDoctorHandler);
-router.get('/doctorId',authenticateToken,  getDoctorByIdHandler);
+//router.get('/doctorId',authenticateToken,  getDoctorByIdHandler);
 router.get('/appointments',authenticateToken,getAppointments);
 router.get('/staff',getStaffHandler);
 router.get('/allDoctors', getAllActiveDoctorsHandler);

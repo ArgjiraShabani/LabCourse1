@@ -154,7 +154,12 @@ function MedicalRecords(){
                   </tr>
                 </thead>
                 <tbody>
-                  {patientList.map((p)=>(
+                  {patientList.length===0?(
+                    <td colSpan="9" style={{ textAlign: "center", padding: "15px", color: "#888" }}>
+        No prescriptions found.
+      </td>
+                  ):(
+                  patientList.map((p)=>(
                     <tr key={`${p.patient_id}_${p.appointment_id}`} style={{ borderBottom: '1px solid #dddddd' }}>
                       
                       <td style={{ padding: '12px 15px' }}>{p.patient_id}</td>
@@ -211,7 +216,7 @@ function MedicalRecords(){
        
                     </tr>
 
-                  ))}
+                  )))}
 
                 </tbody>
 

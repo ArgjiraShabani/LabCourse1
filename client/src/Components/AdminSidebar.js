@@ -279,7 +279,7 @@ const toggleSidebar = () => setIsOpen(!isOpen);
               </li>
               <li className="nav-item mb-2">
                 <Link
-                  to={`/doctorProfile/${id}`}
+                  to={`/doctorProfile`}
                   className="nav-link text-white hover-link"
                 >
                   My Profile

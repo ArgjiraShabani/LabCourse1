@@ -20,53 +20,35 @@ function DoctorProfile(){
     const navigate=useNavigate();
 
     
-
- useEffect(() => {
+useEffect(() => {
   axios
-    .get("http://localhost:3001/api/docProfile", { withCredentials: true })
-    .then((res) => {
-      if (res.data.user?.role !== "doctor") {
-        Swal.fire({
-          icon: "error",
-          title: "Access Denied",
-          text: "Only doctors can access this page.",
-        });
-        navigate("/");
-      }else{
-             axios.get(`http://localhost:3001/api/doctorId`,{
-           withCredentials: true
-        })
-        .then((response)=>{
-            const birthDate=response.data.date_of_birth.split("T")[0];
-            response.data.date_of_birth=birthDate;
-            setDoctorData(response.data);
-        })
-      .catch((error) => {
-    if (error.response) {
-        console.error("Error fetching doctor data:", error.response.status, error.response.data);
-    } else {
-        console.error("Network error or no response:", error.message);
-    }
-    navigate("/login");
-    });
-
-
-      }
+    .get("http://localhost:3001/api/doctorId", { withCredentials: true })
+    .then((response) => {
+      const birthDate = response.data.date_of_birth.split("T")[0];
+      response.data.date_of_birth = birthDate;
+      setDoctorData(response.data);
     })
-    .catch((err) => {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        Swal.fire({
-          icon: "error",
-          title: "Access Denied",
-          text: "Please login.",
-        });
-        navigate("/");
+    .catch((error) => {
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login as a doctor.",
+          });
+          navigate("/login");
+        } else {
+          console.error(
+            "Error fetching doctor data:",
+            error.response.status,
+            error.response.data
+          );
+        }
       } else {
-        console.error("Unexpected error", err);
+        console.error("Network error or no response:", error.message);
       }
     });
 }, [navigate]);
-    
    
 
     if(!doctorData){
