@@ -223,6 +223,10 @@ const getAllPatientsHandler=(req,res)=>{
             console.error('Database error:',err);
             return res.status(500).json({error: 'Database error'});
         }
+        if (!results || results.length === 0) {
+      
+      return res.status(404).json({ error: 'Doctor not found or no patients' });
+    }
         const {first_name,last_name, total_patients}=results[0];
         res.json({first_name,last_name,total_patients});
     });

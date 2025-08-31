@@ -5,6 +5,8 @@ import axios from "axios";
 import { useEffect } from "react";
 import { FaUserInjured, FaCalendarCheck, FaUserMd , FaSmile} from "react-icons/fa";
 import { GoSmiley } from "react-icons/go";
+import Swal from "sweetalert2";
+
 
 
 
@@ -14,7 +16,45 @@ function DoctorDashboard() {
   const [patientNumber,setPatientNumber]=useState([]);
   const [doctorName,setDoctorName]=useState([]);
   const [appointments, setAppointments]=useState([]);
-  const [appointmentNr, setAppointmentNr]=useState([])
+  const [appointmentNr, setAppointmentNr]=useState([]);
+  const navigate= useNavigate();
+
+ useEffect(() => {
+  const checkAuthAndFetchData=async()=>{
+    try{
+     const authres=await axios
+    .get("http://localhost:3001/api/doctorDashboard", { withCredentials: true });
+    
+      if (authres.data.user?.role !== "doctor") {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Only doctors can access this page.",
+        });
+        navigate("/");
+        return;
+      }
+      fetchAppointments();
+      fetchTotalPatients();
+      fetchAppointmentNumber();
+    
+
+    
+  }catch(err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+        });
+        navigate("/");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    }
+    };
+    checkAuthAndFetchData();
+}, [navigate]);
 
 const fetchAppointments=()=>{
   axios.get("http://localhost:3001/doctor-appointments",{withCredentials: true})
@@ -30,9 +70,7 @@ const fetchAppointments=()=>{
 
   })
 }
-useEffect(()=>{
-  fetchAppointments();
-},[]);
+
 
 const fetchTotalPatients=()=>{
   axios.get('http://localhost:3001/api/totalPatients',{withCredentials: true})
@@ -52,9 +90,7 @@ const fetchTotalPatients=()=>{
   })
 
 }
-useEffect(()=>{
-  fetchTotalPatients();
-},[]);
+
 const fetchAppointmentNumber=()=>{
   axios.get('http://localhost:3001/api/appointmentNumber',{withCredentials: true})
   .then((response)=>{
@@ -72,9 +108,6 @@ const fetchAppointmentNumber=()=>{
 
   })
 }
-useEffect(()=>{
-  fetchAppointmentNumber();
-},[])
 
 const isToday=(dateStr)=>{
   const date=new Date(dateStr);

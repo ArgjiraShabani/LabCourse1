@@ -7,7 +7,7 @@ import {useForm} from "react-hook-form";
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import { IoEyeOff,IoEye } from "react-icons/io5";
-
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from 'sweetalert2-react-content';
 
@@ -29,6 +29,38 @@ function AdminDoctor(){
     password: yup.string().min(8).max(20).required("Password is required"),
     role_id: yup.number().typeError("Role is required").required()
 });
+
+const navigate=useNavigate();
+     useEffect(() => {
+        Axios.get(`http://localhost:3001/addDoc`, {withCredentials: true})
+          .then((res) => {
+            if (res.data.user?.role !== "admin") {
+              Swal.fire({
+                icon: "error",
+                title: "Access Denied",
+                text: "Only admin can access this page.",
+                confirmButtonColor: "#51A485",
+              });
+              navigate("/");
+            }
+          })
+          .catch((err) => {
+              console.error("Caught error:", err);
+
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                Swal.fire({
+                          icon: "error",
+                          title: "Access Denied",
+                          text: "Please login.",
+                          confirmButtonColor: "#51A485",
+                        });
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            }
+          });
+      }, [navigate]);
+
     
     const[role,setRole]=useState([]);
     const[gender,setGender]=useState([]);
@@ -41,23 +73,23 @@ function AdminDoctor(){
 
     const[img,setImg]=useState(null);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/api/roles').then((response)=>{
+        Axios.get('http://localhost:3001/api/roles',{ withCredentials: true }).then((response)=>{
             setRole(response.data);
         })
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/api/gender').then((response)=>{
+        Axios.get('http://localhost:3001/api/gender',{ withCredentials: true }).then((response)=>{
             setGender(response.data);
         })
 
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/api/specializations', {withCredentials: true}).then((response)=>{
+        Axios.get('http://localhost:3001/api/specializations',{ withCredentials: true }).then((response)=>{
             setSpecialization(response.data);
         })
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/api/departments').then((response)=>{
+        Axios.get('http://localhost:3001/api/departments',{ withCredentials: true }).then((response)=>{
             setDepartment(response.data);
         })
     },[]);
@@ -111,9 +143,21 @@ function AdminDoctor(){
 
     };
 
+    const doctorRole=role.find(r=>r.role_name.toLowerCase()==="doctor");
+    const doctorRoleId=doctorRole? doctorRole.role_id: "";
+
+
     
     return(
         <>
+        <style>
+            {`
+            .invalid-feedback {
+                min-height: 1.2em;
+                display: block;
+            }
+            `}
+        </style>
         <div style={{display: "flex",minHeight: "100vh"}}>
             <div style={{width: "250px"}}>
                 <Sidebar role="admin"/>
@@ -136,7 +180,7 @@ function AdminDoctor(){
                                 <input type="text" className={`form-control w-100 ${errors.first_name?'is-invalid': ''}`} id="first_name" aria-describedby="name"
                                 name="first_name" {...register("first_name")} placeholder="First Name"/>
                                 {errors.first_name && (
-                                    <div className="invalid-feedback">{errors.first_name.message}</div>
+                                    <div style={{ minHeight: '1.2em', display: 'block' }} className="invalid-feedback">{errors.first_name.message}</div>
                                 )}
                             
                             </div>
@@ -245,11 +289,13 @@ function AdminDoctor(){
                             <div className="mb-3" style={{ position: "relative" }}>
                                 <label htmlFor="password" className="form-label">Password</label>
                                 <input type={show? "text": "password"} className={`form-control w-100 ${errors.password?'is-invalid': ''}`} id="password"
-                               name="password" {...register("password")} placeholder="Password"/>
+                               name="password" {...register("password")} placeholder="Password"
+                               style={{
+                                paddingRight: "2.5rem"}}/>
                                <span onClick={handleClick} 
                                style={{position: 'absolute',
                                top: '50%',
-                               right: '8%',
+                               right: '10px',
                                transform: 'translateY(15%)',
                                 cursor: 'pointer',color: '#888'}}>{show? <IoEye/>: <IoEyeOff />}</span>
                                
@@ -260,11 +306,12 @@ function AdminDoctor(){
                             <div className="mb-3">
                             <label htmlFor="role" className="form-label">Role:</label>
                             <select name="role_id" id="role" className={`form-control w-100 ${errors.role_id?'is-invalid': ''}`} aria-describedby="role"
-                            {...register("role_id",{ valueAsNumber: true })} >
-                                <option value="">Select role</option>
-                                {role.map(r=>(
-                                    <option key={`role-${r.role_id}`} value={r.role_id}>{r.role_name}</option>
-                                ))}
+                            {...register("role_id",{ valueAsNumber: true })} 
+                            defaultValue={doctorRoleId}
+                            
+                           >
+                                <option value={doctorRoleId}>Doctor</option>
+                              
                                 
                         </select>
                          {errors.role_id && (

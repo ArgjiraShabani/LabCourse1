@@ -24,7 +24,7 @@ const UpdateDoctor=()=>{
         role_id: yup.number().typeError("Role is required").required(),
         education: yup.string().required()
     });
-    const navigate=useNavigate();  
+    
 
     const swal=withReactContent(Swal);
 
@@ -45,9 +45,40 @@ const UpdateDoctor=()=>{
             resolver: yupResolver(schema)
         });
     const[show,setShow]=useState(false);
+    
     const handleClick=()=>{
         setShow(!show);
     }
+    const navigate=useNavigate();
+         useEffect(() => {
+            Axios.get(`http://localhost:3001/updateDoc`, {withCredentials: true})
+              .then((res) => {
+                if (res.data.user?.role !== "admin") {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Access Denied",
+                    text: "Only admin can access this page.",
+                    confirmButtonColor: "#51A485",
+                  });
+                  navigate("/");
+                }
+              })
+              .catch((err) => {
+                  console.error("Caught error:", err);
+    
+                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                    Swal.fire({
+                              icon: "error",
+                              title: "Access Denied",
+                              text: "Please login.",
+                              confirmButtonColor: "#51A485",
+                            });
+                    navigate('/');
+                } else {
+                    console.error("Unexpected error", err);
+                }
+              });
+          }, [navigate]);
     
     
     useEffect(()=>{

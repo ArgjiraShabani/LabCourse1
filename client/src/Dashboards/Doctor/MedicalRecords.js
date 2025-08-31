@@ -6,6 +6,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { GoTrash } from "react-icons/go";
 import Swal from "sweetalert2";
 import withReactContent from 'sweetalert2-react-content';
+import { useNavigate } from "react-router-dom";
 
 function MedicalRecords(){
 
@@ -19,6 +20,38 @@ function MedicalRecords(){
     const [submittedPrescription,setSubmittedPrescription]=useState({});
     const [isEditing, SetIsEditing]=useState(false);
     const swal=withReactContent(Swal);
+
+    
+    const navigate=useNavigate();
+
+    
+
+ useEffect(() => {
+  axios
+    .get("http://localhost:3001/api/medRecords", { withCredentials: true })
+    .then((res) => {
+      if (res.data.user?.role !== "doctor") {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Only doctors can access this page.",
+        });
+        navigate("/");
+      }
+    })
+    .catch((err) => {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+        });
+        navigate("/");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    });
+}, [navigate]);
 
     const confirmDeletion=(resultId)=>{
         swal.fire({

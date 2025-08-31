@@ -1,7 +1,7 @@
 import Sidebar from "../../Components/AdminSidebar";
 import { useState,useEffect } from "react";
 import Axios from 'axios';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoTrash } from "react-icons/go";
 import { FaRegEdit,FaRegEye } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -12,6 +12,7 @@ import DoctorModal from "./DoctorModal";
 const ViewDoctors=()=>{
     const swal=withReactContent(Swal);
     const [selectedDoctor,setSelectedDoctor]=useState(null);
+    const [searchTerm, setSearchTerm]=useState("");
     const confirmDeletion= (id)=>{
         swal.fire({
             title: "Are you sure you want to delete the user?",
@@ -30,6 +31,36 @@ const ViewDoctors=()=>{
     };
      const [openModal,setOpenModal] = useState(false);
     const [doctorList,setDoctorList]=useState([]);
+      const navigate=useNavigate();
+         useEffect(() => {
+            Axios.get(`http://localhost:3001/viewDoc`, {withCredentials: true})
+              .then((res) => {
+                if (res.data.user?.role !== "admin") {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Access Denied",
+                    text: "Only admin can access this page.",
+                    confirmButtonColor: "#51A485",
+                  });
+                  navigate("/");
+                }
+              })
+              .catch((err) => {
+                  console.error("Caught error:", err);
+    
+                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                    Swal.fire({
+                              icon: "error",
+                              title: "Access Denied",
+                              text: "Please login.",
+                              confirmButtonColor: "#51A485",
+                            });
+                    navigate('/');
+                } else {
+                    console.error("Unexpected error", err);
+                }
+              });
+          }, [navigate]);
     useEffect(()=>{
         Axios.get("http://localhost:3001/api/viewDoctors",{
             withCredentials: true

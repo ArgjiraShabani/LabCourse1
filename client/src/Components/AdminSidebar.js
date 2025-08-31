@@ -242,12 +242,15 @@ const toggleSidebar = () => setIsOpen(!isOpen);
           </>
         ) : role === "doctor" ? (
           <>
-            <h4 className="text-center mb-4">Admin Panel</h4>
+            <h4 className="text-center mb-4">Doctor Panel</h4>
             <ul className="nav flex-column">
               <li className="nav-item mb-2">
-                <a href="#" className="nav-link text-white active shadow-link">
-                  Dashboard
-                </a>
+                <Link
+                  to={`/doctordashboard/${id}`}
+                  className="nav-link text-white hover-link"
+                >
+                  Dashboard Overview
+                </Link>
               </li>
               
               <li className="nav-item mb-2">

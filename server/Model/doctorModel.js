@@ -83,7 +83,8 @@ const getAllDoctors=(callback)=>{
   d.education
   FROM doctors d inner join roles r on d.role_id=r.role_id
     inner join specialization s on d.specialization_id=s.specialization_id
-   inner join departments dep on d.department_id=dep.department_id`;
+   inner join departments dep on d.department_id=dep.department_id
+   ORDER BY doctor_id ASC`;
    db.query(sqlGet,callback);
 };
 const deleteDoctor=(doctorId,callback)=>{

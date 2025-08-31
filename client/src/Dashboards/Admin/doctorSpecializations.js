@@ -1,10 +1,11 @@
 import Sidebar from "../../Components/AdminSidebar";
 import { useState,useEffect } from "react";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { FaRegEdit,FaRegEye } from "react-icons/fa";
 import { GoTrash } from "react-icons/go";
 import Swal from "sweetalert2";
 import withReactContent from 'sweetalert2-react-content';
+import { useNavigate } from "react-router-dom";
 
 function DoctorSpecializations(){
     const swal=withReactContent(Swal);
@@ -29,6 +30,36 @@ function DoctorSpecializations(){
             }
         });
     }
+    const navigate=useNavigate();
+         useEffect(() => {
+            axios.get(`http://localhost:3001/specializations`, {withCredentials: true})
+              .then((res) => {
+                if (res.data.user?.role !== "admin") {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Access Denied",
+                    text: "Only admin can access this page.",
+                    confirmButtonColor: "#51A485",
+                  });
+                  navigate("/");
+                }
+              })
+              .catch((err) => {
+                  console.error("Caught error:", err);
+    
+                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                    Swal.fire({
+                              icon: "error",
+                              title: "Access Denied",
+                              text: "Please login.",
+                              confirmButtonColor: "#51A485",
+                            });
+                    navigate('/');
+                } else {
+                    console.error("Unexpected error", err);
+                }
+              });
+          }, [navigate]);
 
     useEffect(()=>{
         fetchSpecializations();

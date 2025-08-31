@@ -52,5 +52,22 @@ router.get("/registerPatient",authenticateToken,authorizeRoles("admin"),(req,res
   res.json({message : "Welcome Admin", user: req.user});
 })
 
+router.get("/addDoc",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
+
+})
+router.get("/updateDoc",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
+
+})
+router.get("/viewDoc",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
+
+})
+router.get("/specialization",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
+
+})
+
 
 module.exports = router;

@@ -4,12 +4,13 @@ import { useState,useEffect } from "react";
 import {FaUser,FaEnvelope,FaPhone,FaGenderless,FaStethoscope,FaHospital} from "react-icons/fa";
 import { LuCalendarDays } from "react-icons/lu";
 import { PiStudentFill } from "react-icons/pi";
-import Axios from "axios";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 function DoctorProfile(){
 
     
-    const [doctorData,setDoctorData]=useState([]);
+    const [doctorData,setDoctorData]=useState(null);
 
   
   
@@ -17,14 +18,22 @@ function DoctorProfile(){
     
 
     const navigate=useNavigate();
+
     
-    useEffect(()=>{
-        
-       
-        
-        
-        
-        Axios.get(`http://localhost:3001/api/doctorId`,{
+
+ useEffect(() => {
+  axios
+    .get("http://localhost:3001/api/docProfile", { withCredentials: true })
+    .then((res) => {
+      if (res.data.user?.role !== "doctor") {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Only doctors can access this page.",
+        });
+        navigate("/");
+      }else{
+             axios.get(`http://localhost:3001/api/doctorId`,{
            withCredentials: true
         })
         .then((response)=>{
@@ -40,7 +49,25 @@ function DoctorProfile(){
     }
     navigate("/login");
     });
-    },[navigate]);
+
+
+      }
+    })
+    .catch((err) => {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+        });
+        navigate("/");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    });
+}, [navigate]);
+    
+   
 
     if(!doctorData){
         return <div>Loading profile...</div>;
