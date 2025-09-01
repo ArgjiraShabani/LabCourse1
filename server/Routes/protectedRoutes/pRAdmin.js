@@ -52,7 +52,7 @@ router.get("/registerPatient",authenticateToken,authorizeRoles("admin"),(req,res
   res.json({message : "Welcome Admin", user: req.user});
 })
 
-router.get("/addDoc",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+router.get("/addDoc",authenticateToken,authorizeRoles("admin"),(req,res)=>{
   res.json({message : "Welcome Admin", user: req.user});
 
 })
