@@ -33,6 +33,8 @@ const adminRoutes = require("./Routes/adminRoutes");
 const adminController = require("./Controllers/adminController");
 const settingsRoutes = require('./Routes/settingsRoutes');
 const initAdminUser=require("./Routes/initAdmin");
+const forgotPasswordRoutes=require("./Routes/forgotPasswordRoute");
+const resetPasswordRoutes=require("./Routes/resetPasswordRoute");
 
 app.use(
   cors({
@@ -759,9 +761,10 @@ app.use("/api", dataRoutes);
 app.use("/api", specializationRoutes);
 app.use("/api", reportRoutes);
 app.use("/api", emailRoutes);
-
 app.use("/api", standardScheduleRoutes);
 app.use("/api/weekly-schedules", weeklyScheduleRoutes);
+app.use("/api", forgotPasswordRoutes);
+app.use("/api",resetPasswordRoutes);
 
 /*
 

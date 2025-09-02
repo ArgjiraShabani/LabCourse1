@@ -99,11 +99,13 @@ router.post("/login", (req, res) => {
 
 function sendToken(res, id, role) {
   const accessToken = jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn:24 * 60 * 60 * 1000,
+   expiresIn:24 * 60 * 60 * 1000,
+   
   });
 
   const refreshToken = jwt.sign({ id, role }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: 7 * 24 * 60 * 60 * 1000, // longer-lived
+   expiresIn: 7 * 24 * 60 * 60 * 1000, // longer-lived
+   
   });
 
   res.cookie("accessToken", accessToken, {

@@ -95,7 +95,7 @@ function Login(){
                         <button type="submit" className="w-100" style={{backgroundColor:"#51A485",borderColor:"white",height:"50px",color:"white",borderRadius:"7px"}}>LOGIN</button>
                     </div>
                     <p className="text-right">
-                        Forgot <a href=''>Password?</a> | <Link to="/signUp">Sign Up</Link>
+                        <Link to="/forgotPassword">Forgot Password?</Link> | <Link to="/signUp">Sign Up</Link>
                     </p>
                     </form>
                 </div>

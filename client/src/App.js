@@ -37,6 +37,8 @@ import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';
 import UpdateData from './Dashboards/Admin/UpdateData';
 import LogOut from './Pages/Logout';
 import UpdatePatient from './Dashboards/Admin/UpdatePatient';
+import ForgotPassword from './Pages/forgotPassword';
+import ResetPassword from './Pages/resetPassword';
 
 
 
@@ -86,6 +88,8 @@ function Layout() {
           <Route path='/updatePatient/:id' element={<UpdatePatient/>}/>---------------
 
           <Route path='/myAppointments' element={<MyAppointments/>}></Route>+++++++++++++++++
+          <Route path='/forgotPassword' element={<ForgotPassword/>}></Route>
+          <Route path='/resetPassword/:token' element={<ResetPassword/>}></Route>
         </Routes>
       </main>
      
