@@ -56,15 +56,15 @@ router.get("/addDoc",authenticateToken,authorizeRoles("admin"),(req,res)=>{
   res.json({message : "Welcome Admin", user: req.user});
 
 })
-router.get("/updateDoc",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+router.get("/updateDoc",authenticateToken,authorizeRoles("admin"),(req,res)=>{
   res.json({message : "Welcome Admin", user: req.user});
 
 })
-router.get("/viewDoc",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+router.get("/viewDoc",authenticateToken,authorizeRoles("admin"),(req,res)=>{
   res.json({message : "Welcome Admin", user: req.user});
 
 })
-router.get("/specialization",authenticateToken,authorizeRoles("admin"),(rea,res)=>{
+router.get("/specialization",authenticateToken,authorizeRoles("admin"),(req,res)=>{
   res.json({message : "Welcome Admin", user: req.user});
 
 })

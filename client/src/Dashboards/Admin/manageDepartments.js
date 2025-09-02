@@ -34,20 +34,20 @@ const ManageDepartments = () => {
         }
       })
       .catch((err) => {
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                 Swal.fire({
-                                          icon: "error",
-                                          title: "Access Denied",
-                                          text: "Please login.",
-                                          confirmButtonColor: "#51A485",
-                                        });
-      
-              navigate('/');
-            } else {
-              console.error("Unexpected error", err);
-            }
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
           });
-      }, []);
+
+          navigate('/');
+        } else {
+          console.error("Unexpected error", err);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     fetchDepartments();
@@ -64,29 +64,38 @@ const ManageDepartments = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+   const exists = departments.some(
+  (dept) => dept.department_name.toLowerCase() === departmentName.toLowerCase()
+);
+if (exists) {
+  Swal.fire("Error", "A department with this name already exists.", "error");
+  return;
+}
+
     const formData = new FormData();
     formData.append("department_name", departmentName);
     formData.append("description", description);
     if (photo) formData.append("photo", photo);
 
-    try {
-      await api.post("/departments", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      Swal.fire({
-        icon: "success",
-        title: "Created",
-        text: "Department created successfully!",
-        timer: 1500,
-        showConfirmButton: false,
-      });
+   try {
+  const res = await api.post("/departments", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  Swal.fire({
+    icon: "success",
+    title: "Success",
+    text: res.data.message,   
+    timer: 1500,
+    showConfirmButton: false,
+  });
       setDepartmentName("");
       setDescription("");
       setPhoto(null);
       fetchDepartments();
     } catch (error) {
       console.error("Error creating department:", error);
-      Swal.fire("Error", "Could not create department", "error");
+      const msg = error.response?.data?.error || error.message || "Could not create department";
+      Swal.fire("Error", msg, "error");
     }
   };
 
@@ -100,6 +109,17 @@ const ManageDepartments = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+
+    const exists = departments.some(
+      (dept) =>
+        dept.department_name.toLowerCase() === departmentName.toLowerCase() &&
+        dept.department_Id !== editingDepartmentId
+    );
+    if (exists) {
+      Swal.fire("Error", "A department with this name already exists.", "error");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("department_name", departmentName);
     formData.append("description", description);
@@ -126,7 +146,8 @@ const ManageDepartments = () => {
       fetchDepartments();
     } catch (error) {
       console.error("Error updating department:", error);
-      Swal.fire("Error", "Could not update department", "error");
+      const msg = error.response?.data?.error || error.message || "Could not update department";
+      Swal.fire("Error", msg, "error");
     }
   };
 
@@ -149,7 +170,8 @@ const ManageDepartments = () => {
       fetchDepartments();
     } catch (error) {
       console.error("Error deleting department:", error);
-      Swal.fire("Error", "Could not delete department", "error");
+      const msg = error.response?.data?.error || error.message || "Could not delete department";
+      Swal.fire("Error", msg, "error");
     }
   };
 
@@ -219,36 +241,22 @@ const ManageDepartments = () => {
                   src={`http://localhost:3001/uploads/${dept.image_path}`}
                   alt={dept.department_name}
                   className="card-img-top"
-                  style={{
-                    height: "200px",
-                    objectFit: "cover",
-                  }}
+                  style={{ height: "200px", objectFit: "cover" }}
                 />
               )}
               <div className="card-body">
                 <h5 className="card-title">{dept.department_name}</h5>
                 <p
                   className="card-text"
-                  style={{
-                    maxHeight: "80px",
-                    overflowY: "auto",
-                    fontSize: "0.95rem",
-                    color: "#555",
-                  }}
+                  style={{ maxHeight: "80px", overflowY: "auto", fontSize: "0.95rem", color: "#555" }}
                 >
                   {dept.description}
                 </p>
                 <div className="d-flex mt-3" style={{ gap: "8px" }}>
-                  <button
-                    onClick={() => handleEdit(dept)}
-                    className="btn btn-outline-primary btn-sm"
-                  >
+                  <button onClick={() => handleEdit(dept)} className="btn btn-outline-primary btn-sm">
                     Edit
                   </button>
-                  <button
-                    onClick={() => handleDelete(dept.department_Id)}
-                    className="btn btn-outline-danger btn-sm"
-                  >
+                  <button onClick={() => handleDelete(dept.department_Id)} className="btn btn-outline-danger btn-sm">
                     Delete
                   </button>
                 </div>

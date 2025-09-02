@@ -16,27 +16,27 @@ const getDepartmentsHandler = (req, res) => {
 };
 
 const createDepartmentHandler = (req, res) => {
-  const { department_name, description } = req.body;
+  const { department_name, description, status_id } = req.body;
   const image_path = req.file ? req.file.filename : null;
 
-  createDepartment({ department_name, description, image_path }, (err, result) => {
+  createDepartment({ department_name, description, image_path, status_id }, (err, result) => {
     if (err) {
       console.error('Error creating department:', err);
-      return res.status(500).json({ error: 'Error creating department' });
+      return res.status(400).json({ error: err.message });
     }
-    res.status(201).json({ message: 'Department created successfully' });
+    res.status(201).json({ message: result.message || 'Department created successfully' });
   });
 };
 
 const updateDepartmentHandler = (req, res) => {
-  const { department_name, description } = req.body;
+  const { department_name, description, status_id } = req.body;
   const departmentId = req.params.id;
   const image_path = req.file ? req.file.filename : null;
 
-  updateDepartment({ departmentId, department_name, description, image_path }, (err, result) => {
+  updateDepartment({ departmentId, department_name, description, image_path, status_id }, (err, result) => {
     if (err) {
       console.error('Error updating department:', err);
-      return res.status(500).json({ error: 'Error updating department' });
+      return res.status(400).json({ error: err.message });
     }
     res.json({ message: 'Department updated successfully' });
   });
