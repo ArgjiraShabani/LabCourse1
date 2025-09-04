@@ -168,7 +168,8 @@ function MedicalRecords(){
                       
                       <td style={{ padding: '12px 15px' }}><button   style={{
                                                 padding: '8px 16px',
-                                                backgroundColor: '#51A485',
+                                                backgroundColor: submittedPrescription[`${p.patient_id}_${p.appointment_id}`]
+                                                ? '#51A485': '#15825aff' ,
                                                 color: '#fff',
                                                 border: 'none',
                                                 borderRadius: '4px',

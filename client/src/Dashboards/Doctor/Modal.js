@@ -1,5 +1,6 @@
 import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
+import Swal from "sweetalert2";
 
 import axios from "axios";
 function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSubmitSuccess, result_id,isEditing}){
@@ -18,8 +19,10 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
 
     const[patientInfo,setPatientInfo]=useState({});
     const[doctorInfo,setDoctorInfo]=useState(null);
+    const [loading, setLoading]=useState(false);
 
     const handleEmailSend=async()=>{
+        setLoading(true);
         try{
             const data={
                 subject: "Medical Report",
@@ -37,10 +40,22 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                    
                 }
             );
-            alert("Medical report sent by email successfully");
+            setLoading(false);
+                  Swal.fire({
+                            icon: "success",
+                            title: "Report Sent Successfully!",
+                            text: response.data.message,
+                            confirmButtonColor: "#51A485",
+                  })
         }catch(error){
             console.log("Error sending email:",error);
-            alert("Failed to send report by email.");
+            setLoading(false);
+               Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: error.response?.data?.message || "Something went wrong",
+                            confirmButtonColor: "#51A485",
+                  });
         }
     };
 
@@ -82,7 +97,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                
             }
         };
-        if(patient_id  && appointment_id || result_id){
+        if((patient_id  && appointment_id) || result_id){
             fetchReport();
         }
     },[patient_id,appointment_id, result_id,isEditing]);
@@ -114,7 +129,12 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                 await axios.put(`http://localhost:3001/api/updateReports/${result_id}`, data, {
                     withCredentials: true
                 });
-                alert("Medical report updated successfully!");
+                Swal.fire({
+            title: "Success!",
+            text: "Your report was updated successfully.",
+            icon: "success",
+            confirmButtonText: "OK",
+        });
             }else{
                 await axios.post(
             `http://localhost:3001/api/reports/${patient_id}`,
@@ -123,7 +143,12 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                 withCredentials: true
             }
         );
-        alert("Medical Report created successfully!");
+        Swal.fire({
+            title: "Success!",
+            text: "Your report was created successfully.",
+            icon: "success",
+            confirmButtonText: "OK",
+        });
 
             }
             
@@ -141,7 +166,12 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
         
     }catch(error){
         console.error("Error submitting form",error);
-        alert("Failed to submit medical report");
+        Swal.fire({
+                title: "Error!",
+                text: "Something went wrong.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
     }
 }
 
@@ -186,20 +216,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
             color: '#51A485',
             zIndex: 10,
             }}/>
-            {/*<ul className="list-group list-group-flush" 
-            style={{
-           
-            width: '100%',
-            marginBottom: '2rem',
-        
-            backgroundColor: '#f8f9fa',
-            padding: '1rem'}}>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>First Name: {patientInfo.first_name}</li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Last Name: {patientInfo.last_name}</li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Birthdate: {patientInfo.date_of_birth}</li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Gender: {patientInfo.gender_name}</li>
-                <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>Medical History: {patientInfo.medical_history}</li>
-            </ul>*/}
+          
             <form className="container mt-4" style={{width: '100%'}} onSubmit={handleSubmit}>
             <div className="row mb-3">
             <label htmlFor="first_name" className="form-label">First Name:</label>
@@ -278,18 +295,45 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                 <div>
                 {!isEditing && !readOnly &&(
                     <>
+                    <div className="d-flex justify-content-center mt-4">
 
-                <button type="submit" name="action" value="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Submit</button>
+                <button type="submit" name="action" value="submit" className="btn m-5" 
+                style={{backgroundColor: '#51A485',color: '#fff',width: '100%',maxWidth:"400px",fontSize: "16px",padding:"15px"}}>Submit</button></div>
                 
                 </>
 
                 )}
                 {isEditing && (
-                     <button type="submit" name="action" value="submit" className="btn m-5" style={{backgroundColor: '#51A485',color: '#fff',width: '100px',height: '60px'}}>Update</button>
+                    <div className="d-flex justify-content-center mt-4">
+                     <button 
+                     type="submit" 
+                     name="action" 
+                     value="submit"
+                      className="btn m-5" 
+                      style={{backgroundColor: '#51A485',color: '#fff',width: '100%',maxWidth:"400px",fontSize: "16px",padding:"15px"}}>
+                        Update</button></div>
 
                 )}
-                {!isEditing && (
-                     <button type="button" onClick={handleEmailSend} name="action" value="email" className="btn " style={{backgroundColor: '#51A485',color: '#fff',width: '100px'}}>Send by email</button>
+                {readOnly && (
+                    <div className="d-flex justify-content-center mt-4">
+                     <button
+                      type="button"
+                      onClick={handleEmailSend} 
+                      name="action" value="email" 
+                      className="btn " 
+                      style={{backgroundColor: '#51A485',
+                    color: '#fff',
+                    padding: '15px',
+                    fontSize: '16px',
+                    width: '100%',
+                    maxWidth: '400px'}}
+                     disabled={loading}>
+                         {loading?(
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            ):(
+                                "Send Results by email"
+
+                            )}</button></div>
 
                 )}
                
