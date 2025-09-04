@@ -70,23 +70,29 @@ const updateDoctorById=(doctorId,doctorData,callback)=>{
    db.query(query,values,callback);
 };
 
-const getAllDoctors=(callback)=>{
-    const sqlGet=` SELECT d.doctor_id,d.first_name,
-    d.last_name,
-    d.email,
-    d.password,
-    d.phone,
-    r.role_name,
-    d.date_of_birth,
-  s.specialization_name,
-  dep.department_name ,
-  d.education
-  FROM doctors d inner join roles r on d.role_id=r.role_id
-    inner join specialization s on d.specialization_id=s.specialization_id
-   inner join departments dep on d.department_id=dep.department_id
-   ORDER BY doctor_id ASC`;
-   db.query(sqlGet,callback);
+const getAllDoctors = (callback) => {
+  const sqlGet = `
+    SELECT 
+      d.doctor_id,
+      d.first_name,
+      d.last_name,
+      d.email,
+      d.password,
+      d.phone,
+      r.role_name,
+      d.date_of_birth,
+      s.specialization_name,
+      dep.department_name ,
+      dep.status_id AS department_status,
+      d.education
+    FROM doctors d
+    INNER JOIN roles r ON d.role_id = r.role_id
+    LEFT JOIN specialization s ON d.specialization_id = s.specialization_id
+    LEFT JOIN departments dep ON d.department_Id = dep.department_Id ORDER BY doctor_id ASC
+  `;
+  db.query(sqlGet, callback);
 };
+
 const deleteDoctor=(doctorId,callback)=>{
     const sqlDel="DELETE FROM doctors WHERE doctor_id=?";
     db.query(sqlDel,[doctorId],callback);
@@ -111,7 +117,7 @@ d.education,
 d.image_path
 FROM doctors d inner join roles r on d.role_id=r.role_id
  inner join gender g on d.gender_id=g.gender_id
-  inner join specialization s on d.specialization_id=s.specialization_id
+  left join specialization s on d.specialization_id=s.specialization_id
  inner join departments dep on d.department_Id=dep.department_Id
  WHERE d.doctor_id=?
  `;
