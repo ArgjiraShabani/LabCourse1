@@ -1,15 +1,43 @@
 const db = require('../db');
 
 const getServices = (callback) => {
-  const query = "SELECT * FROM services";
+  const query = "SELECT * FROM services WHERE status_id = 1";
   db.query(query, (err, results) => {
     callback(err, results);
   });
 };
 
 const createService = ({ service_name, department_Id }, callback) => {
-  const query = "INSERT INTO services (service_name, department_Id) VALUES (?, ?)";
-  db.query(query, [service_name, department_Id], callback);
+  const checkQuery = "SELECT * FROM services WHERE service_name = ?";
+  db.query(checkQuery, [service_name], (err, results) => {
+    if (err) return callback(err);
+
+    if (results.length > 0) {
+      const existingService = results[0];
+
+      if (existingService.status_id === 2) {
+        const reactivateQuery = `
+          UPDATE services 
+          SET status_id = 1, department_Id = ?
+          WHERE service_id = ?`;
+        db.query(
+          reactivateQuery,
+          [department_Id, existingService.service_id],
+          (err, res) => {
+            if (err) return callback(err);
+            callback(null, { ...existingService, status_id: 1 });
+          }
+        );
+      } else {
+        return callback(new Error("Service with this name already exists"), null);
+      }
+    } else {
+      const query = `
+        INSERT INTO services (service_name, department_Id, status_id) 
+        VALUES (?, ?, 1)`;
+      db.query(query, [service_name, department_Id], callback);
+    }
+  });
 };
 
 const updateService = (id, { service_name, department_Id }, callback) => {
@@ -18,7 +46,7 @@ const updateService = (id, { service_name, department_Id }, callback) => {
 };
 
 const deleteService = (id, callback) => {
-  const query = "DELETE FROM services WHERE service_id = ?";
+  const query = "UPDATE services SET status_id = 2 WHERE service_id = ?";
   db.query(query, [id], callback);
 };
 
