@@ -31,7 +31,7 @@ function Info({id,info,setInfo}){
             confirmButtonText: "Remove"
             }).then((result) => {
             if (result.isConfirmed) {
-                    axios.post(`http://localhost:3001/patient/removePhotoPatient/${id}`,{
+                    axios.post(`http://localhost:3001/patient/removePhotoPatient/${id}`,{},{
                         withCredentials: true
                     }).then((response)=>{
                     setInfo(prevInfo => ({ ...prevInfo, image_path: null }));

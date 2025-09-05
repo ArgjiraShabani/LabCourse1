@@ -39,7 +39,7 @@ const deletePatientById=(id,callback)=>{
 
 const removePhoto=(id,callback)=>{
     const sql='UPDATE patients set image_path= NULL where patient_id=?';
-    db.query(sql,id,callback);
+    db.query(sql,[id],callback);
 };
 
 const getOldPassword=(params,callback)=>{
