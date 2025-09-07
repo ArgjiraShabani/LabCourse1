@@ -29,7 +29,8 @@ const createDepartmentHandler = (req, res) => {
 };
 
 const updateDepartmentHandler = (req, res) => {
-  const { department_name, description, status_id } = req.body;
+  const { department_name, description } = req.body;
+  const status_id = req.body.status_id || 1;
   const departmentId = req.params.id;
   const image_path = req.file ? req.file.filename : null;
 
@@ -41,6 +42,7 @@ const updateDepartmentHandler = (req, res) => {
     res.json({ message: 'Department updated successfully' });
   });
 };
+
 
 const deleteDepartmentHandler = (req, res) => {
   const departmentId = req.params.id;
