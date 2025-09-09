@@ -133,8 +133,17 @@ function PatientAppointments() {
   useEffect(() => {
     const fetchSlots = async () => {
       if (!selectedDate || !formData.doctor_id) return;
-      const selDateObj = new Date(selectedDate);
-      if (selDateObj < new Date() || selDateObj > maxDate) return;
+const stripTime = (d) => {
+  const copy = new Date(d);
+  copy.setHours(0, 0, 0, 0);
+  return copy;
+};
+
+const selDateObj = stripTime(new Date(selectedDate));
+const todayStripped = stripTime(new Date());
+
+if (selDateObj < todayStripped || selDateObj > maxDate) return;
+
 
       try {
         const [standardRes, customRes] = await Promise.all([
