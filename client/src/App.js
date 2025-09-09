@@ -32,7 +32,7 @@ import FeedbacksAdmin from './Dashboards/Admin/FeedbacksAdmin';
 import HomePagePatient from './Dashboards/Patient/Pages/HomePagePatient';
 import FeedbacksPatient from './Dashboards/Patient/Pages/FeedbackPatient';
 import Appointment from './Dashboards/Doctor/Appointments';
-import PatientAppointments from './Dashboards/Admin/PatientAppointments';
+import PatientAppointments from './Dashboards/Admin/PatientAppointments/PatientAppointments';
 import MyAppointments from './Dashboards/Patient/Pages/MyAppointments';
 import UpdateData from './Dashboards/Admin/UpdateData';
 import LogOut from './Pages/Logout';

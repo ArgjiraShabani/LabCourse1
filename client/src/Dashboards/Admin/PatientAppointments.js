@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+/*import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
@@ -701,3 +701,4 @@ function PatientAppointments() {
 }
 
 export default PatientAppointments;
+*/
