@@ -1,73 +1,58 @@
-
 import React from "react"
 import { Link } from "react-router-dom";
-import { useNavigate, useParams,} from 'react-router-dom'; 
-
-
+import { useNavigate, useParams } from 'react-router-dom'; 
 
 function NavbarPatient(){
-    const param=useParams();
-      const {id}=param; 
+  const param = useParams();
+  const { id } = param; 
+
   return(
     <>
-    <nav className="navbar navbar-expand-lg " >
-     
-    
-  <div className="container-fluid">
-    <div className="d-flex flex-column">
-    <Link to={`/homePagePatient`} className="navbar-brand " href="/Dashboards/Patient/Components/HomePagePatient" style={{ fontSize: '30px' }}>CareWave </Link>
-    <p style={{ marginTop: 0, paddingTop: 0, lineHeight: 1, fontSize: '19px' }}>Hospital</p>
-    </div>
-    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span className="navbar-toggler-icon" ></span>
-    </button>
-    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-    
-    <div className="d-flex ms-auto">
-    
-      <div >
-      <Link
-            to={`/myAppointments`}
-            className="btn btn-secondary btn-sm me-2"
-              style={{backgroundColor: '#51A485',
-                border: 'none',
-                fontSize: '20px'}}
-           
-          >
-            Dashboard
-          </Link>
-      </div>
-      <div >
-      <Link
-            to="/logout"
-            className="btn btn-secondary btn-sm me-2"
-              style={{backgroundColor: '#51A485',
-                border: 'none',
-                fontSize: '20px'}}
-           
-          >
-            Logout
-          </Link>
-      </div>  
+      <nav className="navbar">
+        <div className="container-fluid">
+          <div className="d-flex flex-column">
+            <Link 
+              to={`/homePagePatient`} 
+              className="navbar-brand" 
+              style={{ fontSize: '30px' }}
+            >
+              CareWave
+            </Link>
+            <p style={{ marginTop: 0, lineHeight: 1, fontSize: '19px' }}>Hospital</p>
+          </div>
 
-      </div> 
-      </div>   
-      
-      
-    </div>
-    
-  
-  
-</nav>
-
-
-
-
-
-
-    
-  </>
+          <div className="d-flex ms-auto">
+            <div>
+              <Link
+                to={`/myAppointments`}
+                className="btn btn-secondary btn-sm me-2"
+                style={{
+                  backgroundColor: '#51A485',
+                  border: 'none',
+                  fontSize: '20px'
+                }}
+              >
+                Dashboard
+              </Link>
+            </div>
+            <div>
+              <Link
+                to="/logout"
+                className="btn btn-secondary btn-sm me-2"
+                style={{
+                  backgroundColor: '#51A485',
+                  border: 'none',
+                  fontSize: '20px'
+                }}
+              >
+                Logout
+              </Link>
+            </div>  
+          </div> 
+        </div>
+      </nav>
+    </>
   );
-
 }
+
 export default NavbarPatient;

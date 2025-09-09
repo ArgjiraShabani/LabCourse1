@@ -61,6 +61,7 @@ const AdminDashboard = () => {
   });
 
   const navigate = useNavigate();
+
   useEffect(() => {
     axios.get(`http://localhost:3001/AdminDashboard`, { withCredentials: true }) 
       .then((res) => {
@@ -76,6 +77,12 @@ const AdminDashboard = () => {
       })
       .catch((err) => {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
           navigate("/");
         } else {
           console.error("Unexpected error", err);
@@ -134,25 +141,28 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
+    <div className="d-flex flex-column flex-lg-row min-vh-100">
       <Sidebar role="admin" />
-      <div className="flex-grow-1 p-4">
-        <h2 className="mb-4">Welcome to the Admin Dashboard</h2>
+      <div className="flex-grow-1 p-3 p-lg-4">
+        <h2 className="mb-4 text-center text-lg-start">Welcome to the Admin Dashboard</h2>
 
         <div className="row">
           {cardData.map((card, index) => {
             const percent = (card.count / maxCount) * 100;
             return (
-              <div className="col-md-4 mb-4" key={index}>
+              <div 
+                className="col-12 col-sm-6 col-md-4 mb-4" 
+                key={index}
+              >
                 <div className={`card border-${card.color} shadow-sm h-100`}>
                   <div className={`card-body text-${card.color} d-flex align-items-center`}>
-                    <div className="me-4">{card.icon}</div>
+                    <div className="me-3 me-sm-4">{card.icon}</div>
                     <div style={{ flexGrow: 1 }}>
                       <h5 className="card-title">{card.title}</h5>
                       <h2>{card.count}</h2>
                     </div>
                   </div>
-                  <div className="progress" style={{ height: '10px', margin: '0 1.25rem 1rem 1.25rem' }}>
+                  <div className="progress" style={{ height: '10px', margin: '0 1rem 1rem 1rem' }}>
                     <div
                       className={`progress-bar bg-${card.color}`}
                       role="progressbar"
@@ -169,7 +179,7 @@ const AdminDashboard = () => {
         </div>
 
         {monthlyAppointments.counts.length > 0 && (
-          <div className="card p-4 shadow-sm mt-4" style={{ height: '300px', overflow: 'hidden' }}>
+          <div className="card p-3 p-md-4 shadow-sm mt-4" style={{ height: '300px', overflow: 'hidden' }}>
             <Line data={lineChartData} options={lineChartOptions} style={{ height: '250px' }} />
           </div>
         )}
