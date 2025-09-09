@@ -4,6 +4,7 @@ import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { startOfWeek, addDays, format, parseISO } from "date-fns";
+import Select from "react-select";
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -12,7 +13,7 @@ const api = axios.create({
 
 const WeeklySchedule = () => {
   const [doctors, setDoctors] = useState([]);
-  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState(null); // react-select object
   const [weekDates, setWeekDates] = useState([]);
   const [weeklyData, setWeeklyData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -20,19 +21,11 @@ const WeeklySchedule = () => {
   const [schedules, setSchedules] = useState([]);
   const navigate = useNavigate();
 
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
+  const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/WeeklySchedule`, { withCredentials: true })
+      .get(`/WeeklySchedule`, { withCredentials: true })
       .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
@@ -45,7 +38,7 @@ const WeeklySchedule = () => {
         }
       })
       .catch((err) => {
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        if (err.response?.status === 401 || err.response?.status === 403) {
           Swal.fire({
             icon: "error",
             title: "Access Denied",
@@ -53,18 +46,14 @@ const WeeklySchedule = () => {
             confirmButtonColor: "#51A485",
           });
           navigate("/");
-        } else {
-          console.error("Unexpected error", err);
-        }
+        } else console.error(err);
       });
   }, [navigate]);
 
   const getWeekDates = () => {
     const today = new Date();
     const start = startOfWeek(today, { weekStartsOn: 1 });
-    return Array.from({ length: 7 }, (_, i) =>
-      format(addDays(start, i), "yyyy-MM-dd")
-    );
+    return Array.from({ length: 7 }, (_, i) => format(addDays(start, i), "yyyy-MM-dd"));
   };
 
   useEffect(() => {
@@ -76,7 +65,8 @@ const WeeklySchedule = () => {
   const fetchDoctors = async () => {
     try {
       const res = await api.get("/alldoctors");
-      setDoctors(res.data);
+      const options = res.data.map((d) => ({ value: d.id, label: d.name }));
+      setDoctors(options);
       setError("");
     } catch (err) {
       console.error("Error fetching doctors:", err);
@@ -84,7 +74,6 @@ const WeeklySchedule = () => {
     }
   };
 
-  // Merr të gjitha oraret e veçanta
   const fetchAllSchedules = useCallback(async () => {
     try {
       const res = await api.get("/weekly-schedules");
@@ -95,37 +84,36 @@ const WeeklySchedule = () => {
       setError("Error while fetching existing schedules");
     }
   }, []);
-  const fetchWeeklySchedule = useCallback(
-    async (doctorId) => {
-      try {
-        const res = await api.get(`/weekly-schedules/${doctorId}`);
-        const scheduleMap = {};
-        res.data.forEach((item) => {
-          scheduleMap[item.date] = {
-            ...item,
-            start_time: item.start_time?.slice(0, 5),
-            end_time: item.end_time?.slice(0, 5),
-            schedule_id: item.schedule_id,
-            is_custom: item.is_custom || false,
-          };
-        });
-        setWeeklyData(scheduleMap);
-        setError("");
-      } catch (err) {
-        console.error("Error fetching weekly schedule:", err);
-        setError("Error while fetching the weekly schedule");
-      }
-    },
-    []
-  );
+
+  const fetchWeeklySchedule = useCallback(async (doctorId) => {
+    try {
+      const res = await api.get(`/weekly-schedules/${doctorId}`);
+      const scheduleMap = {};
+      res.data.forEach((item) => {
+        scheduleMap[item.date] = {
+          ...item,
+          start_time: item.start_time?.slice(0, 5),
+          end_time: item.end_time?.slice(0, 5),
+          schedule_id: item.schedule_id,
+          is_custom: item.is_custom || false,
+        };
+      });
+      setWeeklyData(scheduleMap);
+      setError("");
+    } catch (err) {
+      console.error("Error fetching weekly schedule:", err);
+      setError("Error while fetching the weekly schedule");
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedDoctor) {
-      fetchWeeklySchedule(selectedDoctor);
+      fetchWeeklySchedule(selectedDoctor.value);
     } else {
       setWeeklyData({});
     }
   }, [selectedDoctor, weekDates, fetchWeeklySchedule]);
+
   const handleChange = (date, field, value) => {
     setWeeklyData((prev) => ({
       ...prev,
@@ -175,7 +163,7 @@ const WeeklySchedule = () => {
             });
           } else {
             return api.post("/weekly-schedules", {
-              doctor_id: selectedDoctor,
+              doctor_id: selectedDoctor.value,
               date,
               start_time: dayData.start_time,
               end_time: dayData.end_time,
@@ -194,7 +182,7 @@ const WeeklySchedule = () => {
         timer: 1500,
         showConfirmButton: false,
       });
-      await fetchWeeklySchedule(selectedDoctor);
+      await fetchWeeklySchedule(selectedDoctor.value);
       await fetchAllSchedules();
     } catch (err) {
       console.error("Error saving schedule:", err);
@@ -215,9 +203,7 @@ const WeeklySchedule = () => {
       confirmButtonColor: "#51A485",
       cancelButtonColor: "#d33",
     }).then((result) => {
-      if (result.isConfirmed) {
-        handleDeleteSchedule(scheduleId);
-      }
+      if (result.isConfirmed) handleDeleteSchedule(scheduleId);
     });
   };
 
@@ -231,12 +217,8 @@ const WeeklySchedule = () => {
         timer: 1500,
         showConfirmButton: false,
       });
-
       await fetchAllSchedules();
-
-      if (selectedDoctor) {
-        await fetchWeeklySchedule(selectedDoctor);
-      }
+      if (selectedDoctor) await fetchWeeklySchedule(selectedDoctor.value);
     } catch (err) {
       console.error("Error deleting schedule:", err);
       setError("Error while deleting the schedule");
@@ -244,26 +226,21 @@ const WeeklySchedule = () => {
   };
 
   return (
-    <div className="d-flex" style={{ minHeight: "100vh" }}>
+    <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
-      <div className="container mt-4">
-        <h2>Manage Weekly Schedule</h2>
+      <div className="container mt-4 flex-grow-1">
+        <h2 className="mb-4">Manage Weekly Schedule</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <div className="mb-3">
+        <div className="mb-3" style={{ maxWidth: "400px" }}>
           <label>Select Doctor:</label>
-          <select
-            className="form-select"
+          <Select
+            options={doctors}
             value={selectedDoctor}
-            onChange={(e) => setSelectedDoctor(e.target.value)}
-          >
-            <option value="">Choose...</option>
-            {doctors.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedDoctor}
+            placeholder="Choose a doctor"
+            isClearable
+          />
         </div>
 
         {selectedDoctor && (
@@ -276,27 +253,23 @@ const WeeklySchedule = () => {
             {weekDates.map((date) => (
               <div key={date} className="border p-3 rounded mb-3">
                 <strong>{format(parseISO(date), "EEEE, dd MMM yyyy")}</strong>
-                <div className="row mt-2">
-                  <div className="col-md-6">
+                <div className="row g-2 mt-2">
+                  <div className="col-12 col-md-6">
                     <label>Start Time:</label>
                     <input
                       type="time"
                       className="form-control"
                       value={weeklyData[date]?.start_time || ""}
-                      onChange={(e) =>
-                        handleChange(date, "start_time", e.target.value)
-                      }
+                      onChange={(e) => handleChange(date, "start_time", e.target.value)}
                     />
                   </div>
-                  <div className="col-md-6">
+                  <div className="col-12 col-md-6">
                     <label>End Time:</label>
                     <input
                       type="time"
                       className="form-control"
                       value={weeklyData[date]?.end_time || ""}
-                      onChange={(e) =>
-                        handleChange(date, "end_time", e.target.value)
-                      }
+                      onChange={(e) => handleChange(date, "end_time", e.target.value)}
                     />
                   </div>
                 </div>
@@ -306,11 +279,7 @@ const WeeklySchedule = () => {
             <button
               type="submit"
               className="btn mt-3"
-              style={{
-                backgroundColor: "#51A485",
-                borderColor: "#51A485",
-                color: "white",
-              }}
+              style={{ backgroundColor: "#51A485", color: "white" }}
               disabled={loading}
             >
               {loading ? "Saving..." : "Save Changes"}
@@ -319,9 +288,8 @@ const WeeklySchedule = () => {
         )}
 
         <h4 className="mb-3 mt-5">Special Schedules</h4>
-
         <div className="table-responsive">
-          <table className="table table-bordered">
+          <table className="table table-bordered table-striped">
             <thead className="table-light">
               <tr>
                 <th>Doctor</th>
@@ -335,18 +303,12 @@ const WeeklySchedule = () => {
                 schedules
                   .filter(
                     (item) =>
-                      !selectedDoctor ||
-                      item.doctor_id === parseInt(selectedDoctor, 10)
+                      !selectedDoctor || item.doctor_id === selectedDoctor.value
                   )
                   .reduce((acc, item) => {
-                    let existing = acc.find(
-                      (s) => s.doctor_id === item.doctor_id
-                    );
+                    let existing = acc.find((s) => s.doctor_id === item.doctor_id);
                     if (!existing) {
-                      existing = {
-                        doctor_id: item.doctor_id,
-                        doctor_name: item.doctor_name,
-                      };
+                      existing = { doctor_id: item.doctor_id, doctor_name: item.doctor_name };
                       days.forEach((day) => (existing[day] = {}));
                       acc.push(existing);
                     }
@@ -367,10 +329,8 @@ const WeeklySchedule = () => {
                             : "-"}
                           {schedule[day]?.schedule_id && (
                             <button
-                              className="btn btn-sm btn-danger ms-2"
-                              onClick={() =>
-                                confirmDeletion(schedule[day].schedule_id)
-                              }
+                              className="btn btn-sm btn-danger ms-2 mt-1"
+                              onClick={() => confirmDeletion(schedule[day].schedule_id)}
                             >
                               Delete
                             </button>

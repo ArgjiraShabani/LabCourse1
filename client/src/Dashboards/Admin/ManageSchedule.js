@@ -3,6 +3,7 @@ import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -11,22 +12,14 @@ const api = axios.create({
 
 const ManageSchedule = () => {
   const [doctors, setDoctors] = useState([]);
-  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState(null); // react-select object
   const [weeklyData, setWeeklyData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [schedules, setSchedules] = useState([]);
   const navigate = useNavigate();
 
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   useEffect(() => {
     axios
@@ -58,7 +51,9 @@ const ManageSchedule = () => {
   const fetchDoctors = async () => {
     try {
       const res = await api.get("/allDoctors");
-      setDoctors(res.data);
+      // Transform data for react-select
+      const options = res.data.map((d) => ({ value: d.id, label: d.name }));
+      setDoctors(options);
     } catch (err) {
       console.error(err);
       setError("Error fetching doctors");
@@ -100,7 +95,7 @@ const ManageSchedule = () => {
 
   useEffect(() => {
     if (selectedDoctor) {
-      fetchDoctorSchedule(selectedDoctor);
+      fetchDoctorSchedule(selectedDoctor.value);
     } else {
       setWeeklyData({});
     }
@@ -150,7 +145,7 @@ const ManageSchedule = () => {
             });
           } else {
             return api.post("/standardSchedules", {
-              doctor_id: selectedDoctor,
+              doctor_id: selectedDoctor.value,
               weekday: day,
               start_time: dayData.start_time,
               end_time: dayData.end_time,
@@ -161,7 +156,7 @@ const ManageSchedule = () => {
       });
       await Promise.all(requests.filter(Boolean));
       Swal.fire({ icon: "success", title: "Saved", timer: 1500, showConfirmButton: false });
-      fetchDoctorSchedule(selectedDoctor);
+      fetchDoctorSchedule(selectedDoctor.value);
       fetchAllSchedules();
     } catch (err) {
       console.error(err);
@@ -195,26 +190,21 @@ const ManageSchedule = () => {
   };
 
   return (
-    <div className="d-flex" style={{ minHeight: "100vh" }}>
+    <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
-      <div className="container mt-4">
-        <h2>Set Weekly Schedule for Doctor</h2>
+      <div className="container mt-4 flex-grow-1">
+        <h2 className="mb-4">Set Weekly Schedule for Doctor</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <div className="mb-3">
+        <div className="mb-3" style={{ maxWidth: "400px" }}>
           <label>Select Doctor:</label>
-          <select
-            className="form-select"
+          <Select
+            options={doctors}
             value={selectedDoctor}
-            onChange={(e) => setSelectedDoctor(e.target.value)}
-          >
-            <option value="">Choose a doctor</option>
-            {doctors.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedDoctor}
+            placeholder="Choose a doctor"
+            isClearable
+          />
         </div>
 
         {selectedDoctor && (
@@ -227,8 +217,8 @@ const ManageSchedule = () => {
             {days.map((day) => (
               <div key={day} className="border p-3 rounded mb-3">
                 <strong>{day}</strong>
-                <div className="row mt-2">
-                  <div className="col-md-6">
+                <div className="row mt-2 g-2">
+                  <div className="col-12 col-md-6">
                     <label>Start Time:</label>
                     <input
                       type="time"
@@ -237,7 +227,7 @@ const ManageSchedule = () => {
                       onChange={(e) => handleChange(day, "start_time", e.target.value)}
                     />
                   </div>
-                  <div className="col-md-6">
+                  <div className="col-12 col-md-6">
                     <label>End Time:</label>
                     <input
                       type="time"
@@ -251,7 +241,7 @@ const ManageSchedule = () => {
                       <button
                         type="button"
                         className="btn btn-sm btn-danger"
-                        onClick={() => handleDeleteDay(selectedDoctor, day)}
+                        onClick={() => handleDeleteDay(selectedDoctor.value, day)}
                       >
                         Delete Day
                       </button>
@@ -273,7 +263,7 @@ const ManageSchedule = () => {
 
         <h4 className="mt-5">Standard Schedule Table</h4>
         <div className="table-responsive">
-          <table className="table table-bordered">
+          <table className="table table-bordered table-striped">
             <thead className="table-light">
               <tr>
                 <th>Doctor</th>
@@ -309,7 +299,7 @@ const ManageSchedule = () => {
                             : "-"}
                           {schedule[day]?.schedule_id && (
                             <button
-                              className="btn btn-sm btn-danger ms-2"
+                              className="btn btn-sm btn-danger ms-2 mt-1"
                               onClick={() => handleDeleteDay(schedule.doctor_id, day)}
                             >
                               Delete
