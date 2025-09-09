@@ -2,7 +2,8 @@ import Sidebar from "../../../Components/AdminSidebar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
+import Select from "react-select";
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -20,18 +21,14 @@ function BookAppointment() {
   const [formData, setFormData] = useState({
     name: "",
     lastname: "",
-    service_id: "",
-    doctor_id: "",
+    service_id: null,
+    doctor_id: null,
     purpose: "",
   });
-
-  const navigate = useNavigate();
   const [patientId, setPatientId] = useState(null);
+  const navigate = useNavigate();
 
-  const api = axios.create({
-  baseURL: "http://localhost:3001/api",
-  withCredentials: true,
-});
+  const today = new Date();
 
   function generateSlots(start, end) {
     const slots = [];
@@ -50,7 +47,7 @@ function BookAppointment() {
   }
 
   useEffect(() => {
-    const today = new Date();
+    
     axios
       .get("http://localhost:3001/api/settings", { withCredentials: true })
       .then((res) => {
@@ -80,141 +77,118 @@ function BookAppointment() {
             confirmButtonColor: "#51A485",
           });
           navigate("/");
-      } else {
-        setPatientId(res.data.user.id);
-      }
+        } else {
+          setPatientId(res.data.user.id);
+        }
       })
       .catch((err) => {
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                 Swal.fire({
-                                          icon: "error",
-                                          title: "Access Denied",
-                                          text: "Please login.",
-                                          confirmButtonColor: "#51A485",
-                                        });
-      
-              navigate('/');
-            } else {
-              console.error("Unexpected error", err);
-            }
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
           });
-      }, [navigate]);
+
+          navigate('/');
+        } else {
+          console.error("Unexpected error", err);
+        }
+      });
+  }, [navigate]);
 
   useEffect(() => {
     axios
       .get("http://localhost:3001/services")
-      .then((res) => setServices(res.data))
+      .then((res) => {
+        const activeServices = res.data.filter(
+          (s) => s.department_status === 1 && s.status_id === 1
+        );
+        setServices(activeServices);
+      })
       .catch((err) => console.error("Error fetching services:", err.message));
   }, []);
 
   useEffect(() => {
-    if (formData.service_id && services.length > 0) {
-      const selectedService = services.find(
-        (s) => parseInt(s.service_id) === parseInt(formData.service_id)
-      );
-
-      if (selectedService?.department_Id) {
-        axios
-          .get(
-            `http://localhost:3001/doctors/byDepartment/${selectedService.department_Id}`
-          )
-          .then((res) => setDoctors(res.data))
-          .catch(() => setDoctors([]));
-      } else setDoctors([]);
-    } else setDoctors([]);
+    if (!formData.service_id) {
+      setDoctors([]);
+      return;
+    }
+    const selectedService = services.find((s) => s.service_id === formData.service_id);
+    if (!selectedService) {
+      setDoctors([]);
+      return;
+    }
+    axios
+      .get(`http://localhost:3001/doctors/byDepartment/${selectedService.department_Id}`)
+      .then((res) => setDoctors(res.data))
+      .catch(() => setDoctors([]));
   }, [formData.service_id, services]);
 
   useEffect(() => {
-  const fetchSlots = async () => {
-    if (!selectedDate || !formData.doctor_id) return;
+    const fetchSlots = async () => {
+      if (!selectedDate || !formData.doctor_id) return;
 
-   const selDateObj = new Date(selectedDate);
-const todayOnly = new Date();
-todayOnly.setHours(0, 0, 0, 0); 
+      const selDateObj = new Date(selectedDate);
+      const todayOnly = new Date();
+      todayOnly.setHours(0, 0, 0, 0);
 
-if (selDateObj < todayOnly || selDateObj > maxDate) return;
+      if (selDateObj < todayOnly || selDateObj > maxDate) return;
 
+      try {
+        const [standardRes, customRes] = await Promise.all([
+          axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
+          axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
+        ]);
 
+        const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
+        const custom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
+        const standard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
+        let todaySchedule = custom || standard;
 
-    try {
-      const [standardRes, customRes] = await Promise.all([
-        axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
-        axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
-      ]);
+        const prevDay = new Date(selDateObj);
+        prevDay.setDate(prevDay.getDate() - 1);
+        const prevWeekday = prevDay.toLocaleDateString("en-US", { weekday: "long" });
+        const prevCustom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
+        const prevStandard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
+        let prevSchedule = prevCustom || prevStandard;
 
-      const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
-      const custom = customRes.data.find(
-        (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
-      );
-      const standard = standardRes.data.find(
-        (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday
-      );
+        let allSlots = [];
 
-      let todaySchedule = custom || standard;
-
-      const prevDay = new Date(selDateObj);
-      prevDay.setDate(prevDay.getDate() - 1);
-      const prevWeekday = prevDay.toLocaleDateString("en-US", { weekday: "long" });
-
-      const prevCustom = customRes.data.find(
-        (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === prevWeekday
-      );
-      const prevStandard = standardRes.data.find(
-        (s) => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === prevWeekday
-      );
-
-      let prevSchedule = prevCustom || prevStandard;
-
-      let allSlots = [];
-
-      if (prevSchedule) {
-        const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
-        const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
-        if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
-          allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
+        if (prevSchedule) {
+          const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
+          const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
+          if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
+            allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
+          }
         }
-      }
 
-      if (todaySchedule) {
-        const [startH, startM] = todaySchedule.start_time.split(":").map(Number);
-        const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
+        if (todaySchedule) {
+          const [startH, startM] = todaySchedule.start_time.split(":").map(Number);
+          const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
 
-        if (endH < startH || (endH === startH && endM < startM)) {
-          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
-        } else {
-          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
+          if (endH < startH || (endH === startH && endM < startM)) {
+            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
+          } else {
+            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
+          }
         }
+
+        const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
+          params: { doctor_id: formData.doctor_id, date: selectedDate },
+          withCredentials: true,
+        });
+
+        const bookedSlots = bookedRes.data;
+        setAvailableSlots(allSlots.filter(slot => !bookedSlots.includes(slot)));
+      } catch (err) {
+        console.error("Error fetching available slots:", err.message);
+        setAvailableSlots([]);
       }
+    };
 
-      const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
-        params: { doctor_id: formData.doctor_id, date: selectedDate },
-        withCredentials: true,
-      });
-
-      const bookedSlots = bookedRes.data;
-      setAvailableSlots(allSlots.filter((slot) => !bookedSlots.includes(slot)));
-    } catch (err) {
-      console.error("Error fetching available slots:", err.message);
-      setAvailableSlots([]);
-    }
-  };
-
-  fetchSlots();
-}, [formData.doctor_id, selectedDate, maxDate]);
-
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "service_id" || name === "doctor_id" ? parseInt(value) : value,
-    }));
-  };
-
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
-    setSelectedTimeSlot("");
-  };
+    fetchSlots();
+  }, [formData.doctor_id, selectedDate, maxDate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -249,7 +223,7 @@ if (selDateObj < todayOnly || selDateObj > maxDate) return;
           confirmButtonText: "OK",
         });
 
-        setFormData({ name: "", lastname: "", service_id: "", doctor_id: "", purpose: "" });
+        setFormData({ name: "", lastname: "", service_id: null, doctor_id: null, purpose: "" });
         setSelectedDate("");
         setSelectedTimeSlot("");
         setAvailableSlots([]);
@@ -266,46 +240,59 @@ if (selDateObj < todayOnly || selDateObj > maxDate) return;
       });
   };
 
-  const today = new Date();
+  const serviceOptions = services.map((s) => ({ value: s.service_id, label: s.service_name }));
+  const doctorOptions = doctors.map((d) => ({ value: d.doctor_id, label: `${d.first_name} ${d.last_name}` }));
+  const timeSlotOptions = availableSlots.map((slot) => ({ value: slot, label: slot }));
 
   return (
-    <div className="d-flex" style={{ minHeight: "100vh" }}>
-       <Sidebar role="patient" id={patientId} />
+    <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>
+      <Sidebar role="patient" id={patientId} />
       <div className="container mt-5">
         <h2>Book Appointment</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label>First Name</label>
-            <input type="text" className="form-control" name="name" value={formData.name} onChange={handleChange} required />
+            <input
+              type="text"
+              className="form-control"
+              value={formData.name}
+              onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+              required
+            />
           </div>
 
           <div className="mb-3">
             <label>Last Name</label>
-            <input type="text" className="form-control" name="lastname" value={formData.lastname} onChange={handleChange} required />
+            <input
+              type="text"
+              className="form-control"
+              value={formData.lastname}
+              onChange={(e) => setFormData((prev) => ({ ...prev, lastname: e.target.value }))}
+              required
+            />
           </div>
 
           <div className="mb-3">
             <label>Service</label>
-            <select className="form-control" name="service_id" value={formData.service_id} onChange={handleChange} required>
-              <option value="">Select Service</option>
-              {services.map((s) => (
-                <option key={s.service_id} value={s.service_id}>
-                  {s.service_name}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={serviceOptions}
+              value={serviceOptions.find((option) => option.value === formData.service_id)}
+              onChange={(selectedOption) =>
+                setFormData((prev) => ({ ...prev, service_id: selectedOption.value, doctor_id: null }))
+              }
+              placeholder="Select Service"
+            />
           </div>
 
           <div className="mb-3">
             <label>Doctor</label>
-            <select className="form-control" name="doctor_id" value={formData.doctor_id} onChange={handleChange} required>
-              <option value="">Select Doctor</option>
-              {doctors.map((d) => (
-                <option key={d.doctor_id} value={d.doctor_id}>
-                  {d.first_name} {d.last_name}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={doctorOptions}
+              value={doctorOptions.find((option) => option.value === formData.doctor_id)}
+              onChange={(selectedOption) => setFormData((prev) => ({ ...prev, doctor_id: selectedOption.value }))}
+              placeholder="Select Doctor"
+              isDisabled={!formData.service_id || doctorOptions.length === 0}
+            />
           </div>
 
           <div className="mb-3">
@@ -314,7 +301,10 @@ if (selDateObj < todayOnly || selDateObj > maxDate) return;
               type="date"
               className="form-control"
               value={selectedDate}
-              onChange={handleDateChange}
+              onChange={(e) => {
+                setSelectedDate(e.target.value);
+                setSelectedTimeSlot("");
+              }}
               min={today.toISOString().split("T")[0]}
               max={maxDate.toISOString().split("T")[0]}
               required
@@ -322,25 +312,27 @@ if (selDateObj < todayOnly || selDateObj > maxDate) return;
             />
           </div>
 
-          {selectedDate && availableSlots.length === 0 && <div className="alert alert-warning">No available slots for this date.</div>}
+          {selectedDate && availableSlots.length === 0 && (
+            <div className="alert alert-warning">No available slots for this date.</div>
+          )}
 
           {selectedDate && availableSlots.length > 0 && (
             <div className="mb-3">
               <label>Available Time Slots</label>
-              <select className="form-control" value={selectedTimeSlot} onChange={(e) => setSelectedTimeSlot(e.target.value)} required>
-                <option value="">Select Time Slot</option>
-                {availableSlots.map((slot) => (
-                  <option key={slot} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
+              <Select
+                options={timeSlotOptions}
+                value={timeSlotOptions.find((option) => option.value === selectedTimeSlot)}
+                onChange={(selectedOption) => setSelectedTimeSlot(selectedOption.value)}
+                placeholder="Select Time Slot"
+              />
+
+
             </div>
           )}
 
           <div className="mb-3">
             <label>Purpose</label>
-            <textarea className="form-control" name="purpose" value={formData.purpose} onChange={handleChange} />
+            <textarea className="form-control" value={formData.purpose} onChange={(e) => setFormData((prev) => ({ ...prev, purpose: e.target.value }))}/>
           </div>
 
           <button type="submit" className="btn btn-success">Book Appointment</button>
