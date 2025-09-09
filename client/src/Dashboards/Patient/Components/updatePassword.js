@@ -38,6 +38,50 @@ function UpdatePassword({id,info,setInfo}){
             });
       const [error,setError]=useState("");
     const navigate = useNavigate();
+             
+    function handleStatus(id){
+        Swal.fire({
+            title: "Are you sure about deactivating your account?",
+            showCancelButton: true,
+            confirmButtonColor: "#51A485",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Deactivate"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                axios.put("http://localhost:3001/api/updateStatus",{id:id},{
+                     withCredentials: true
+                }).then(response=>{
+                          axios.post('http://localhost:3001/logout', {}, { withCredentials: true })
+                                    .then((res) =>{
+                                        navigate('/');
+                                    })
+                                    .catch(err => console.error(err));
+                        })
+                    .catch(err => {
+                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                                Swal.fire({
+                                                                  icon: "error",
+                                                                  title: "Access Denied",
+                                                                  text: "Please login.",
+                                                                  confirmButtonColor: "#51A485",
+                                                                });
+                                navigate('/');
+                            } else {
+                                console.error("Unexpected error", err);
+                            }
+                        });
+                        
+            }else{
+                            Swal.fire({
+                            position: "center",
+                            icon: "error",
+                            title: "Status has not been changed!",
+                            showConfirmButton: false,
+                            timer: 1100
+                            });
+                        }
+    })
+}
 
 
      function changePassword(event){
@@ -61,11 +105,11 @@ function UpdatePassword({id,info,setInfo}){
         }).catch((err)=>{
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                 Swal.fire({
-                                        icon: "error",
-                                        title: "Access Denied",
-                                        text: "Please login.",
-                                        confirmButtonColor: "#51A485",
-                                        });
+                                                  icon: "error",
+                                                  title: "Access Denied",
+                                                  text: "Please login.",
+                                                  confirmButtonColor: "#51A485",
+                                                });
                 navigate('/');
             } else {
                 console.error("Unexpected error", err);
@@ -73,10 +117,14 @@ function UpdatePassword({id,info,setInfo}){
         })
             };
 
+    
+            
+
     return(
      <>
         
-            <div style={{marginTop:"5px",borderStyle:"solid",padding:"60px 110px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'}}>
+            <div style={{marginTop:"5px",borderStyle:"solid",padding:"60px 110px",borderRadius:'10px',borderWidth:'1px',borderColor:"white",   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',display:'flex',justifyContent:'space-between',flexDirection:'column'}}>
+                <div>
           <h1 style={{textAlign:"center",marginBottom:"40px"}}>Change Password</h1>
           <form className="mt-4" onSubmit={handleSubmit(changePassword)}>
             <p style={{color:"red",fontSize:"17px"}}>{error}</p>
@@ -101,6 +149,13 @@ function UpdatePassword({id,info,setInfo}){
 
             </form>
             </div>
+             <div>
+             <button type="button" className="w-100" style={{backgroundColor:"#9b9b9bff",borderColor:"white",height:"50px",color:"white",borderRadius:"7px"}} onClick={()=>handleStatus(id)}>Deactivate MyAccount</button>
+
+            </div>
+            
+            </div>
+          
           </>
     )
 };

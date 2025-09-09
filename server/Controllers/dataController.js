@@ -75,9 +75,8 @@ const getStatusHandler=(req,res)=>{
 };
 
 const updateStatusHandler=(req,res)=>{
-    const status=req.body.status;
     const patientId=req.body.id;
-    updateStatus([status,patientId],(err,results)=>{
+    updateStatus([patientId],(err,results)=>{
          if(err){
               return res.json("Didnt Update Patient!");
         }else{

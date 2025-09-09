@@ -97,7 +97,7 @@ useEffect(() => {
     },[]);
 
 
-    function handleClick(s_id,id){
+    /*function handleClick(s_id,id){
         Swal.fire({
             title: "Are you sure about changing status?",
             showCancelButton: true,
@@ -155,7 +155,7 @@ useEffect(() => {
                             });
                         }
     })
-}
+}*/
     function handleDelete(id){
         Swal.fire({
             title: "Are you sure about deleting this patient?",
@@ -222,7 +222,6 @@ useEffect(() => {
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Date of birth</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white",width:"100px"}}>Status</th>
-                        <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>
                          <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Update</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Delete</th>
 
@@ -250,13 +249,13 @@ useEffect(() => {
                         <td>{value.date_of_birth}</td>
                         <td>{value.gender_name ? value.gender_name : '--'}</td>
                         <td style={{ color: value.status_name.toLowerCase() === 'inactive' ? 'red' : 'green' }}>{value.status_name}</td>
-                        <td>
+                      {/*  <td>
                             {status.map((val,key)=>{
                                 return(
                                         <Button variant="secondary" onClick={() => handleClick(val.status_id,value.patient_id)}>{val.status_name}</Button>
                                 )
                                 })}
-                        </td>
+                        </td>*/}
                         <td>
                             <Button variant="secondary" onClick={()=>{handleUpdate(value.patient_id)}}>Update</Button>
                         </td>

@@ -25,7 +25,7 @@ const getStatus=(callback)=>{
 };
 
 const updateStatus=(params,callback)=>{
-    const sql='update patients set status_id=? where patient_id=?';
+    const sql='update patients set status_id=2 where patient_id=?';
     db.query(sql,params,callback);
 };
 
