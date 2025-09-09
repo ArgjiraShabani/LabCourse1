@@ -165,10 +165,13 @@ const updateAppointmentStatus = (req, res) => {
 
     appointmentModel.updateAppointmentStatus(id, status, (err) => {
       if (err) return res.status(500).json({ error: "Unable to update appointment status." });
-      res.json({ message: "Appointment status updated successfully." });
+
+      const updatedAppointment = { ...results[0], status }; 
+      res.json({ message: "Appointment status updated successfully.", appointment: updatedAppointment });
     });
   });
 };
+
 const getDoctorAppointments = (req, res) => {
   const doctorId = req.user.id;
 

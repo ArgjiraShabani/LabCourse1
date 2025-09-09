@@ -62,7 +62,6 @@ function PatientAppointments() {
   const watchDoctor = watch("doctor_id");
   const watchDate = watch("date");
 
-  // Fetch settings
   useEffect(() => {
     axios.get("http://localhost:3001/api/settings", { withCredentials: true })
       .then(res => {
@@ -79,7 +78,6 @@ function PatientAppointments() {
       });
   }, []);
 
-  // Check user role
   useEffect(() => {
     axios.get("http://localhost:3001/PatientAppointments", { withCredentials: true })
       .then(res => {
@@ -93,6 +91,7 @@ function PatientAppointments() {
       })
       .catch(() => navigate("/login"));
   }, [navigate]);
+
   useEffect(() => {
     if (userRole !== "admin") return;
     axios.all([
@@ -245,6 +244,14 @@ function PatientAppointments() {
       (filterDate === "" || dateOnly === filterDate);
   });
 
+  const completedAppointments = filteredAppointments.filter(
+  app => (app.status || "pending").toLowerCase() === "completed"
+);
+const otherAppointmentsForAdmin = filteredAppointments.filter(
+  app => (app.status || "pending").toLowerCase() !== "completed"
+);
+
+
   if (loading) return <div>Loading...</div>;
   if (userRole !== "admin") return null;
 
@@ -259,61 +266,56 @@ function PatientAppointments() {
         </div>
 
         <div className="mb-3 d-flex flex-column flex-sm-row flex-wrap gap-2">
-  <Select
-    options={allPatients}
-    placeholder="All Patients"
-    onChange={option => setFilterPatient(option?.value || "")}
-    styles={{
-      menuPortal: base => ({ ...base, zIndex: 9999 }),
-      container: base => ({ ...base, minWidth: 200 }) // më i gjatë
-    }}
-    menuPortalTarget={document.body}
-    isClearable
-  />
-  <Select
-    options={allDoctors}
-    placeholder="All Doctors"
-    onChange={option => setFilterDoctor(option?.value || "")}
-    styles={{
-      menuPortal: base => ({ ...base, zIndex: 9999 }),
-      container: base => ({ ...base, minWidth: 200 }) // më i gjatë
-    }}
-    menuPortalTarget={document.body}
-    isClearable
-  />
-  <Select
-    options={allServices}
-    placeholder="All Services"
-    onChange={option => setFilterService(option?.value || "")}
-    styles={{
-      menuPortal: base => ({ ...base, zIndex: 9999 }),
-      container: base => ({ ...base, minWidth: 200 }) // më i gjatë
-    }}
-    menuPortalTarget={document.body}
-    isClearable
-  />
-  <input
-    type="date"
-    className="form-control"
-    onChange={e => setFilterDate(e.target.value)}
-    style={{
-      borderRadius: "5px",
-      width: "150px",
-      padding: "2px 6px",
-      fontSize: "0.9rem"
-    }}
-  />
-
-
+          <Select
+            options={allPatients} placeholder="All Patients"
+            onChange={option => setFilterPatient(option?.value || "")}
+            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+            menuPortalTarget={document.body}
+            isClearable
+          />
+          <Select
+            options={allDoctors} placeholder="All Doctors"
+            onChange={option => setFilterDoctor(option?.value || "")}
+            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+            menuPortalTarget={document.body}
+            isClearable
+          />
+          <Select
+            options={allServices} placeholder="All Services"
+            onChange={option => setFilterService(option?.value || "")}
+            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+            menuPortalTarget={document.body}
+            isClearable
+          />
+          <input
+            type="date"
+            className="form-control"
+            onChange={e => setFilterDate(e.target.value)}
+            style={{ border: "2px solid #51A485", borderRadius: "5px" }}
+          />
         </div>
 
-        <Suspense fallback={<div>Loading Table...</div>}>
-          <div className="table-responsive">
-            <AppointmentsTable appointments={filteredAppointments} onEdit={openForm} onDelete={handleDelete} />
-          </div>
-        </Suspense>
+   <h2>All Appointments</h2>
+<Suspense fallback={<div>Loading Table...</div>}>
+  <div className="table-responsive">
+    <AppointmentsTable 
+      appointments={otherAppointmentsForAdmin} 
+      onEdit={openForm} 
+      onDelete={handleDelete} 
+    />
+  </div>
+</Suspense>
 
-        {/* Form Modal */}
+<h2 className="mt-5">Completed Appointments</h2>
+<Suspense fallback={<div>Loading Completed Appointments...</div>}>
+  <div className="table-responsive">
+    <AppointmentsTable 
+      appointments={completedAppointments} 
+      onEdit={null}
+      onDelete={handleDelete} 
+    />
+  </div>
+</Suspense>
         {showForm && (
           <Suspense fallback={<div>Loading Form...</div>}>
             <AppointmentForm
