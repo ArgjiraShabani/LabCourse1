@@ -11,8 +11,8 @@ import Select from "react-select";
 import Sidebar from "../../../Components/AdminSidebar";
 import { generateSlots } from "./utils";
 
-const AppointmentsTable = lazy(() => import("./AppointmentsTable"));
-const AppointmentForm = lazy(() => import("./AppointmentsForm"));
+const AppointmentsTable = lazy(() => import("./AppointmentTable"));
+const AppointmentForm = lazy(() => import("./AppointmentForm"));
 
 const schema = yup.object().shape({
   patient_id: yup.number().required("Patient is required"),

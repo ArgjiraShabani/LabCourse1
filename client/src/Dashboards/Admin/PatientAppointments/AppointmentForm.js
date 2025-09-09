@@ -30,7 +30,7 @@ const AppointmentForm = ({
     <form className="modal-content p-3" onSubmit={handleSubmit(onSubmit)}>
       <h5>{editingId ? "Edit Appointment" : "Book Appointment"}</h5>
 
-    
+
       <div className="mb-3">
         <label>Patient</label>
         <Select
@@ -114,7 +114,7 @@ const AppointmentForm = ({
         <label>Purpose</label>
         <textarea {...register("purpose")} className="form-control" />
       </div>
-
+      
       <div className="d-flex flex-column flex-sm-row gap-2">
         <Button type="submit" size="sm" style={{ backgroundColor: "#51A485", borderColor: "#51A485", color: "#fff", width: "100%" }}>
           {editingId ? "Update" : "Book"}

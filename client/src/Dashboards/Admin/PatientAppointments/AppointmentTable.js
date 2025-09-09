@@ -23,37 +23,43 @@ const AppointmentsTable = ({ appointments, onEdit, onDelete }) => {
             </td>
           </tr>
         ) : (
-          appointments.map((app) => {
-            const isCompleted = (app.status || "pending").toLowerCase() === "completed";
+          appointments.map((app) => (
+            <tr key={app.id}>
+              <td>{app.id}</td>
+              <td>{app.patient_name} {app.patient_lastname}</td>
+              <td>{app.doctor_name || `${app.doctor_firstname} ${app.doctor_lastname}`}</td>
+              <td>
+  {app.appointment_datetime 
+    ? new Date(app.appointment_datetime).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      })
+    : ""
+  }
+</td>
 
-            return (
-              <tr 
-                key={app.id} 
-                className={isCompleted ? "table-success" : ""}
-              >
-                <td>{app.id}</td>
-                <td>{app.patient_name} {app.patient_lastname}</td>
-                <td>{app.doctor_name || `${app.doctor_firstname} ${app.doctor_lastname}`}</td>
-                <td>{app.appointment_datetime}</td>
-                <td>{app.purpose}</td>
-                <td>{app.service_name}</td>
-                <td style={{ display: "flex", gap: "5px" }}>
-                  {!isCompleted && onEdit && (
-                    <Button
-                      size="sm"
-                      style={{ backgroundColor: "#51A485", borderColor: "#51A485", color: "#fff" }}
-                      onClick={() => onEdit(app)}
-                    >
-                      Edit
-                    </Button>
-                  )}
-                  <Button size="sm" variant="danger" onClick={() => onDelete(app.id)}>
-                    Delete
-                  </Button>
-                </td>
-              </tr>
-            );
-          })
+              <td>{app.purpose}</td>
+              <td>{app.service_name}</td>
+              <td style={{ display: "flex", gap: "5px" }}>
+                
+                <Button
+                  size="sm"
+                  style={{ backgroundColor: "#51A485", borderColor: "#51A485", color: "#fff" }}
+                  onClick={() => onEdit(app)}
+                >
+                  Edit
+                </Button>
+                <Button size="sm" variant="danger" onClick={() => onDelete(app.id)}>
+                  Delete
+                </Button>
+              </td>
+            </tr>
+          ))
+
         )}
       </tbody>
     </table>

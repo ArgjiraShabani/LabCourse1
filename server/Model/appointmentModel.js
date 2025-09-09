@@ -1,14 +1,23 @@
 const db = require("../db");
 
 const getAllServices = (callback) => {
-  db.query("SELECT * FROM services", callback);
+  const sql = `
+    SELECT s.*, d.status_id AS department_status, s.status_id AS service_status
+    FROM services s
+    JOIN departments d ON s.department_Id = d.department_Id
+  `;
+  db.query(sql, callback);
 };
+
 
 const getDoctorsByDepartment = (departmentId, callback) => {
   const sql = `
-    SELECT doctor_id, first_name, last_name 
-    FROM doctors 
-    WHERE department_id = ?`;
+    SELECT d.doctor_id, d.first_name, d.last_name,
+           dep.status_id AS department_status
+    FROM doctors d
+    JOIN departments dep ON d.department_id = dep.department_Id
+    WHERE d.department_id = ?
+  `;
   db.query(sql, [departmentId], callback);
 };
 
@@ -99,16 +108,22 @@ const getAppointmentsByPatient = (patientId, callback) => {
       a.appointment_datetime,
       a.purpose,
       s.service_name,
+      s.status_id AS service_status,       -- statusi i service-it
       d.first_name AS doctor_firstname,
-      d.last_name AS doctor_lastname
+      d.last_name AS doctor_lastname,
+      dep.department_name,
+      dep.status_id AS department_status   -- statusi i departmentit
     FROM appointments a
     LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
     LEFT JOIN services s ON a.service_id = s.service_id
+    LEFT JOIN departments dep ON s.department_Id = dep.department_Id
     WHERE a.patient_id = ?
     ORDER BY a.appointment_datetime DESC
   `;
   db.query(sql, [patientId], callback);
 };
+
+
 
 const updateAppointment = (appointmentId, patientId, data, callback) => {
   const { name, lastname, purpose } = data;
