@@ -13,6 +13,8 @@ function Patient(){
     const [patientList,setPatientList]=useState([]);
     const[status,setStatus]=useState([]);
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
+
 
 useEffect(() => {
   Axios
@@ -97,65 +99,7 @@ useEffect(() => {
     },[]);
 
 
-    /*function handleClick(s_id,id){
-        Swal.fire({
-            title: "Are you sure about changing status?",
-            showCancelButton: true,
-            confirmButtonColor: "#51A485",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Change"
-            }).then((result) => {
-            if (result.isConfirmed) {
-                Axios.put("http://localhost:3001/api/updateStatus",{status:s_id,id:id},{
-        withCredentials: true
-    }).then(response=>{
-                    const updatedList = patientList.map(patient => {
-                        if (patient.patient_id === id) {
-                            const statusObj = status.find(s => s.status_id === s_id);
-                            return {
-                                ...patient,
-                                status_id: s_id,
-                                status_name: statusObj ? statusObj.status_name : patient.status_name,
-                            };
-                        }
-                        return patient;
-                    });
-
-                        setPatientList(updatedList);
-                        Swal.fire({
-                            position: "center",
-                            icon: "success",
-                            title: "Status has been changed!",
-                            showConfirmButton: false,
-                            timer: 1100
-                            });
-
-                        })
-                        .catch(err => {
-                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                                 Swal.fire({
-                                                          icon: "error",
-                                                          title: "Access Denied",
-                                                          text: "Please login.",
-                                                          confirmButtonColor: "#51A485",
-                                                        });
-                                navigate('/');
-                            } else {
-                                console.error("Unexpected error", err);
-                            }
-                        });
-                        
-                        }else{
-                            Swal.fire({
-                            position: "center",
-                            icon: "error",
-                            title: "Status has not been changed!",
-                            showConfirmButton: false,
-                            timer: 1100
-                            });
-                        }
-    })
-}*/
+   
     function handleDelete(id){
         Swal.fire({
             title: "Are you sure about deleting this patient?",
@@ -201,6 +145,11 @@ useEffect(() => {
     function handleUpdate(id){
        navigate(`/updatePatient/${id}`);
     };
+    const filteredPatients = patientList.filter((patient) =>
+        `${patient.first_name} ${patient.last_name}`
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+    );
 
     return(
         
@@ -209,6 +158,15 @@ useEffect(() => {
             <Sidebar role='admin'/>
             <div className="container py-4 flex-grow-1">
                 <h3 className="mb-3">Patients</h3>
+                <div className="mb-3">
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search by First Name or Last Name"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
                <div className="table-responsive">
                  <table className="table table-bordered table-hover align-middle">
                     <thead>
@@ -229,18 +187,19 @@ useEffect(() => {
                         </tr>
                     </thead>
                     <tbody> 
-                    {patientList.length>0 ? (patientList.map((value,key)=>{
-                        return(
+                         {filteredPatients.length > 0 ? (
+                                filteredPatients.map((value, key) => (
+                        
                     
-                        <tr>
-                         <th scope="row">
+                        <tr key={value.patient_id}>
+                         <td>
                             { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} style={{width:"60px"}}/>
                         ):(
                            <img src={'http://localhost:3001/uploads/1748263645152.png'} style={{width:"60px"}}/>
                            )}
                     
                 
-                            </th>
+                            </td>
                         <td>{value.patient_id}</td>
                         <td>{value.first_name}</td>
                         <td>{value.last_name}</td>
@@ -265,7 +224,7 @@ useEffect(() => {
                         </tr>
                        
                         )
-                        })):(
+                        )):(
                             <tr className="text-center">
                                 <td colSpan="11">No patients found!</td>
                             </tr>
@@ -275,11 +234,8 @@ useEffect(() => {
                 </table>
                 </div>
                 </div>
-        </div>
-
-
-        
-    )
+        </div>  
+    );
 }
 
 export default Patient;
