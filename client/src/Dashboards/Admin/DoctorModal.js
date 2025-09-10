@@ -112,7 +112,7 @@ function DoctorModal({doctor_id,closeModal}){
                     Birthdate: {docInfo.date_of_birth}</li>
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
                     <FaGenderless size={18} color="#51A485" title="Gender" className="me-2"/>
-                    Gender:  {docInfo.gender_name} </li>
+                    Gender:  {docInfo.gender_name || "Unknown"} </li>
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
                     <FaEnvelope size={18} color="#51A485" title="Email" className="me-2"/> 
                     Email:  {docInfo.email} </li>
@@ -125,7 +125,7 @@ function DoctorModal({doctor_id,closeModal}){
                     Education: {docInfo.education} </li>
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
                     <FaStethoscope size={18} color="#51A485" title="Specialization" className="me-2"/>
-                    Specialization:  {docInfo.specialization_name} </li>
+                    Specialization:  {docInfo.specialization_name || "Unknown"} </li>
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
                     <FaHospital size={18} color="#51A485" title="Gender" className="me-2"/>
                     Department:  { docInfo.department_name} </li>

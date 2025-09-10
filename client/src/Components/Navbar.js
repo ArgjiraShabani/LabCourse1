@@ -4,7 +4,10 @@ function Navbar(){
 
   return(
     <>
-   <nav className="navbar navbar-expand-lg">
+    <nav className="navbar navbar-expand-lg "
+    style={{ position: "relative", zIndex: 1050, backgroundColor: "white" }} >
+     
+    
   <div className="container-fluid">
     <div className="d-flex flex-column">
       <Link to='/' className="navbar-brand" style={{ fontSize: '30px' }}>CareWave</Link>

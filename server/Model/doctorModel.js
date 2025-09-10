@@ -79,6 +79,7 @@ const getAllDoctors = (callback) => {
       d.email,
       d.password,
       d.phone,
+      d.is_active,
       r.role_name,
       d.date_of_birth,
       s.specialization_name,
@@ -94,7 +95,7 @@ const getAllDoctors = (callback) => {
 };
 
 const deleteDoctor=(doctorId,callback)=>{
-    const sqlDel="DELETE FROM doctors WHERE doctor_id=?";
+    const sqlDel="Update  doctors SET is_active=0 WHERE doctor_id=?";
     db.query(sqlDel,[doctorId],callback);
 };
 
@@ -115,10 +116,10 @@ d.department_Id,
 dep.department_name,
 d.education,
 d.image_path
-FROM doctors d inner join roles r on d.role_id=r.role_id
- inner join gender g on d.gender_id=g.gender_id
+FROM doctors d left join roles r on d.role_id=r.role_id
+ left join gender g on d.gender_id=g.gender_id
   left join specialization s on d.specialization_id=s.specialization_id
- inner join departments dep on d.department_Id=dep.department_Id
+ left join departments dep on d.department_Id=dep.department_Id
  WHERE d.doctor_id=?
  `;
 

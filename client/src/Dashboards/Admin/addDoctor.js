@@ -29,6 +29,9 @@ function AdminDoctor(){
     password: yup.string().min(8).max(20).required("Password is required"),
     role_id: yup.number().typeError("Role is required").required()
 });
+const {register,handleSubmit,formState: {errors},reset,setValue}=useForm({
+        resolver: yupResolver(schema)
+    });
 
 const navigate=useNavigate();
      useEffect(() => {
@@ -67,6 +70,7 @@ const navigate=useNavigate();
     const[specialization,setSpecialization]=useState([]);
     const[department,setDepartment]=useState([]);
     const[show,setShow]=useState(false);
+    
     const handleClick=()=>{
         setShow(!show);
     }
@@ -75,8 +79,12 @@ const navigate=useNavigate();
     useEffect(()=>{
         Axios.get('http://localhost:3001/api/roles',{ withCredentials: true }).then((response)=>{
             setRole(response.data);
+            const doctorRole=response.data.find(r=>r.role_name.toLowerCase()==="doctor");
+            if(doctorRole){
+                setValue("role_id",doctorRole.role_id)
+            }
         })
-    },[]);
+    },[setValue]);
     useEffect(()=>{
         Axios.get('http://localhost:3001/api/gender',{ withCredentials: true }).then((response)=>{
             setGender(response.data);
@@ -89,14 +97,12 @@ const navigate=useNavigate();
         })
     },[]);
     useEffect(()=>{
-        Axios.get('http://localhost:3001/api/departments',{ withCredentials: true }).then((response)=>{
+        Axios.get('http://localhost:3001/api/departments').then((response)=>{
             setDepartment(response.data);
         })
     },[]);
    
-    const {register,handleSubmit,formState: {errors},reset}=useForm({
-        resolver: yupResolver(schema)
-    });
+    
     
     const onSubmit= async (data)=>{
         try{
@@ -307,10 +313,15 @@ const navigate=useNavigate();
                             <label htmlFor="role" className="form-label">Role:</label>
                             <select name="role_id" id="role" className={`form-control w-100 ${errors.role_id?'is-invalid': ''}`} aria-describedby="role"
                             {...register("role_id",{ valueAsNumber: true })} 
-                            defaultValue={doctorRoleId}
+                            
                             
                            >
-                                <option value={doctorRoleId}>Doctor</option>
+                                <option value="">Select Role</option>
+                                {role.map((r) => (
+                            <option key={r.role_id} value={r.role_id}>
+                             {r.role_name}
+                            </option>
+                            ))}
                               
                                 
                         </select>

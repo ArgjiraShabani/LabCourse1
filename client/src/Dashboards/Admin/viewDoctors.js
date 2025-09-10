@@ -13,6 +13,11 @@ const ViewDoctors=()=>{
     const swal=withReactContent(Swal);
     const [selectedDoctor,setSelectedDoctor]=useState(null);
     const [searchTerm, setSearchTerm]=useState("");
+    const[filteredDoctors, setFilteredDoctors]= useState([]);
+    const [openModal,setOpenModal] = useState(false);
+    const [doctorList,setDoctorList]=useState([]);
+    
+    
     const confirmDeletion= (id)=>{
         swal.fire({
             title: "Are you sure you want to delete the user?",
@@ -29,8 +34,7 @@ const ViewDoctors=()=>{
             }
         });
     };
-     const [openModal,setOpenModal] = useState(false);
-    const [doctorList,setDoctorList]=useState([]);
+     
     const navigate=useNavigate();
          useEffect(() => {
             Axios.get(`http://localhost:3001/viewDoc`, {withCredentials: true})
@@ -73,10 +77,38 @@ const ViewDoctors=()=>{
             }
             return doctor;
             })
-             console.log(formattedData)
+            
             setDoctorList(formattedData);
+            setFilteredDoctors(formattedData);
         });
     },[]);
+    const handleSearch=()=>{
+        const term=searchTerm.trim().toLowerCase();
+        
+        if(term===""){
+            setFilteredDoctors(doctorList);
+            return;
+        }
+            const filtered=doctorList.filter((doctor)=>{
+                const fullName=`${doctor.first_name} ${doctor.last_name}`.toLowerCase();
+                const specialization=doctor.specialization_name?doctor.specialization_name.toLowerCase():'';
+                const department=doctor.department_name?doctor.department_name.toLowerCase(): '';
+
+                return(
+                    fullName.includes(term)||
+                    specialization.includes(term)||
+                    department.includes(term)
+                );
+            });
+            console.log('Filtered doctors', filtered);
+            setFilteredDoctors(filtered);
+        
+    };
+    useEffect(()=>{
+        if(searchTerm.trim()===""){
+            setFilteredDoctors(doctorList);
+        }
+    },[searchTerm,doctorList]);
 
     const deleteDoctor=(id)=>{
         Axios.delete(`http://localhost:3001/api/deleteDoctor/${id}`,{
@@ -84,7 +116,8 @@ const ViewDoctors=()=>{
         })
         .then(()=>{
             setDoctorList(prevList=>prevList.filter(d=>d.doctor_id!==id));
-            swal.fire('Deleted!','Doctor has been deleted.','Success');
+            swal.fire('Deactivated!','Doctor has been deactivated.','Success');
+           
         })
         .catch(error=>{
             console.log(error);
@@ -103,7 +136,50 @@ const ViewDoctors=()=>{
             <div style={{width: "250px"}}>
                 <Sidebar role="admin"/>
         </div>
-        <div style={{flex:1,display: 'flex',justifyContent:'center',alignItems: 'center',padding:'30px'}}>
+        <div style={{flex:1,padding:'30px'}}>
+
+            <div style={{
+                marginBottom: '90px',
+                width: '100%',
+                maxWidth: '900px',
+                display: 'flex',
+                alignItems: 'center',
+                margin:'0 auto',
+                gap: '10px'
+
+            }}>
+                <input type="text"
+                placeholder="Search By Name, Specialization, Department"
+                value={searchTerm}
+                onChange={(e)=>setSearchTerm(e.target.value)}
+                onKeyDown={(e)=>{
+                    if(e.key==="Enter"){
+                        handleSearch();
+                    }
+                }}
+                style={{
+                    flex: 1,
+                    
+                    padding: '10px',
+                    borderRadius: '1px solid #ccc',
+                    fontSize: '16px'
+                    
+                }}/>
+                <button
+    onClick={handleSearch}
+    style={{
+        marginTop: '10px',
+        padding: '10px 20px',
+        backgroundColor: '#51A485',
+        color: '#fff',
+        border: 'none',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap'
+    }}
+>
+    Search
+</button>
+            </div>
 
         <table className="table  table-borderes" style={{
             width: '100%',
@@ -128,17 +204,18 @@ const ViewDoctors=()=>{
       
       <th scope="col" >Specialization</th>
       <th scope="col" >Department</th>
+      <th scope="col">Status</th>
     </tr>
   </thead>
   <tbody>
-     {doctorList.length===0?(
+     {filteredDoctors.length===0?(
         <tr>
             <td colSpan="9" style={{ textAlign: "center", padding: "15px", color: "#888" }}>
         No doctors found.
       </td>
         </tr>
     ):(
-        doctorList.map((doctor)=>(
+        filteredDoctors.map((doctor)=>(
         <tr key={doctor.doctor_id}>
         <td >{doctor.doctor_id}</td>
         <td >{doctor.first_name}</td>
@@ -153,6 +230,9 @@ const ViewDoctors=()=>{
         <td>{doctor.specialization_name || "No specialization"}</td>
         <td>
             {doctor.department_status === 2 ? "Inactive" : doctor.department_name}
+        </td>
+        <td>
+            {doctor.is_active ? "Active" : "Inactive"}
         </td>
 
        <td><button  style={{

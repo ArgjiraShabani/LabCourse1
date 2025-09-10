@@ -131,7 +131,7 @@ const deleteDoctorHandler=(req,res)=>{
         if(result.affectedRows===0){
             return res.status(404).json({message: "Doctor not found"});
         }
-        res.json({message: "Doctor deleted successfully"});
+        res.json({message: "Doctor deactivated successfully"});
     });
 };
 
