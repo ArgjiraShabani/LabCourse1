@@ -16,6 +16,7 @@ const { getRolesHandler,
      setRoleHandler,
      getFeedbacksAdminHandler,
      updateFeedbacksAdminHandler,
+     updateStatusByAdminHandler,
      } = require('../Controllers/dataController');
 
 router.get('/roles', getRolesHandler);
@@ -24,6 +25,7 @@ router.post('/addGender',authenticateToken,setGenderHandler);
 router.post('/addBlood',authenticateToken,setBloodHandler);
 router.get('/status',authenticateToken,getStatusHandler);
 router.put('/updateStatus',authenticateToken,updateStatusHandler);
+router.put('/updateStatusByAdmin',authenticateToken,updateStatusByAdminHandler);
 router.put('/updateDataBlood',authenticateToken,updateBloodHandler);
 router.put('/updateDataGender',authenticateToken,updateGenderHandler);
 router.get('/blood',getBloodHandler);

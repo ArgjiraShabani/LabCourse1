@@ -28,6 +28,10 @@ const updateStatus=(params,callback)=>{
     const sql='update patients set status_id=2 where patient_id=?';
     db.query(sql,params,callback);
 };
+const updateStatusByAdmin=(params,callback)=>{
+    const sql='update patients set status_id=? where patient_id=?';
+    db.query(sql,params,callback);
+};
 
 const getBlood=(callback)=>{
     const sql='Select * from blood';
@@ -86,5 +90,6 @@ module.exports={
     setRole,
     getFeedbacksAdmin,
     updateFeedbacksAdmin,
+    updateStatusByAdmin,
 
 };

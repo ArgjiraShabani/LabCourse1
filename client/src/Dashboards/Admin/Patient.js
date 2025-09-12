@@ -98,6 +98,66 @@ useEffect(() => {
         });
     },[]);
 
+    
+function handleClick(id,s_id){
+        Swal.fire({
+            title: "Are you sure about changing status?",
+            showCancelButton: true,
+            confirmButtonColor: "#51A485",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Change"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                Axios.put("http://localhost:3001/api/updateStatusByAdmin",{status:s_id,id:id},{
+        withCredentials: true
+    }).then(response=>{
+                    const updatedList = patientList.map(patient => {
+                        if (patient.patient_id === id) {
+                            const statusObj = status.find(s => s.status_id === s_id);
+                            return {
+                                ...patient,
+                                status_id: s_id,
+                                status_name: statusObj ? statusObj.status_name : patient.status_name,
+                            };
+                        }
+                        return patient;
+                    });
+
+                        setPatientList(updatedList);
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Status has been changed!",
+                            showConfirmButton: false,
+                            timer: 1100
+                            });
+
+                        })
+                        .catch(err => {
+                            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                                 Swal.fire({
+                                                          icon: "error",
+                                                          title: "Access Denied",
+                                                          text: "Please login.",
+                                                          confirmButtonColor: "#51A485",
+                                                        });
+                                navigate('/');
+                            } else {
+                                console.error("Unexpected error", err);
+                            }
+                        });
+                        
+                        }else{
+                            Swal.fire({
+                            position: "center",
+                            icon: "error",
+                            title: "Status has not been changed!",
+                            showConfirmButton: false,
+                            timer: 1100
+                            });
+                        }
+    })
+}
 
    
     function handleDelete(id){
@@ -180,6 +240,8 @@ useEffect(() => {
                         <th scope="col" style={{backgroundColor:"#51A485",color:"white"}}>Date of birth</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Gender</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white",width:"100px"}}>Status</th>
+                       <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Edit Status</th>
+
                          <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Update</th>
                         <th secope="col" style={{backgroundColor:"#51A485",color:"white"}}>Delete</th>
 
@@ -208,13 +270,20 @@ useEffect(() => {
                         <td>{value.date_of_birth}</td>
                         <td>{value.gender_name ? value.gender_name : '--'}</td>
                         <td style={{ color: value.status_name.toLowerCase() === 'inactive' ? 'red' : 'green' }}>{value.status_name}</td>
-                      {/*  <td>
-                            {status.map((val,key)=>{
-                                return(
-                                        <Button variant="secondary" onClick={() => handleClick(val.status_id,value.patient_id)}>{val.status_name}</Button>
-                                )
-                                })}
-                        </td>*/}
+                      <td>
+                                
+                                        <Button variant="secondary"   onClick={() => {
+    const nextStatusId =
+      value.status_name.toLowerCase() === "active"
+        ? status.find((s) => s.status_name.toLowerCase() === "inactive")?.status_id
+        : status.find((s) => s.status_name.toLowerCase() === "active")?.status_id;
+
+    if (nextStatusId) {
+      handleClick(value.patient_id, nextStatusId);
+    }
+  }}>{value.status_name}</Button>
+                               
+                        </td>
                         <td>
                             <Button variant="secondary" onClick={()=>{handleUpdate(value.patient_id)}}>Update</Button>
                         </td>

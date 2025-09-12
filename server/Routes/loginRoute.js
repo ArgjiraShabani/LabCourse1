@@ -12,11 +12,11 @@ router.post("/login", (req, res) => {
 
   // Patient login check
   const patientQuery = `
-    SELECT patients.patient_id AS id, patients.password, roles.role_name AS role
+    SELECT patients.patient_id AS id, patients.password, roles.role_name AS role,patients.isdeleted,status.status_name
     FROM patients
     INNER JOIN roles ON roles.role_id = patients.role_id
     INNER JOIN status ON status.status_id = patients.status_id
-    WHERE patients.email = ? AND status.status_name = 'active'
+    WHERE patients.email = ?
   `;
 
   db.query(patientQuery, [email], (err, data) => {
@@ -24,6 +24,9 @@ router.post("/login", (req, res) => {
 
     if (data.length > 0) {
       const user = data[0];
+      if(user.isdeleted===1 || user.status_name=='Inactive'){
+        return res.status(403).json({message: "Youraccount is deactivated. Please contact the administrator"});
+      }
       bcrypt.compare(password, user.password).then((match) => {
         if (match) return sendToken(res, user.id, user.role);
 

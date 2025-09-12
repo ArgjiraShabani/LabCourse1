@@ -24,7 +24,7 @@ const getPatientById=(patientId,callback)=>{
 };
 
 const getAllPatients=(callback)=>{
-    const sql=`SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name,patients.isdeleted
+    const sql=`SELECT patients.image_path,patients.patient_id,patients.first_name,patients.last_name,patients.email,patients.phone,patients.date_of_birth,gender.gender_name,status.status_name,status.status_id,patients.isdeleted
      FROM patients left join gender
      on patients.gender_id=gender.gender_id left join status
      on patients.status_id=status.status_id where patients.isdeleted=false`;

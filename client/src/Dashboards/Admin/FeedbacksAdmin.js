@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 const FeedbacksAdmin = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   
   useEffect(() => {
@@ -77,6 +78,16 @@ const FeedbacksAdmin = () => {
                     }
         })
   }, []);
+
+  const filteredFeedbacks = feedbacks.filter(feedback => {
+  const fullName = `${feedback.first_name} ${feedback.last_name}`.toLowerCase();
+  return (
+    feedback.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    feedback.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    fullName.includes(searchQuery.toLowerCase())
+  );
+});
+
  
 function handleDelete(id){
      Swal.fire({
@@ -126,6 +137,16 @@ function handleDelete(id){
       <Sidebar role="admin" />
       <div className="container py-4 flex-grow-1">
         <h3 className="mb-3">Feedbacks</h3>
+        <div className="mb-3">
+  <input
+    type="text"
+    className="form-control"
+    placeholder="Search by First or Last Name"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+  />
+</div>
+
       <div className="table-responsive">
         <table className="table table-bordered table-hover align-middle">
           <thead >
@@ -139,7 +160,7 @@ function handleDelete(id){
             </tr>
           </thead>
           <tbody>
-              {feedbacks.length>0 ? (feedbacks.map((value,key)=>{
+              {filteredFeedbacks.length>0 ? (filteredFeedbacks.map((value,key)=>{
                 return(
                 <tr key={key}>
                   <td>{value.patient_id}</td>

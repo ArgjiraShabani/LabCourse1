@@ -12,6 +12,7 @@ const {getRoles,
     setRole,
     getFeedbacksAdmin,
     updateFeedbacksAdmin,
+    updateStatusByAdmin,
     }=require('../Model/dataModel');
 
 const getRolesHandler=(req,res)=>{
@@ -34,15 +35,13 @@ const setGenderHandler=(req,res)=>{
     const gender=req.body.gender;
     setGender(gender,(err,data)=>{
          if(err){
-        console.error("Db inserton error",err);
         return res.status(500).json({error: err.message});
     }
     console.log("Insertion successful:",data);
     return res.json("Gender has been successfully created");
     });
     }catch(error){
-  console.error("Server error:", error);
-  return res.status(500).json({error: "Internal server error"});
+      return res.status(500).json({error: "Internal server error"});
  };
 
 };
@@ -52,14 +51,12 @@ const setBloodHandler=(req,res)=>{
     const blood=req.body.blood;
     setBlood(blood,(err,data)=>{
          if(err){
-        console.error("Db inserton error",err);
         return res.status(500).json({error: err.message});
     }
     console.log("Insertion successful:",data);
     return res.json("Blood has been successfully created");
     });
     }catch(error){
-  console.error("Server error:", error);
   return res.status(500).json({error: "Internal server error"});
  };
 };
@@ -77,6 +74,18 @@ const getStatusHandler=(req,res)=>{
 const updateStatusHandler=(req,res)=>{
     const patientId=req.body.id;
     updateStatus([patientId],(err,results)=>{
+         if(err){
+              return res.json("Didnt Update Patient!");
+        }else{
+            return res.json(results);
+    }
+    });
+};
+const updateStatusByAdminHandler=(req,res)=>{
+    const patientId=req.body.id;
+    const statusid=req.body.status;
+  
+updateStatusByAdmin([statusid,patientId],(err,results)=>{
          if(err){
               return res.json("Didnt Update Patient!");
         }else{
@@ -205,5 +214,6 @@ module.exports={
     setRoleHandler,
     getFeedbacksAdminHandler,
     updateFeedbacksAdminHandler,
+    updateStatusByAdminHandler,
     
 };

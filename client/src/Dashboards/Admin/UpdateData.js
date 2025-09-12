@@ -423,7 +423,14 @@ function handleDeleteBlood(id,nameData){
                                                     });
                               navigate('/');
                             } else {
-                              console.error("Unexpected error", err);
+                              Swal.fire({
+                                                      icon: "error",
+                                                      title: "",
+                                                      text: "Gender not added.Please check again!.",
+                                                      confirmButtonColor: "#51A485",
+                                                    });
+                             resetGender(); 
+
                             }
                       })
                     }
@@ -461,7 +468,13 @@ function handleDeleteBlood(id,nameData){
                                                     });
                               navigate('/');
                             } else {
-                              console.error("Unexpected error", err);
+                               Swal.fire({
+                                                      icon: "error",
+                                                      title: "",
+                                                      text: "Blood not added.Please check again!.",
+                                                      confirmButtonColor: "#51A485",
+                                                    });
+                              resetBlood();
                             }
                       })
                     }
@@ -473,61 +486,7 @@ function handleDeleteBlood(id,nameData){
       <Sidebar role="admin" />
       <div className="container py-4 flex-grow-1">
       
-       {/*<div className="container py-4 flex-grow-1">
-      <label>Add Role:</label>
-      <form className="d-flex" onSubmit={handleSubmitRole(handleAddRole)}>
-      
-        <input
-          type="text"
-          name='role'
-          placeholder="Enter text"
-          className="form-control me-2"
-         {...registerRole("role")}
-        />
-                <p style={{color:"red"}}>{errorsRole.role?.message}</p>
-
-          <button type="submit" style={{backgroundColor:"#51A485",borderColor:"white",height:"50px",color:"white",borderRadius:"7px"}}>Add</button>
-
-      </form>
-      
-    </div>
-        <div className="table-responsive" style={{marginTop:"10px"}}>
-          <table className="table table-bordered table-hover align-middle" style={{minWidth:"700px"}}>
-            <thead className="table-light">
-              <tr>
-                <th style={{backgroundColor:"#51A485",color:"white"}}>Role</th>
-                <th style={{backgroundColor:"#51A485",color:"white"}}>Update</th>
-                <th style={{backgroundColor:"#51A485",color:"white"}}>Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {role.map((value,key)=>{
-                    return(
-                        <tr>
-                    <td>{value.role_name}</td>
-                    <td>
-                       <form className="d-flex">
-                             <input
-                                type="text"
-                                className="form-control me-2"
-                                name='role'
-                                placeholder="Enter text"                                
-                            
-                              />
-                       <Button className="btn btn-secondary" onClick={()=>{handleEditRole(value.role_id,value.role_name)}}>Update</Button>
-                      </form>
-                    </td>
-                    <td>
-                        <Button variant="danger" onClick={()=>{handleDelete(value.role_id,value.role_name)}}>Delete</Button>
-
-                    </td>
-                    </tr>
-
-                    )
-                })}
-            </tbody>
-          </table>
-        </div>*/}
+       
       <div className="container mt-4">
       <label>Add Gender:</label>
       <form className="d-flex" onSubmit={handleSubmitGender(handleAddGender)} >
