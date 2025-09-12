@@ -40,7 +40,7 @@ router.post("/login", (req, res) => {
 
    function checkDoctor(email, password, res) {
     const doctorQuery = `
-      SELECT doctors.doctor_id AS id, doctors.password, roles.role_name AS role
+      SELECT doctors.doctor_id AS id, doctors.password, doctors.is_active, roles.role_name AS role
       FROM doctors
       INNER JOIN roles ON roles.role_id = doctors.role_id
       WHERE doctors.email = ?
@@ -51,6 +51,10 @@ router.post("/login", (req, res) => {
 
        if (data.length > 0) {
       const user = data[0];
+
+      if(user.is_active===0){
+        return res.status(403).json({message: "Youraccount is deactivated. Please contact the administrator"});
+      }
       bcrypt.compare(password, user.password).then((match) => {
         if (match) return sendToken(res, user.id, user.role);
 

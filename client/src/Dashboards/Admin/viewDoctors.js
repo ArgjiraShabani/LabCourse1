@@ -20,7 +20,7 @@ const ViewDoctors=()=>{
     
     const confirmDeletion= (id)=>{
         swal.fire({
-            title: "Are you sure you want to delete the user?",
+            title: "Are you sure you want to deactivate the account?",
             text: "This action cannot be undone!",
             icon : "warning",
             showCancelButton: true,
@@ -136,18 +136,37 @@ const ViewDoctors=()=>{
             <div style={{width: "250px"}}>
                 <Sidebar role="admin"/>
         </div>
+        <div
+        style={{display: 'flex',
+        justifyContent:'flex-end',}}
+        >
+            
+        <Link to={'/deactivatedAccounts'} style={{
+        
+        padding: '10px 20px',
+        
+        color: '#51A485',
+        textDecoration: 'none',
+        borderRadius: '4px'
+    }}> View Deactivated Doctors</Link>
+        
+        </div>
         <div style={{flex:1,padding:'30px'}}>
 
             <div style={{
-                marginBottom: '90px',
+                marginBottom: '50px',
+                marginTop: '20px',
+                marginLeft:'auto',
+                marginRight:'auto',
                 width: '100%',
                 maxWidth: '900px',
                 display: 'flex',
                 alignItems: 'center',
-                margin:'0 auto',
+                
                 gap: '10px'
 
             }}>
+                
                 <input type="text"
                 placeholder="Search By Name, Specialization, Department"
                 value={searchTerm}
@@ -174,7 +193,8 @@ const ViewDoctors=()=>{
         color: '#fff',
         border: 'none',
         cursor: 'pointer',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        
     }}
 >
     Search
@@ -255,7 +275,7 @@ const ViewDoctors=()=>{
             border: 'none',
             borderRadius: '0px',
             cursor: 'pointer'
-        }}><GoTrash size={18} color="#51A485" title="Delete"/></button></td>
+        }}><GoTrash size={18} color="#51A485" title="Deactivate"/></button></td>
 
         
       </tr>

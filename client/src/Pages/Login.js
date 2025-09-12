@@ -52,7 +52,10 @@ function Login(){
           if (err.response && err.response.status === 401) {
             // Login failed
             setErrorMessage(err.response.data.message);
-          } else {
+          }else if(err.response.status===403){
+            setErrorMessage("Your accountis deactivated. Please contact the administrator");
+          }
+           else {
             // Other errors
             setErrorMessage("An unexpected error occurred. Please try again.");
             console.log(err);
