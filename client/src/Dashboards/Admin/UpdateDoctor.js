@@ -261,7 +261,10 @@ const UpdateDoctor=()=>{
                                 }}/>
                                 {img && (
                                     <div style={{ marginTop: '8px', fontSize: '0.9em', color: '#555'} }>
-                                        Current image path: {img}
+                                        Current image path: {
+                                            typeof img==='string'
+                                            ?img: img.name
+                                        }
                                     </div>
                                 )}
                                 

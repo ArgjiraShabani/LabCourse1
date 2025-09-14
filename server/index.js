@@ -72,17 +72,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-/*
-const userStorage=multer.diskStorage({
-  destination: (req,file,cb)=>{
-    cb(null,'public/userUploads');
-  },
-  filename: (req,file,cb)=>{
-    cb(null,'user_' + Date.now()+ path.extname(file.originalname));
-  },
-});
-const userUpload=multer({storage: userStorage});
-app.use('/userUploads',express.static(path.join(__dirname,'public/userUploads')));*/
+
 
 /*
 const db = mysql.createConnection({

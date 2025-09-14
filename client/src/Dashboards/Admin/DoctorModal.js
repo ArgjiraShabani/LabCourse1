@@ -14,6 +14,8 @@ function DoctorModal({doctor_id,closeModal}){
             withCredentials: true
         })
          .then((response)=>{
+            console.log("Doctor Info:", response.data);
+
             const birthDate=response.data.date_of_birth.split("T")[0];
             response.data.date_of_birth=birthDate;
             SetDocInfo(response.data);

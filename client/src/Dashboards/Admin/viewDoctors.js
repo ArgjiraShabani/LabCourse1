@@ -136,7 +136,7 @@ const ViewDoctors=()=>{
             <div style={{width: "250px"}}>
                 <Sidebar role="admin"/>
         </div>
-        <div
+        {/*<div
         style={{display: 'flex',
         justifyContent:'flex-end',}}
         >
@@ -150,7 +150,7 @@ const ViewDoctors=()=>{
         borderRadius: '4px'
     }}> View Deactivated Doctors</Link>
         
-        </div>
+        </div>*/}
         <div style={{flex:1,padding:'30px'}}>
 
             <div style={{

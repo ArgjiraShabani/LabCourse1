@@ -26,18 +26,21 @@ const {
 
 const { authenticateToken, authorizeRoles } = require("../middlewares.js");
 
-const userStorage=multer.diskStorage({
-  destination: (req,file,cb)=>{
-    cb(null,'public/userUploads');
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads");
   },
-  filename: (req,file,cb)=>{
-    cb(null,'user_' + Date.now()+ path.extname(file.originalname));
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
-const userUpload=multer({storage: userStorage});
 
-router.post('/doctors',authenticateToken, userUpload.single('img'),createDoctorHandler);
-router.put('/updateDoctors/:doctor_id',authenticateToken, userUpload.single('img'),updateDoctorHandler);
+const upload = multer({ storage: storage });
+
+router.post('/doctors',authenticateToken, upload.single('img'),createDoctorHandler);
+router.put('/updateDoctors/:doctor_id',authenticateToken, upload.single('img'),updateDoctorHandler);
 router.get('/viewDoctors',authenticateToken, getAllDoctorsHandlers);
 router.delete('/deleteDoctor/:doctor_id',authenticateToken, deleteDoctorHandler);
 //router.get('/doctorId',authenticateToken,  getDoctorByIdHandler);

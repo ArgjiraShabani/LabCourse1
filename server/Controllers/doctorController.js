@@ -37,7 +37,7 @@ const createDoctorHandler=async(req,res)=>{
       specialization_id,
       department_Id,
       education,
-      image_path: req.file ? req.file.filename : null,
+      image_path: req.file ? `/uploads/${req.file.filename}` : null,
   };
   createDoctor(doctorData,(err,data)=>{
     if(err){
@@ -81,7 +81,7 @@ const updateDoctorHandler=(req,res)=>{
                 specialization_id: req.body.specialization_id,
                 department_Id: req.body.department_Id,
                 education: req.body.education,
-                image_path: req.file? req.file.filename: req.body.image_path,
+                image_path: req.file? `/uploads/${req.file.filename}`: req.body.image_path,
             };
 
             updateDoctorById(doctorId,doctorData,(err,results)=>{
