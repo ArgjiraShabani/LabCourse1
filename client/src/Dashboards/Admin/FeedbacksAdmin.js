@@ -98,7 +98,7 @@ function handleDelete(id){
             confirmButtonText: "Delete"
             }).then((result) => {
             if (result.isConfirmed) {
-                axios.patch(`http://localhost:3001/api/updateFeedback/${id}`,{
+                axios.patch(`http://localhost:3001/api/updateFeedback/${id}`,{},{
         withCredentials: true
     })
                      .then(response=>{

@@ -66,7 +66,7 @@ function DoctorModal({doctor_id,closeModal}){
             <div>
                 {docInfo.image_path?(
                 <img
-                src={`http://localhost:3001${docInfo.image_path}`}
+                src={`http://localhost:3001/uploads/${docInfo.image_path}`}
                 alt={`${docInfo.first_name} ${docInfo.last_name}`}
                 style={{
                     width: '150px',

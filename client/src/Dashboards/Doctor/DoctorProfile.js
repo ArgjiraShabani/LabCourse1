@@ -78,7 +78,7 @@ useEffect(() => {
              <div className="text-center mb-4">
              {doctorData.image_path ?(
                 <img
-                    src={`http://localhost:3001${doctorData.image_path}`}
+                    src={`http://localhost:3001/uploads/${doctorData.image_path}`}
                     alt={`${doctorData.first_name} ${doctorData.last_name}`}
                     style={{width: '150px',height: '150px',borderRadius: '50%',objectFit: 'cover',border: '3px solidrgb(86, 245, 186)'}}
                 />

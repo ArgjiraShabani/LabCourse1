@@ -69,7 +69,7 @@ const getFeedbacksAdmin=(callback)=>{
 };
 
 const updateFeedbacksAdmin=(id,callback)=>{
-    const sql='update feedbacks set is_deleted=TRUE where feedback_id=?';
+    const sql='update feedbacks set is_deleted=1 where feedback_id=?';
     db.query(sql,id,callback);
 };
 

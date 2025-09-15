@@ -77,7 +77,7 @@ const ViewDoctors=()=>{
             }
             return doctor;
             })
-            
+            console.log(formattedData)
             setDoctorList(formattedData);
             setFilteredDoctors(formattedData);
         });
