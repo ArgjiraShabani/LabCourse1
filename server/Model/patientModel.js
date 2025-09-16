@@ -73,7 +73,7 @@ const updatePatient=(params,callback)=>{
 };
 
 const getPatient=(id,callback)=>{
-    const sql='SELECT * from patients inner join gender on patients.gender_id=gender.gender_id inner join blood on patients.blood_id=blood.blood_id where patients.patient_id = ?';
+    const sql='SELECT * from patients left join gender on patients.gender_id=gender.gender_id left join blood on patients.blood_id=blood.blood_id where patients.patient_id = ?';
     db.query(sql,id,callback);
 };
 
@@ -123,11 +123,16 @@ const updateFeedback=(params,callback)=>{
 };
 
 const getPatientForUpdation=(id,callback)=>{
-    const sql='Select p.first_name,p.last_name,p.email,p.phone,p.date_of_birth,p.gender_id from patients p left join gender g on p.gender_id=g.gender_id where p.patient_id=?';
+    const sql='Select p.first_name,p.last_name,p.email,p.phone,p.date_of_birth,p.gender_id,p.image_path from patients p left join gender g on p.gender_id=g.gender_id where p.patient_id=?';
     db.query(sql,id,callback);
 };
 
 const updatePatientAdmin=(params,callback)=>{
+    const sql='UPDATE patients SET first_name=?,last_name=?,email=?,phone=?,date_of_birth=?,gender_id=?,image_path=? WHERE patient_id=?';
+    db.query(sql,params,callback);
+
+};
+const updatePatientAdminWithoutImage=(params,callback)=>{
     const sql='UPDATE patients SET first_name=?,last_name=?,email=?,phone=?,date_of_birth=?,gender_id=? WHERE patient_id=?';
     db.query(sql,params,callback);
 
@@ -161,6 +166,7 @@ module.exports={
     getPatientForUpdation,
     updatePatientAdmin,
     getPatientsForDropdown,
-    updateFeedback
+    updateFeedback,
+    updatePatientAdminWithoutImage
     
 }

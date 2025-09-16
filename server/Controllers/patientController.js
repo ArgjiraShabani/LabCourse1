@@ -24,7 +24,8 @@ const {getPatientAppointments,
       getPatientForUpdation,
       updatePatientAdmin,
       getPatientsForDropdown,
-      updateFeedback} =require('../Model/patientModel');
+      updateFeedback,
+    updatePatientAdminWithoutImage} =require('../Model/patientModel');
 
 
 const getPatientByIdHandler=(req,res)=>{
@@ -171,62 +172,130 @@ const updatePatientHandler=(req,res)=>{
   const last_name=req.body.last_name;
   const phone=req.body.phone;
   const birth=req.body.date_of_birth;
-  const gender_name=req.body.gender_name;
-  const blood=req.body.blood_type;
+  const gender_name=req.body.gender_name==='null' ? null:req.body.gender_name;
+  const blood=req.body.blood_type==='null' ? null:req.body.blood_type;
+  let genderId=null;
+  let bloodId=null;
+  console.log(req.body)
 
-  getImagePath(id,(err,data)=>{
-    if(err){
-      return res.json("Didnt fetch image!");
-    }
-    if(data.length>0){
-        const imageFetch=data[0].image_path;
-        const image = req.file ? req.file.filename : imageFetch;
+  getImagePath(id, (err, data) => {
+  if (err) {
+    return res.json("Didnt fetch image!");
+  }
+  if (data.length > 0) {
+    const imageFetch = data[0].image_path;
+    const image = req.file ? req.file.filename : imageFetch;
 
-        getGender(gender_name,(err,data)=>{
-          if(err){
-            return res.json("Didnt fetch gender id!!");  
-          };
-           if(data.length>0){
-             const genderId=data[0].gender_id;
-
-             getBlood(blood,(err,data)=>{
-                 if(err){
-                    return res.json("Error");
-                  };
-                 if(data.length>0){
-                    const bloodId=data[0].blood_id;
-
-                    updatePatient([first_name,last_name,phone,birth,genderId,bloodId,image,id],(err,data)=>{
-                          if(err){
-                            return res.json("Error");
-                          };
-                          getPatient(id,(err,results)=>{
-                              if(err){
-                                  console.log(err);
-                              }else{
-                                const data = results[0];
-
-                                if (data.date_of_birth instanceof Date) {
-                                      data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
-                                 };
-                                     res.send(data);
-                                };
-
-                          });
-                    });
-                 }else{
-                  return res.json("No matching blood found");
-                 };
-               });
-           }else{
-             return res.json("No matching gender found");
-           };
+    // First get genderId
+    if (gender_name === "null" || !gender_name) {
+      genderId = null;
+      // Then get bloodId inside this block
+      if (blood === "null" || !blood) {
+        bloodId = null;
+        // Now call updatePatient here
+        updatePatient([first_name, last_name, phone, birth, genderId, bloodId, image, id], (err, data) => {
+          if (err) {
+            return res.json("Error");
+          }
+          getPatient(id, (err, results) => {
+            if (err) {
+              console.log(err);
+            } else {
+              const data = results[0];
+              if (data.date_of_birth instanceof Date) {
+                data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+              }
+              res.send(data);
+            }
+          });
         });
-    };
-  });
+      } else {
+        getBlood(blood, (err, data) => {
+          if (err) {
+            return res.json("Error");
+          }
+          if (data.length > 0) {
+            bloodId = data[0].blood_id;
+          }
+          // Now call updatePatient here
+          updatePatient([first_name, last_name, phone, birth, genderId, bloodId, image, id], (err, data) => {
+            if (err) {
+              return res.json("Error");
+            }
+            getPatient(id, (err, results) => {
+              if (err) {
+                console.log(err);
+              } else {
+                const data = results[0];
+                if (data.date_of_birth instanceof Date) {
+                  data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+                }
+                res.send(data);
+              }
+            });
+          });
+        });
+      }
+    } else {
+      getGender(gender_name, (err, data) => {
+        if (err) {
+          return res.json("Didnt fetch gender id!!");
+        }
+        if (data.length > 0) {
+          genderId = data[0].gender_id;
+        }
+        // Now handle blood inside here
+        if (blood === "null" || !blood) {
+          bloodId = null;
+          updatePatient([first_name, last_name, phone, birth, genderId, bloodId, image, id], (err, data) => {
+            if (err) {
+              return res.json("Error");
+            }
+            getPatient(id, (err, results) => {
+              if (err) {
+                console.log(err);
+              } else {
+                const data = results[0];
+                if (data.date_of_birth instanceof Date) {
+                  data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+                }
+                res.send(data);
+              }
+            });
+          });
+        } else {
+          getBlood(blood, (err, data) => {
+            if (err) {
+              return res.json("Error");
+            }
+            if (data.length > 0) {
+              bloodId = data[0].blood_id;
+            }
+            updatePatient([first_name, last_name, phone, birth, genderId, bloodId, image, id], (err, data) => {
+              if (err) {
+                return res.json("Error");
+              }
+              getPatient(id, (err, results) => {
+                if (err) {
+                  console.log(err);
+                } else {
+                  const data = results[0];
+                  if (data.date_of_birth instanceof Date) {
+                    data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+                  }
+                  res.send(data);
+                }
+              });
+            });
+          });
+        }
+      });
+    }
+  }
+});
 
-
-};
+           }
+ 
 
 
 const registerPatientHandler=(req,res)=>{
@@ -382,9 +451,11 @@ const updatePatientAdminHandler=(req,res)=>{
   const email=req.body.email;
   const number = req.body.phone;
   const birth = req.body.date_of_birth;
-  const gender = req.body.gender_name;
-
-  updatePatientAdmin([name,lastname,email,number,birth,gender,id],(err,data)=>{
+  const gender = req.body.gender_name==='null' ? null:req.body.gender_name;
+  console.log(gender)
+  const image=req.file ? req.file.filename :null;
+  if(image){
+  updatePatientAdmin([name,lastname,email,number,birth,gender,image,id],(err,data)=>{
       if (err) {
       console.error('Error getting feedback:', err);
       return res.status(500).json({ error: 'Database error' });
@@ -396,6 +467,20 @@ const updatePatientAdminHandler=(req,res)=>{
     };
      
   });
+}else{
+  updatePatientAdminWithoutImage([name,lastname,email,number,birth,gender,id],(err,data)=>{
+      if (err) {
+      console.error('Error getting feedback:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }else{
+      if (data && data.date_of_birth) {
+          data.date_of_birth = dayjs(data.date_of_birth).format('YYYY-MM-DD');
+        }
+          res.send(data);
+    };
+     
+  });
+}
 };
 
 const getPatientsForDropdownHandler = (req, res) => {
@@ -423,4 +508,5 @@ module.exports={
     updatePatientAdminHandler,
     getPatientsForDropdownHandler,
     updateFeedbackHandler,
+    
 }

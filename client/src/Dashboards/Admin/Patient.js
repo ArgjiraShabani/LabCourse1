@@ -255,7 +255,10 @@ function handleClick(id,s_id){
                     
                         <tr key={value.patient_id}>
                          <td>
-                            { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} style={{width:"60px"}}/>
+                            { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} style={{ width: "50px",
+        height: "50px",
+        borderRadius: "50%",
+        objectFit: "cover"}}/>
                         ):(
                            <img src={'http://localhost:3001/uploads/1748263645152.png'} style={{width:"60px"}}/>
                            )}

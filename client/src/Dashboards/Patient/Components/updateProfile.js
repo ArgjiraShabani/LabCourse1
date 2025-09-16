@@ -22,13 +22,6 @@ const schema =yup.object().shape({
              .min(8, "Phone number must be at least 8 digits")
              .max(15, "Phone number cannot be longer than 15 digits"),
         
-        gender: yup
-                .string()
-                .required("Gender is required!"),
-        
-         blood: yup
-               .string()
-               .required("Blood is required!"),
 
       birth: yup
         .string()
@@ -189,6 +182,7 @@ function UpdateProfile({id,info,setInfo}){
             <div style={{marginBottom:"20px"}}>
               <label>Gender:</label><br/>
               <select  className="form-control" name="gender" {...register("gender")}  style={{width:"300px",height:"40px"}}>
+                <option value="" disabled hidden>Select Gender</option>
               {gender.map((value,key)=>{
                 return(
                 <option key={key}>{value.gender_name}</option>
@@ -201,6 +195,7 @@ function UpdateProfile({id,info,setInfo}){
             <div style={{marginBottom:"20px"}}>
               <label>Blood Type:</label><br/>
               <select  className="form-control" name="blood" {...register("blood")}  style={{width:"300px",height:"40px"}}>
+              <option value="" disabled hidden>Select Blood</option>
               {blood.map((value,key)=>{
                 return(
                 <option key={key}>{value.blood_type}</option>

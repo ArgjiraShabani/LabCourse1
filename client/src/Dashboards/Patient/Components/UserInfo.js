@@ -120,7 +120,7 @@ function Info({id,info,setInfo}){
     <hr/>
     <div style={{display:"flex"}}><FaBirthdayCake size={18} color="#51A485" title="Birth" className="me-2"/><h5>Birthday:<b> {formattedDate}</b></h5></div>
     <hr/>
-    <div style={{display:"flex"}}><FaTint size={18} color="#51A485" title="Blood Type" className="me-2"/><h5>Blood Type:<b> {info.blood_type}</b> </h5></div>
+    <div style={{display:"flex"}}><FaTint size={18} color="#51A485" title="Blood Type" className="me-2"/><h5>Blood Type:<b> {info.blood_type ? info.blood_type:"--"}</b> </h5></div>
     </div>
 
    </>

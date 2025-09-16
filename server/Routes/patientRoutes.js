@@ -41,6 +41,6 @@ router.get('/feedbackPatient/:id',authenticateToken,getFeedbacksPatientHandler);
 router.delete('/deleteFeedback/:id',authenticateToken,deleteFeedbackHandler);
 router.patch('/updateFeedback/:id',authenticateToken,updateFeedbackHandler);
 router.get('/patientInfoForUpdation/:id',authenticateToken,getPatientForUpdationHandler);
-router.put('/updatePatientAdmin/:id',authenticateToken,updatePatientAdminHandler);
+router.put('/updatePatientAdmin/:id',upload.single('image'),authenticateToken,updatePatientAdminHandler);
 router.get('/patients-dropdown', getPatientsForDropdownHandler);
 module.exports=router;

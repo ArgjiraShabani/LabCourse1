@@ -16,13 +16,13 @@ const schema = yup.object().shape({
     .matches(/^\+?(\d{1,4})?[\s\(\)-]?\(?\d{1,4}\)?[\s\(\)-]?\d{1,4}[\s\(\)-]?\d{1,4}$|^0\d{8,12}$/, "Phone number must be valid")
     .min(8).max(15),
   email: yup.string().email("Invalid email").required("Email is required!"),
-  gender: yup.string().required("Gender is required!"),
   birth: yup.string()
     .required("Date is required!")
     .test('max-date', 'Date cannot be in the future!', (value) => {
       const parsed = new Date(value);
       return parsed <= new Date();
     }),
+    photo: yup.mixed().notRequired(), 
 });
 
 function UpdatePatient() {
@@ -73,7 +73,6 @@ function UpdatePatient() {
     resolver: yupResolver(schema),
   });
 
-  // ✅ Fetch patient info by ID
   useEffect(() => {
     axios.get(`http://localhost:3001/patient/patientInfoForUpdation/${id}`, {
       withCredentials: true,
@@ -119,14 +118,18 @@ function UpdatePatient() {
 
   // ✅ Submit form
   const formSubmit = (data) => {
-    const jsonData = {
-        first_name: data.name,
-        last_name: data.lastname,
-        phone: data.phoneNumber,
-        email: data.email,
-        date_of_birth: data.birth,
-        gender_name: data.gender
-      };
+      const formData = new FormData();
+    formData.append("first_name", data.name);
+    formData.append("last_name", data.lastname);
+    formData.append("phone", data.phoneNumber);
+    formData.append("email", data.email);
+    formData.append("date_of_birth", data.birth);
+    formData.append("gender_name", data.gender);
+
+    const fileInput = getValues("photo"); // get the File from file input
+    if (fileInput && fileInput[0]) {
+      formData.append("image", fileInput[0]); // append the file only if selected
+    }
 
     Swal.fire({
       title: "Are you sure?",
@@ -137,7 +140,7 @@ function UpdatePatient() {
       confirmButtonText: "Yes, update it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        axios.put(`http://localhost:3001/patient/updatePatientAdmin/${id}`, jsonData, {
+        axios.put(`http://localhost:3001/patient/updatePatientAdmin/${id}`, formData, {
           withCredentials: true,
         })
         .then((res) => {
@@ -202,6 +205,8 @@ function UpdatePatient() {
           <div className="mb-3">
             <label>Gender</label>
              <select  className="form-control" name="gender" {...register("gender")}>
+            <option value='' disabled hidden>Select gender</option>
+
               {gender.map((value,key)=>{
                 return(
                 <option key={key} value={value.gender_id}>{value.gender_name}</option>
@@ -210,7 +215,10 @@ function UpdatePatient() {
               </select>
             <p style={{ color: "red" }}>{errors.gender?.message}</p>
           </div>
-
+          <div className="mb-3">
+            <label>Profile Photo</label>
+            <input className="form-control" type="file" {...register("photo")} />
+          </div>
           <button className="btn btn-success" type="submit">Update Patient</button>
         </form>
       </div>
