@@ -14,27 +14,39 @@ const ManageServices = () => {
   const [departments, setDepartments] = useState([]);
   const [serviceName, setServiceName] = useState("");
   const [department_Id, setDepartment_Id] = useState("");
+  const [servicePrice, setServicePrice] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editingServiceId, setEditingServiceId] = useState(null);
 
-  const navigate = useNavigate();
+ const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/ManageServices")
-      .then(res => {
+    axios.get(`http://localhost:3001/ManageServices`, { withCredentials: true }) 
+      .then((res) => {
         if (res.data.user?.role !== "admin") {
-          Swal.fire({ icon: "error", title: "Access Denied", text: "Only admin can access this page.", confirmButtonColor: "#51A485" });
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Only admin can access this page.",
+            confirmButtonColor: "#51A485",
+          });
           navigate("/");
         }
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          Swal.fire({ icon: "error", title: "Access Denied", text: "Please login.", confirmButtonColor: "#51A485" });
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
           navigate("/");
-        } else console.error(err);
+        } else {
+          console.error("Unexpected error", err);
+        }
       });
-  }, []);
-
+  }, [navigate]);
   useEffect(() => {
     fetchDepartments();
     fetchServices();
@@ -60,15 +72,22 @@ const ManageServices = () => {
 
   const handleCreateOrUpdate = async (e) => {
     e.preventDefault();
-    if (!serviceName || !department_Id) return;
+    if (!serviceName || !department_Id || !servicePrice) return;
 
     try {
-      let res;
       if (editMode) {
-        res = await api.put(`/services/${editingServiceId}`, { service_name: serviceName, department_Id });
+        await api.put(`/services/${editingServiceId}`, {
+          service_name: serviceName,
+          department_Id,
+          price: servicePrice,
+        });
         Swal.fire("Updated", "Service updated successfully!", "success");
       } else {
-        res = await api.post("/services", { service_name: serviceName, department_Id });
+        const res = await api.post("/services", {
+          service_name: serviceName,
+          department_Id,
+          price: servicePrice,
+        });
         if (res.data.reactivated) {
           Swal.fire("Reactivated", "This service was inactive and has been reactivated.", "success");
         } else {
@@ -78,6 +97,7 @@ const ManageServices = () => {
 
       setServiceName("");
       setDepartment_Id("");
+      setServicePrice("");
       setEditMode(false);
       setEditingServiceId(null);
       fetchServices();
@@ -89,6 +109,7 @@ const ManageServices = () => {
   const handleEdit = (service) => {
     setServiceName(service.service_name);
     setDepartment_Id(service.department_Id);
+    setServicePrice(service.price); // vendos çmimin kur editon
     setEditMode(true);
     setEditingServiceId(service.service_id);
   };
@@ -128,30 +149,69 @@ const ManageServices = () => {
         <form onSubmit={handleCreateOrUpdate} className="mb-4">
           <div className="mb-3">
             <label className="form-label">Service Name</label>
-            <input type="text" className="form-control" value={serviceName} onChange={(e) => setServiceName(e.target.value)} required />
+            <input
+              type="text"
+              className="form-control"
+              value={serviceName}
+              onChange={(e) => setServiceName(e.target.value)}
+              required
+            />
           </div>
           <div className="mb-3">
             <label className="form-label">Department</label>
-            <select className="form-select" value={department_Id} onChange={(e) => setDepartment_Id(Number(e.target.value))} required>
+            <select
+              className="form-select"
+              value={department_Id}
+              onChange={(e) => setDepartment_Id(Number(e.target.value))}
+              required
+            >
               <option value="">Select Department</option>
-              {departments.map((dept) => (<option key={dept.department_Id} value={dept.department_Id}>{dept.department_name}</option>))}
+              {departments.map((dept) => (
+                <option key={dept.department_Id} value={dept.department_Id}>
+                  {dept.department_name}
+                </option>
+              ))}
             </select>
           </div>
-          <button type="submit" className="btn btn-success">{editMode ? "Update Service" : "Create Service"}</button>
+          <div className="mb-3">
+            <label className="form-label">Price</label>
+            <input
+              type="number"
+              className="form-control"
+              value={servicePrice}
+              onChange={(e) => setServicePrice(e.target.value)}
+              required
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <button type="submit" className="btn btn-success">
+            {editMode ? "Update Service" : "Create Service"}
+          </button>
         </form>
 
         <h4>Services by Department</h4>
         <div className="d-flex flex-wrap gap-4">
           {groupedServices.map((dept) => (
             <div key={dept.department_Id} style={{ width: "300px" }}>
-              {dept.image_path && <img src={`http://localhost:3001/uploads/${dept.image_path}`} alt={dept.department_name} style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px" }} />}
+              {dept.image_path && (
+                <img
+                  src={`http://localhost:3001/uploads/${dept.image_path}`}
+                  alt={dept.department_name}
+                  style={{ width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px" }}
+                />
+              )}
               <h5 className="mt-2 text-center">{dept.department_name}</h5>
               <div className="mt-2">
                 {dept.services.map((service) => (
                   <div key={service.service_id} className="border p-2 mb-2 rounded">
-                    <h6>{service.service_name}</h6>
-                    <button onClick={() => handleEdit(service)} className="btn btn-sm btn-outline-primary me-2">Edit</button>
-                    <button onClick={() => handleDelete(service.service_id)} className="btn btn-sm btn-outline-danger">Delete</button>
+                    <h6>{service.service_name} - ${service.price}</h6>
+                    <button onClick={() => handleEdit(service)} className="btn btn-sm btn-outline-primary me-2">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(service.service_id)} className="btn btn-sm btn-outline-danger">
+                      Delete
+                    </button>
                   </div>
                 ))}
               </div>

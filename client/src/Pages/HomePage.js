@@ -220,11 +220,19 @@ function HomePage() {
                 <div className="card-body">
                   <h5 className="card-title" style={{ color: "#51A485" }}>{dept.department_name}</h5>
                   <p className="card-text">{dept.description}</p>
-                  <ul>
-                    {dept.services.map(service => (
-                      <li key={service.service_id}>{service.service_name}</li>
-                    ))}
-                  </ul>
+<ul>
+  {dept.services.map(service => {
+    const price = parseFloat(service.price);
+    return (
+      <li key={service.service_id}>
+        {service.service_name}
+        {price > 0 ? ` - $${price.toFixed(2)}` : ""}
+      </li>
+    );
+  })}
+</ul>
+
+                  
                 </div>
               </div>
             </div>

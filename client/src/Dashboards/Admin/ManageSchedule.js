@@ -22,8 +22,7 @@ const ManageSchedule = () => {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
   useEffect(() => {
-    axios
-      .get(`/ManageSchedule`, { withCredentials: true })
+    axios.get(`http://localhost:3001/ManageSchedule`, { withCredentials: true }) 
       .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
@@ -36,7 +35,7 @@ const ManageSchedule = () => {
         }
       })
       .catch((err) => {
-        if (err.response?.status === 401 || err.response?.status === 403) {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
           Swal.fire({
             icon: "error",
             title: "Access Denied",
@@ -44,7 +43,9 @@ const ManageSchedule = () => {
             confirmButtonColor: "#51A485",
           });
           navigate("/");
-        } else console.error(err);
+        } else {
+          console.error("Unexpected error", err);
+        }
       });
   }, [navigate]);
 
