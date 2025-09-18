@@ -13,7 +13,7 @@ const api = axios.create({
 
 const WeeklySchedule = () => {
   const [doctors, setDoctors] = useState([]);
-  const [selectedDoctor, setSelectedDoctor] = useState(null); // react-select object
+  const [selectedDoctor, setSelectedDoctor] = useState(null); 
   const [weekDates, setWeekDates] = useState([]);
   const [weeklyData, setWeeklyData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -24,8 +24,7 @@ const WeeklySchedule = () => {
   const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
   useEffect(() => {
-    axios
-      .get(`/WeeklySchedule`, { withCredentials: true })
+    axios.get(`http://localhost:3001/WeeklySchedule`, { withCredentials: true }) 
       .then((res) => {
         if (res.data.user?.role !== "admin") {
           Swal.fire({
@@ -38,7 +37,7 @@ const WeeklySchedule = () => {
         }
       })
       .catch((err) => {
-        if (err.response?.status === 401 || err.response?.status === 403) {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
           Swal.fire({
             icon: "error",
             title: "Access Denied",
@@ -46,7 +45,9 @@ const WeeklySchedule = () => {
             confirmButtonColor: "#51A485",
           });
           navigate("/");
-        } else console.error(err);
+        } else {
+          console.error("Unexpected error", err);
+        }
       });
   }, [navigate]);
 

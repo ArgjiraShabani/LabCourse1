@@ -16,25 +16,25 @@ const getServicesHandler = (req, res) => {
 };
 
 const createServiceHandler = (req, res) => {
-  const { service_name, department_Id } = req.body;
-  createService({ service_name, department_Id }, (err, result) => {
+  const { service_name, department_Id, price } = req.body;
+  createService({ service_name, department_Id, price }, (err, result) => {
     if (err) {
       console.error('Error creating service:', err);
-      return res.status(500).json({ error: 'Error creating service' });
+      return res.status(500).json({ error: err.message || 'Error creating service' });
     }
-    res.status(201).json({ message: 'Service created successfully' });
+    res.status(201).json({ message: 'Service created successfully', service: { service_name, department_Id, price } });
   });
 };
 
 const updateServiceHandler = (req, res) => {
-  const { service_name, department_Id } = req.body;
+  const { service_name, department_Id, price } = req.body;
   const id = req.params.id;
-  updateService(id, { service_name, department_Id }, (err, result) => {
+  updateService(id, { service_name, department_Id, price }, (err, result) => {
     if (err) {
       console.error('Error updating service:', err);
-      return res.status(500).json({ error: 'Error updating service' });
+      return res.status(500).json({ error: err.message || 'Error updating service' });
     }
-    res.status(200).json({ message: 'Service updated successfully' });
+    res.status(200).json({ message: 'Service updated successfully', service: { service_name, department_Id, price } });
   });
 };
 
