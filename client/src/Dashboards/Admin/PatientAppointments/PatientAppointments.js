@@ -15,15 +15,22 @@ const AppointmentsTable = lazy(() => import("./AppointmentTable"));
 const AppointmentForm = lazy(() => import("./AppointmentForm"));
 
 const schema = yup.object().shape({
-  patient_id: yup.number().required("Patient is required"),
-  name: yup.string().required("First name is required"),
-  lastname: yup.string().required("Last name is required"),
+  patient_id: yup.number().when("$isEditing", (isEditing, schema) =>
+    isEditing ? schema.notRequired() : schema.required("Patient is required")
+  ),
+  name: yup.string().when("$isEditing", (isEditing, schema) =>
+    isEditing ? schema.notRequired() : schema.required("First name is required")
+  ),
+  lastname: yup.string().when("$isEditing", (isEditing, schema) =>
+    isEditing ? schema.notRequired() : schema.required("Last name is required")
+  ),
   service_id: yup.number().required("Service is required"),
   doctor_id: yup.number().required("Doctor is required"),
   date: yup.string().required("Date is required"),
   time: yup.string().required("Time is required"),
   purpose: yup.string(),
 });
+
 
 function PatientAppointments() {
   const navigate = useNavigate();
@@ -56,13 +63,15 @@ function PatientAppointments() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm({ resolver: yupResolver(schema) });
+  } = useForm({
+    resolver: yupResolver(schema, { context: { isEditing: !!editingId } }),
+  });
 
   const watchService = watch("service_id");
   const watchDoctor = watch("doctor_id");
   const watchDate = watch("date");
 
-  useEffect(() => {
+   useEffect(() => {
     axios.get("http://localhost:3001/api/settings", { withCredentials: true })
       .then(res => {
         const limit = res.data?.booking_days_limit ?? 30;
@@ -172,6 +181,7 @@ if (selDateObj < todayStripped || selDateObj > maxDate) return;
     fetchSlots();
   }, [formData.doctor_id, selectedDate, maxDate]);
 
+
   const openForm = (appointment = null) => {
     if (appointment) {
       reset({
@@ -205,9 +215,10 @@ if (selDateObj < todayStripped || selDateObj > maxDate) return;
     if (!editingId) {
       req = axios.post("http://localhost:3001/appointments", payload, { withCredentials: true });
     } else {
-      const url = userRole === "admin" 
-        ? `http://localhost:3001/appointments/${editingId}`
-        : `http://localhost:3001/my-appointments/${editingId}`;
+      const url =
+        userRole === "admin"
+          ? `http://localhost:3001/appointments/${editingId}`
+          : `http://localhost:3001/my-appointments/${editingId}`;
       req = axios.put(url, payload, { withCredentials: true });
     }
 
@@ -215,15 +226,16 @@ if (selDateObj < todayStripped || selDateObj > maxDate) return;
       .then(() => {
         Swal.fire(editingId ? "Updated!" : "Booked!", "", "success");
         setShowForm(false);
-        const fetchAppointmentsUrl = userRole === "admin"
-          ? "http://localhost:3001/all-patient-appointments"
-          : "http://localhost:3001/my-appointments";
-        axios.get(fetchAppointmentsUrl, { withCredentials: true }).then(res => setAppointments(res.data));
+        const fetchAppointmentsUrl =
+          userRole === "admin"
+            ? "http://localhost:3001/all-patient-appointments"
+            : "http://localhost:3001/my-appointments";
+        axios.get(fetchAppointmentsUrl, { withCredentials: true }).then((res) => setAppointments(res.data));
       })
       .catch(() => Swal.fire("Error", "Something went wrong", "error"));
   };
 
-  const handleDelete = (id) => {
+   const handleDelete = (id) => {
     Swal.fire({ title: "Delete this appointment?", icon: "warning", showCancelButton: true, confirmButtonText: "Delete" })
       .then(result => {
         if (result.isConfirmed) {

@@ -68,6 +68,9 @@ router.get("/specialization",authenticateToken,authorizeRoles("admin"),(req,res)
   res.json({message : "Welcome Admin", user: req.user});
 
 })
+router.get("/auditLog",authenticateToken,authorizeRoles("admin"),(req,res)=>{
+  res.json({message : "Welcome Admin", user: req.user});
 
+})
 
 module.exports = router;
