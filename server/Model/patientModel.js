@@ -139,9 +139,14 @@ const updatePatientAdminWithoutImage=(params,callback)=>{
 };
 
 const getPatientsForDropdown = (callback) => {
-  const sql = `SELECT patient_id, first_name, last_name FROM patients`;
+  const sql = `
+    SELECT patient_id, first_name, last_name
+    FROM patients
+    WHERE status_id = 1
+  `;
   db.query(sql, callback);
 };
+
 
 module.exports={
     getPatientAppointments,

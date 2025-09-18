@@ -5,9 +5,12 @@ const getAllServices = (callback) => {
     SELECT s.*, d.status_id AS department_status, s.status_id AS service_status
     FROM services s
     JOIN departments d ON s.department_Id = d.department_Id
+    WHERE s.status_id = 1
   `;
   db.query(sql, callback);
 };
+
+
 
 
 const getDoctorsByDepartment = (departmentId, callback) => {
@@ -203,19 +206,67 @@ const getAllAppointmentsByDoctor = (doctorId, callback) => {
 };
 
 const updateAppointmentByAdmin = (appointmentId, data, callback) => {
-  const { patient_id, doctor_id, service_id, name, lastname, appointment_datetime, purpose, status } = data;
+  const {
+    patient_id,
+    doctor_id,
+    service_id,
+    name,
+    lastname,
+    appointment_datetime,
+    purpose,
+    status
+  } = data;
 
   const sql = `
     UPDATE appointments
-    SET patient_id = ?, doctor_id = ?, service_id = ?, name = ?, lastname = ?, appointment_datetime = ?, purpose = ?, status = ?
-    WHERE appointment_id = ?`;
+    SET 
+      patient_id = COALESCE(?, patient_id),
+      doctor_id = COALESCE(?, doctor_id),
+      service_id = COALESCE(?, service_id),
+      name = COALESCE(?, name),
+      lastname = COALESCE(?, lastname),
+      appointment_datetime = COALESCE(?, appointment_datetime),
+      purpose = COALESCE(?, purpose),
+      status = COALESCE(?, status)
+    WHERE appointment_id = ?
+  `;
 
   db.query(
     sql,
-    [patient_id, doctor_id, service_id, name, lastname, appointment_datetime, purpose, status, appointmentId],
+    [
+      patient_id,
+      doctor_id,
+      service_id,
+      name,
+      lastname,
+      appointment_datetime,
+      purpose,
+      status,
+      appointmentId
+    ],
     callback
   );
 };
+
+const getServiceById = (serviceId, callback) => {
+  const query = "SELECT * FROM services WHERE service_id = ?";
+  db.query(query, [serviceId], (err, results) => {
+    if (err) return callback(err);
+    if (results.length === 0) return callback(null, null); 
+    callback(null, results[0]);
+  });
+};
+
+const getDoctorById = (doctorId, callback) => {
+  const query = "SELECT first_name, last_name FROM doctors WHERE doctor_id = ?";
+  db.query(query, [doctorId], (err, results) => {
+    if (err) return callback(err);
+    if (results.length === 0) return callback(null, null);
+    callback(null, results[0]);
+  });
+};
+
+
 
 
 module.exports = {
@@ -231,5 +282,6 @@ module.exports = {
   getAllAppointmentsByDoctor,
   getAppointmentById,
   updateAppointmentByAdmin,
-  
+    getServiceById,
+      getDoctorById,
 };

@@ -1,4 +1,5 @@
 const appointmentModel = require("../Model/appointmentModel");
+const auditModel = require("../Model/auditModel");
 
 const getServices = (req, res) => {
   appointmentModel.getAllServices((err, results) => {
@@ -35,16 +36,29 @@ const getBookedSlots = (req, res) => {
 
 const bookAppointment = (req, res) => {
   const data = req.body;
-  console.log("Received data:", data);
+  const adminId = req.user.id;
 
   appointmentModel.createAppointment(data, (err, result) => {
     if (err) {
       console.error("Error during INSERT:", err);
       return res.status(500).json({ error: "Error while booking the appointment." });
     }
+
+    // Shto log
+    auditModel.createLog({
+      admin_id: adminId,
+      table_name: "appointments",
+      record_id: result.insertId,
+      action: "INSERT",
+      description: `Admin booked new appointment ID ${result.insertId} for patient ${data.patient_id}`
+    }, (err) => {
+      if (err) console.error("Error logging audit:", err);
+    });
+
     res.json({ message: "Appointment booked successfully!" });
   });
 };
+
 
 const getAllAppointments = (req, res) => {
   const doctorId = req.query.doctor_id;
@@ -60,7 +74,7 @@ const getAllAppointments = (req, res) => {
 
 const deleteAppointment = (req, res) => {
   const appointmentId = req.params.id;
-
+  const adminId = req.user.id; 
   appointmentModel.deleteAppointment(appointmentId, (err, result) => {
     if (err) {
       console.error("Error while deleting the appointment:", err);
@@ -71,9 +85,20 @@ const deleteAppointment = (req, res) => {
       return res.status(404).json({ message: "Appointment not found." });
     }
 
+    auditModel.createLog({
+      admin_id: adminId,
+      table_name: "appointments",
+      record_id: appointmentId,
+      action: "DELETE",
+      description: `Admin deleted appointment ID ${appointmentId}`
+    }, (err) => {
+      if (err) console.error("Error logging audit:", err);
+    });
+
     res.json({ message: "Appointment deleted successfully." });
   });
 };
+
 
 const getMyAppointments = (req, res) => {
   if (!req.user) {
@@ -203,19 +228,95 @@ const getAppointmentById = (req, res) => {
 
 const updateAppointmentAdminHandler = (req, res) => {
   const appointmentId = req.params.id;
-  const data = req.body;
+  const data = req.body; 
+  const adminId = req.user.id;
 
-  appointmentModel.updateAppointmentByAdmin(appointmentId, data, (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Error updating appointment." });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Appointment not found." });
-    }
-    res.json({ message: "Appointment updated successfully!" });
+  appointmentModel.getAppointmentById(appointmentId, (err, results) => {
+    if (err) return res.status(500).json({ error: "Server error" });
+    if (results.length === 0) return res.status(404).json({ error: "Appointment not found" });
+
+    const oldAppointment = results[0];
+
+    appointmentModel.getServiceById(oldAppointment.service_id, (err, oldService) => {
+      if (err) return res.status(500).json({ error: "Server error" });
+
+      const getNewService = (callback) => {
+        if (data.service_id) {
+          appointmentModel.getServiceById(data.service_id, (err, newService) => {
+            if (err) return res.status(500).json({ error: "Server error" });
+            callback(newService);
+          });
+        } else {
+          callback(oldService);
+        }
+      };
+
+      appointmentModel.getDoctorById(oldAppointment.doctor_id, (err, oldDoctor) => {
+        if (err) return res.status(500).json({ error: "Server error" });
+
+        const getNewDoctor = (callback) => {
+          if (data.doctor_id) {
+            appointmentModel.getDoctorById(data.doctor_id, (err, newDoctor) => {
+              if (err) return res.status(500).json({ error: "Server error" });
+              callback(newDoctor);
+            });
+          } else {
+            callback(oldDoctor);
+          }
+        };
+
+        getNewService((newService) => {
+          getNewDoctor((newDoctor) => {
+            appointmentModel.updateAppointmentByAdmin(appointmentId, data, (err, result) => {
+              if (err) return res.status(500).json({ error: "Error updating appointment." });
+              if (result.affectedRows === 0) return res.status(404).json({ error: "Appointment not found." });
+
+              const oldTime = new Date(oldAppointment.appointment_datetime).toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' });
+              const newTime = data.appointment_datetime ? new Date(data.appointment_datetime).toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' }) : oldTime;
+
+              const oldDate = new Date(oldAppointment.appointment_datetime).toLocaleDateString("en-GB");
+              const newDate = data.appointment_datetime ? new Date(data.appointment_datetime).toLocaleDateString("en-GB") : oldDate;
+
+              const descriptionLines = [
+                `time: ${oldTime} updated to ${newTime}`,
+                `date: ${oldDate} updated to ${newDate}`
+              ];
+
+              if (oldAppointment.service_id && data.service_id && oldAppointment.service_id !== data.service_id) {
+                descriptionLines.push(`service: ${oldService.service_name} updated to ${newService.service_name}`);
+              }
+
+              if (oldAppointment.doctor_id && data.doctor_id && oldAppointment.doctor_id !== data.doctor_id) {
+                descriptionLines.push(`doctor: ${oldDoctor.first_name} ${oldDoctor.last_name} updated to ${newDoctor.first_name} ${newDoctor.last_name}`);
+              }
+
+              const description = descriptionLines.join("\n");
+
+              auditModel.createLog({
+                admin_id: adminId,
+                table_name: "appointments",
+                record_id: appointmentId,
+                action: "UPDATE",
+                description
+              }, (err) => {
+                if (err) console.error("Error logging audit:", err);
+              });
+
+              res.json({ message: "Appointment updated successfully!" });
+            });
+          });
+        });
+
+      });
+
+    });
+
   });
 };
+
+
+
+
 
 module.exports = {
   getServices,
