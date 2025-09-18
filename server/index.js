@@ -35,6 +35,7 @@ const settingsRoutes = require('./Routes/settingsRoutes');
 const initAdminUser=require("./Routes/initAdmin");
 const forgotPasswordRoutes=require("./Routes/forgotPasswordRoute");
 const resetPasswordRoutes=require("./Routes/resetPasswordRoute");
+const auditRoutes = require("./Routes/auditRoutes");
 
 app.use(
   cors({
@@ -755,6 +756,8 @@ app.use("/api", standardScheduleRoutes);
 app.use("/api/weekly-schedules", weeklyScheduleRoutes);
 app.use("/api", forgotPasswordRoutes);
 app.use("/api",resetPasswordRoutes);
+app.use("/api", auditRoutes);
+
 
 /*
 
@@ -1707,3 +1710,4 @@ app.put("/my-appointments/:id", (req, res) => {
 app.listen(3001, () => {
   console.log("Hey po punon");
 });
+

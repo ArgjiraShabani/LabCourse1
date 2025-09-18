@@ -230,6 +230,14 @@ const toggleSidebar = () => setIsOpen(!isOpen);
                   Update Data
                 </Link>
               </li>
+              <li className="nav-item mb-2">
+                <Link
+                  to={`/auditLog/`}
+                  className="nav-link text-white hover-link"
+                >
+                  Audit Log
+                </Link>
+              </li>
                <li>
                   <Link
                       to="/logout"
