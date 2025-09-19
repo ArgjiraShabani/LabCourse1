@@ -13,9 +13,7 @@ const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
+  
 
   useEffect(() => {
     axios.get(`http://localhost:3001/api/Appointment`, { withCredentials: true }) 
@@ -28,6 +26,8 @@ const Appointment = () => {
             confirmButtonColor: "#51A485",
           });
           navigate("/login");
+        }else{
+           fetchAppointments();
         }
       })
       .catch((err) => {

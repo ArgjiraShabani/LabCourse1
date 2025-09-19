@@ -72,6 +72,31 @@ function Register(){
                 confirmButtonColor: "#51A485",
               });
               navigate("/login");
+            }else{
+                axios.get("http://localhost:3001/api/status",{
+                    withCredentials: true
+                }).then((response)=>{
+                        setStatus(response.data);
+                    }).catch(err=>{
+                        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                            Swal.fire({
+                                    icon: "error",
+                                    title: "Access Denied",
+                                    text: "Please login.",
+                                    confirmButtonColor: "#51A485",
+                                    });
+                            navigate('/');
+                        } else {
+                            console.error("Unexpected error", err);
+                       
+                        }
+                    })
+            axios.get('http://localhost:3001/api/gender').then((response)=>{
+               setGender(response.data);
+             });
+                axios.get('http://localhost:3001/api/blood').then((response)=>{
+                setBlood(response.data);
+                });
             }
           })
           .catch((err) => {
@@ -109,7 +134,7 @@ function Register(){
                  resolver:yupResolver(schema),
              });
      
-
+/*
      useEffect(()=>{
     axios.get('http://localhost:3001/api/gender').then((response)=>{
       setGender(response.data);
@@ -119,7 +144,8 @@ function Register(){
     axios.get('http://localhost:3001/api/blood').then((response)=>{
       setBlood(response.data);
     })
-  },[]);
+  },[]);*/
+  /*
   useEffect(()=>{
         axios.get("http://localhost:3001/api/status",{
         withCredentials: true
@@ -139,6 +165,7 @@ function Register(){
             }
         })
     },[]);
+    */
     const formSubmit=(e)=>{
 
         const formdata=new FormData();

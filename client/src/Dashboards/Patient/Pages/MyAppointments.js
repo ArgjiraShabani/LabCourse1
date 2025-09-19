@@ -87,6 +87,7 @@ const MyAppointments = () => {
           .delete(`/my-appointments/${appointmentId}`)
           .then(() => {
             setAppointments((prev) => prev.filter((a) => a.id !== appointmentId));
+            setNumberAppointments(numberAppointments-1)
             Swal.fire({
               icon: "success",
               title: "Cancelled!",

@@ -49,7 +49,7 @@ function tryRefreshToken(req, res, next) {
     const newAccessToken = jwt.sign(
       { id: decoded.id, role: decoded.role },
       process.env.JWT_SECRET,
-      { expiresIn:'1d'},
+      { expiresIn:'7d'},
     );
       console.log("New access token issued"),
 
@@ -59,7 +59,7 @@ function tryRefreshToken(req, res, next) {
       sameSite: "strict",
       path: '/',
       secure: process.env.NODE_ENV === "production", // must be false in dev if no HTTPS
-      maxAge: 24 * 60 * 60 * 1000
+      maxAge: 7*24 * 60 * 60 * 1000
     });
     req.user = decoded;
 

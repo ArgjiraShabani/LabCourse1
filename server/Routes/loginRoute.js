@@ -106,12 +106,12 @@ router.post("/login", (req, res) => {
 
 function sendToken(res, id, role) {
   const accessToken = jwt.sign({ id, role }, process.env.JWT_SECRET, {
-   expiresIn:10000,
+   expiresIn:'7d',
    
   });
 
   const refreshToken = jwt.sign({ id, role }, process.env.REFRESH_TOKEN_SECRET, {
-   expiresIn: 10000, // longer-lived
+   expiresIn: '31d', // longer-lived
    
   });
 
@@ -120,7 +120,7 @@ function sendToken(res, id, role) {
     sameSite: "strict",
     path: '/',
     secure: process.env.NODE_ENV === "production",
-    maxAge:10000,
+    maxAge:1000*60*60*24*7,
   },);
 
    res.cookie("refreshToken", refreshToken, {
@@ -128,7 +128,7 @@ function sendToken(res, id, role) {
     sameSite: "strict",
     path: '/',
     secure: process.env.NODE_ENV === "production",
-    maxAge:10000, // 7 days
+    maxAge:1000*60*60*24*31, // 7 days
   });
 
   return res.json({ message: "Success", id, role });

@@ -30,6 +30,51 @@ useEffect(() => {
           text: 'Only admin can access this page.',
         });
         navigate('/login');
+      }else{
+         Axios.get("http://localhost:3001/patient/patient",{
+        withCredentials: true
+    }).then((response)=>{
+            console.log(response.data)
+              const updatedPatients = response.data.map(patient => {
+                if (patient.date_of_birth) {
+                    patient.date_of_birth = patient.date_of_birth.split("T")[0];
+                     const [year, month, day] = patient.date_of_birth.split("-");
+                     patient.date_of_birth = `${month}-${day}-${year}`;
+                }
+                return patient;
+            });
+            setPatientList(updatedPatients);
+             Axios.get("http://localhost:3001/api/status",{
+        withCredentials: true
+    }).then((response)=>{
+            setStatus(response.data);
+        }).catch(err=>{
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                 Swal.fire({
+                                          icon: "error",
+                                          title: "Access Denied",
+                                          text: "Please login.",
+                                          confirmButtonColor: "#51A485",
+                                        });
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            };
+        });
+        }) .catch((err) => {
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                 Swal.fire({
+                                          icon: "error",
+                                          title: "Access Denied",
+                                          text: "Please login.",
+                                          confirmButtonColor: "#51A485",
+                                        });
+                navigate('/');
+            } else {
+                console.error("Unexpected error", err);
+            }
+            
+        });
       }
     })
     .catch((err) => {
@@ -42,7 +87,7 @@ useEffect(() => {
     });
 }, []);
 
-    useEffect(()=>{
+   /* useEffect(()=>{
         Axios.get("http://localhost:3001/patient/patient",{
         withCredentials: true
     }).then((response)=>{
@@ -71,8 +116,8 @@ useEffect(() => {
             
         });
     },[]);
-       
-
+       */
+/*
     useEffect(()=>{
         Axios.get("http://localhost:3001/api/status",{
         withCredentials: true
@@ -92,7 +137,7 @@ useEffect(() => {
             };
         });
     },[]);
-
+*/
     
 function handleClick(id,s_id){
         Swal.fire({
