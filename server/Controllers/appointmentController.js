@@ -36,7 +36,7 @@ const getBookedSlots = (req, res) => {
 
 const bookAppointment = (req, res) => {
   const data = req.body;
-  const adminId = req.user.id;
+  const user = req.user;
 
   appointmentModel.createAppointment(data, (err, result) => {
     if (err) {
@@ -44,20 +44,22 @@ const bookAppointment = (req, res) => {
       return res.status(500).json({ error: "Error while booking the appointment." });
     }
 
-    // Shto log
-    auditModel.createLog({
-      admin_id: adminId,
-      table_name: "appointments",
-      record_id: result.insertId,
-      action: "INSERT",
-      description: `Admin booked new appointment ID ${result.insertId} for patient ${data.patient_id}`
-    }, (err) => {
-      if (err) console.error("Error logging audit:", err);
-    });
+    if (user.role === 'admin') {
+      auditModel.createLog({
+        admin_id: user.id,
+        table_name: "appointments",
+        record_id: result.insertId,
+        action: "INSERT",
+        description: `Admin booked new appointment ID ${result.insertId} for patient ${data.patient_id}`
+      }, (err) => {
+        if (err) console.error("Error logging audit:", err);
+      });
+    }
 
     res.json({ message: "Appointment booked successfully!" });
   });
 };
+
 
 
 const getAllAppointments = (req, res) => {
@@ -85,15 +87,18 @@ const deleteAppointment = (req, res) => {
       return res.status(404).json({ message: "Appointment not found." });
     }
 
-    auditModel.createLog({
-      admin_id: adminId,
-      table_name: "appointments",
-      record_id: appointmentId,
-      action: "DELETE",
-      description: `Admin deleted appointment ID ${appointmentId}`
-    }, (err) => {
-      if (err) console.error("Error logging audit:", err);
-    });
+    if (req.user.role === 'admin') {
+  auditModel.createLog({
+    admin_id: req.user.id,
+    table_name: "appointments",
+    record_id: appointmentId,
+    action: "DELETE",
+    description: `Admin deleted appointment ID ${appointmentId}`
+  }, (err) => {
+    if (err) console.error("Error logging audit:", err);
+  });
+}
+
 
     res.json({ message: "Appointment deleted successfully." });
   });
