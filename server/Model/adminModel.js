@@ -5,7 +5,7 @@ const getStats = (callback) => {
     { key: "roles", query: "SELECT COUNT(*) AS count FROM roles" },
     { key: "patients", query: "SELECT COUNT(*) AS count FROM patients" },
     { key: "doctors", query: "SELECT COUNT(*) AS count FROM doctors" },
-    { key: "departments", query: "SELECT COUNT(*) AS count FROM departments" },
+    { key: "departments", query: "SELECT COUNT(*) AS count FROM departments WHERE status_id=1" },
     { key: "appointments", query: "SELECT COUNT(*) AS count FROM appointments" },
     { key: "results", query: "SELECT COUNT(*) AS count FROM results" }
   ];

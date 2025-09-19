@@ -45,25 +45,28 @@ function BookAppointment() {
     }
     return slots;
   }
+useEffect(() => {
+  axios
+    .get("http://localhost:3001/api/settings", { withCredentials: true })
+    .then((res) => {
+      const limit = res.data?.booking_days_limit ?? 30;
+      setDaysLimit(limit);
 
-  useEffect(() => {
-    
-    axios
-      .get("http://localhost:3001/api/settings", { withCredentials: true })
-      .then((res) => {
-        const limit = res.data?.booking_days_limit ?? 30;
-        setDaysLimit(limit);
+      if (limit > 0) {
+        const max = new Date(today);
+        max.setDate(max.getDate() + (limit - 1)); 
+        setMaxDate(max);
+      } else {
+        setMaxDate(today); 
+      }
+    })
+    .catch(() => {
+      const max = new Date(today);
+      max.setDate(max.getDate() + 29); 
+      setMaxDate(max);
+    });
+}, []);
 
-        const max = new Date(today);
-        max.setDate(max.getDate() + limit);
-        setMaxDate(max);
-      })
-      .catch(() => {
-        const max = new Date(today);
-        max.setDate(max.getDate() + 30);
-        setMaxDate(max);
-      });
-  }, []);
 
   useEffect(() => {
     axios
@@ -295,22 +298,29 @@ function BookAppointment() {
             />
           </div>
 
-          <div className="mb-3">
-            <label>Select Date</label>
-            <input
-              type="date"
-              className="form-control"
-              value={selectedDate}
-              onChange={(e) => {
-                setSelectedDate(e.target.value);
-                setSelectedTimeSlot("");
-              }}
-              min={today.toISOString().split("T")[0]}
-              max={maxDate.toISOString().split("T")[0]}
-              required
-              disabled={!formData.doctor_id}
-            />
-          </div>
+<div className="mb-3">
+  <label>Select Date</label>
+  {daysLimit === 0 ? (
+    <div className="alert alert-info">
+      Booking is currently disabled. Please try again later.
+    </div>
+  ) : (
+    <input
+      type="date"
+      className="form-control"
+      value={selectedDate}
+      onChange={(e) => {
+        setSelectedDate(e.target.value);
+        setSelectedTimeSlot("");
+      }}
+      min={today.toISOString().split("T")[0]}
+      max={maxDate.toISOString().split("T")[0]}
+      required
+      disabled={!formData.doctor_id}
+    />
+  )}
+</div>
+
 
           {selectedDate && availableSlots.length === 0 && (
             <div className="alert alert-warning">No available slots for this date.</div>

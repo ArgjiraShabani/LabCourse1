@@ -615,13 +615,13 @@ function handleDeleteBlood(id,nameData){
     <div className="container mt-4">
       <label>Booking Days Limit:</label>
       <div className="d-flex">
-        <input
-          type="number"
-          className="form-control me-2"
-          value={bookingDaysLimit}
-          onChange={(e) => setBookingDaysLimit(e.target.value) || 0}
-          min={1}
-        />
+     <input
+  type="number"
+  className="form-control me-2"
+  value={bookingDaysLimit}
+  onChange={(e) => setBookingDaysLimit(e.target.value)}
+  min={0}
+/>
         <Button
           style={{ backgroundColor: "#51A485", borderColor: "white" }}
           onClick={handleSaveSettings}
