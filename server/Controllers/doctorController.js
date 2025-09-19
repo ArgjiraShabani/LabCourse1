@@ -146,47 +146,7 @@ const updateMyProfileHandler=(req,res)=>{
 
 
 }
-const updateImageHandler=(req,res)=>{
-    const doctor_id=req.user.id;
-    const image_path=req.file ? `/uploads/${req.file.filename}` : null;
-      if (!image_path) {
-    return res.status(400).json({ error: "No image file uploaded." });
-  }
-    updateImage(doctor_id,image_path,(err,result)=>{
-          if(err){
-            console.error("Database error:", err);
-            return res.status(500).json({error: "Database error"});
-        }
 
-        if(result.affectedRows===0){
-            return res.status(404).json({error: "Profile not found."});
-
-
-        }
-        res.json({message: "Image updated successfilly"});
-
-    })
-
-}
-const removeImageHandler=(req,res)=>{
-    const doctor_id=req.user.id;
-    
-    removeImage(doctor_id,(err,result)=>{
-          if(err){
-            console.error("Database error:", err);
-            return res.status(500).json({error: "Database error"});
-        }
-
-        if(result.affectedRows===0){
-            return res.status(404).json({error: "Profile not found."});
-
-
-        }
-        res.json({message: "Image removed successfilly"});
-
-    })
-
-}
 
 
 
@@ -337,8 +297,7 @@ module.exports={
     getAllPatientsHandler,
     getAppointmentNumberHandler,
     updateMyProfileHandler,
-    updateImageHandler,
-    removeImageHandler
+    
     
 };
   

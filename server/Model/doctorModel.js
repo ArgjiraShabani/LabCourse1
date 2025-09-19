@@ -110,22 +110,7 @@ const updateMyProfile=(doctorId,doctorData,callback)=>{
 
 }
 
-const updateImage=(doctorId,imagePath,callback)=>{
 
-  const query='Update doctors set image_path=? where doctor_id=?';
-  db.query(query,[imagePath,doctorId],(err,results)=>{
-    callback(err,results);
-  })
-
-}
-const removeImage=(doctorId,callback)=>{
-
-  const query='Update doctors set image_path=null where doctor_id=?';
-  db.query(query,[doctorId],(err,results)=>{
-    callback(err,results);
-  })
-
-}
 
 const getAllDoctors = (callback) => {
   const sqlGet = `
@@ -234,6 +219,5 @@ module.exports={
     getAllPatients,
     getAppointmentNumber,
     updateMyProfile,
-    updateImage,
-    removeImage
+    
 };

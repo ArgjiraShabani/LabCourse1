@@ -15,8 +15,7 @@ const {
     getAllPatientsHandler,
     getAppointmentNumberHandler,
     updateMyProfileHandler,
-    updateImageHandler,
-    removeImageHandler
+    
 } = require('../Controllers/doctorController');
 
 const {
@@ -55,7 +54,7 @@ router.get('/totalPatients',authenticateToken,getAllPatientsHandler);
 router.get('/appointmentNumber', authenticateToken,getAppointmentNumberHandler);
 router.put('/updateMyProfile',authenticateToken,upload.single("img"),updateMyProfileHandler);
 
-router.delete("/removeImage", authenticateToken, removeImageHandler);
+
 
 router.get('/standard-schedule', authenticateToken,getSchedulesByDoctorHandler);
 router.get('/weekly-schedule', authenticateToken, getWeeklyScheduleByDoctorHandler);
