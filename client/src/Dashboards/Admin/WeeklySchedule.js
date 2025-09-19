@@ -33,18 +33,13 @@ const WeeklySchedule = () => {
             text: "Only admin can access this page.",
             confirmButtonColor: "#51A485",
           });
-          navigate("/");
+          navigate("/login");
         }
       })
       .catch((err) => {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Please login.",
-            confirmButtonColor: "#51A485",
-          });
-          navigate("/");
+          
+          navigate("/login");
         } else {
           console.error("Unexpected error", err);
         }

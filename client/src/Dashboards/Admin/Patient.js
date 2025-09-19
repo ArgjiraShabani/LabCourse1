@@ -29,18 +29,13 @@ useEffect(() => {
           title: 'Access Denied',
           text: 'Only admin can access this page.',
         });
-        navigate('/');
+        navigate('/login');
       }
     })
     .catch((err) => {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-         Swal.fire({
-                                  icon: "error",
-                                  title: "Access Denied",
-                                  text: "Please login.",
-                                  confirmButtonColor: "#51A485",
-                                });
-        navigate('/');
+         
+        navigate('/login');
       } else {
         console.error("Unexpected error", err);
       }
@@ -255,7 +250,7 @@ function handleClick(id,s_id){
                     
                         <tr key={value.patient_id}>
                          <td>
-                            { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} style={{ width: "50px",
+                            { value.image_path ? (<img src={`http://localhost:3001/uploads/`+value.image_path} alt={"Image"} style={{ width: "50px",
         height: "50px",
         borderRadius: "50%",
         objectFit: "cover"}}/>

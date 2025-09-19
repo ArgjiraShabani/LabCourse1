@@ -41,11 +41,7 @@ function DoctorProfile() {
       })
       .catch((error) => {
         if (error.response?.status === 401 || error.response?.status === 403) {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Please login as a doctor.",
-          });
+          
           navigate("/login");
         } else {
           console.error("Error fetching doctor data:", error);

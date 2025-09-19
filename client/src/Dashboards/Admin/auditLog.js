@@ -20,7 +20,7 @@ const AuditLog = () => {
             text: "Only admin can access this page.",
             confirmButtonColor: "#51A485",
           });
-          navigate("/");
+          navigate("/login");
         } else {
           setLogs(res.data.logs || []);
         }
@@ -31,13 +31,8 @@ const AuditLog = () => {
         setLoading(false);
 
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Please login.",
-            confirmButtonColor: "#51A485",
-          });
-          navigate("/");
+          
+          navigate("/login");
         } else {
           Swal.fire({
             icon: "error",

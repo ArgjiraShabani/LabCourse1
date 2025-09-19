@@ -36,17 +36,13 @@ function MedicalRecords(){
           title: "Access Denied",
           text: "Only doctors can access this page.",
         });
-        navigate("/");
+        navigate("/login");
       }
     })
     .catch((err) => {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        Swal.fire({
-          icon: "error",
-          title: "Access Denied",
-          text: "Please login.",
-        });
-        navigate("/");
+       
+        navigate("/login");
       } else {
         console.error("Unexpected error", err);
       }

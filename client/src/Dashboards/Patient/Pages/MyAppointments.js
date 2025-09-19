@@ -58,12 +58,7 @@ const MyAppointments = () => {
       .catch((err) => {
         console.error("Error fetching appointments:", err);
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Please log in.",
-            confirmButtonColor: "#51A485",
-          });
+          
           navigate("/login");
         } else {
           Swal.fire({
@@ -223,7 +218,7 @@ api
           </div>
         </div>
 
-        {appointments.length > 0 && (
+        {appointments.length > 0 ? (
           <div className="table-responsive mt-4">
             <table className="table table-bordered table-hover align-middle">
               <thead className="table-light">
@@ -303,6 +298,25 @@ api
               </tbody>
             </table>
           </div>
+        ):(
+           <div className="table-responsive mt-4">
+            <table className="table table-bordered table-hover align-middle">
+              <thead className="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Doctor</th>
+                  <th>Date & Time</th>
+                  <th>Purpose</th>
+                  <th>Service</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              
+              </table>
+              <p style={{display:'flex',justifyContent:"center"}}>No appointments!</p>
+              </div>
         )}
 
         {editingAppointment && (
