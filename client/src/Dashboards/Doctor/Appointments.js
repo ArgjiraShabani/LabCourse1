@@ -15,18 +15,16 @@ const Appointment = () => {
 
   useEffect(() => {
     fetchAppointments();
-    checkUserRole();
   }, []);
 
-  const checkUserRole = () => {
-    axios
-      .get(`http://localhost:3001/doctor/Appointment`, { withCredentials: true })
+  useEffect(() => {
+    axios.get(`http://localhost:3001/api/Appointment`, { withCredentials: true }) 
       .then((res) => {
         if (res.data.user?.role !== "doctor") {
           Swal.fire({
             icon: "error",
             title: "Access Denied",
-            text: "Only doctors can access this page.",
+            text: "Only admin can access this page.",
             confirmButtonColor: "#51A485",
           });
           navigate("/");
@@ -41,9 +39,11 @@ const Appointment = () => {
             confirmButtonColor: "#51A485",
           });
           navigate("/");
-        } else console.error("Unexpected error", err);
+        } else {
+          console.error("Unexpected error", err);
+        }
       });
-  };
+  }, [navigate]);
 
   const fetchAppointments = () => {
     api

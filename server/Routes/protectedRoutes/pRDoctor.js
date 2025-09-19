@@ -22,4 +22,8 @@ router.get("/DoctorSchedule",authenticateToken,authorizeRoles("doctor"),(req,res
   res.json({message : "Welcome Doctor", user: req.user});
 })
 
+router.get("/Appointment",authenticateToken,authorizeRoles("doctor"),(req,res)=>{
+  res.json({message : "Welcome Doctor", user: req.user});
+})
+
 module.exports = router;

@@ -88,18 +88,37 @@ function PatientAppointments() {
   }, []);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/PatientAppointments", { withCredentials: true })
-      .then(res => {
-        if (res.data.user?.role !== "admin") {
-          Swal.fire({ icon: "error", title: "Access Denied", text: "Only admin can access this page." });
-          navigate("/");
-          return;
-        }
-        setUserRole(res.data.user.role);
-        setLoading(false);
-      })
-      .catch(() => navigate("/login"));
-  }, [navigate]);
+  axios
+    .get("http://localhost:3001/PatientAppointments", { withCredentials: true })
+    .then((res) => {
+      if (res.data.user?.role !== "admin") {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Only admin can access this page.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+        return;
+      }
+      setUserRole(res.data.user.role);
+      setLoading(false);
+    })
+    .catch((err) => {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    });
+}, [navigate]);
+
 
   useEffect(() => {
     if (userRole !== "admin") return;
