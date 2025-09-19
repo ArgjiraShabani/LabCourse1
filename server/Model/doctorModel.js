@@ -70,6 +70,63 @@ const updateDoctorById=(doctorId,doctorData,callback)=>{
    db.query(query,values,callback);
 };
 
+const updateMyProfile=(doctorId,doctorData,callback)=>{
+  const{
+        first_name,
+        last_name,
+        email,
+        
+        phone,
+       
+        date_of_birth,
+        gender_id,
+        specialization_id,
+        department_Id,
+        education,
+        image_path
+       
+
+    }=doctorData;
+     const query = `UPDATE doctors SET first_name=?, last_name=?, email=?, phone=?, 
+    date_of_birth=?, gender_id=?, specialization_id=?, department_Id=?, 
+    education=?,image_path=? WHERE doctor_id=?`;
+    
+   const values=[
+        first_name,
+        last_name,
+        email,
+        phone,        
+        date_of_birth,
+        gender_id,
+        specialization_id,
+        department_Id,
+        education, 
+        image_path,       
+        doctorId
+
+   ];
+   db.query(query,values,callback);
+
+
+}
+
+const updateImage=(doctorId,imagePath,callback)=>{
+
+  const query='Update doctors set image_path=? where doctor_id=?';
+  db.query(query,[imagePath,doctorId],(err,results)=>{
+    callback(err,results);
+  })
+
+}
+const removeImage=(doctorId,callback)=>{
+
+  const query='Update doctors set image_path=null where doctor_id=?';
+  db.query(query,[doctorId],(err,results)=>{
+    callback(err,results);
+  })
+
+}
+
 const getAllDoctors = (callback) => {
   const sqlGet = `
     SELECT 
@@ -175,5 +232,8 @@ module.exports={
     getStaff,
     getAllActiveDoctors,
     getAllPatients,
-    getAppointmentNumber
+    getAppointmentNumber,
+    updateMyProfile,
+    updateImage,
+    removeImage
 };
