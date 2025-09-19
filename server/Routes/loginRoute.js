@@ -25,7 +25,7 @@ router.post("/login", (req, res) => {
     if (data.length > 0) {
       const user = data[0];
       if(user.isdeleted===1 || user.status_name=='Inactive'){
-        return res.status(403).json({message: "Youraccount is deactivated. Please contact the administrator"});
+        return res.status(403).json({message: "Your account is deactivated. Please contact the administrator"});
       }
       bcrypt.compare(password, user.password).then((match) => {
         if (match) return sendToken(res, user.id, user.role);
@@ -56,7 +56,7 @@ router.post("/login", (req, res) => {
       const user = data[0];
 
       if(user.is_active===0){
-        return res.status(403).json({message: "Youraccount is deactivated. Please contact the administrator"});
+        return res.status(403).json({message: "Your account is deactivated. Please contact the administrator"});
       }
       bcrypt.compare(password, user.password).then((match) => {
         if (match) return sendToken(res, user.id, user.role);
@@ -106,12 +106,12 @@ router.post("/login", (req, res) => {
 
 function sendToken(res, id, role) {
   const accessToken = jwt.sign({ id, role }, process.env.JWT_SECRET, {
-   expiresIn:24 * 60 * 60 * 1000,
+   expiresIn:10000,
    
   });
 
   const refreshToken = jwt.sign({ id, role }, process.env.REFRESH_TOKEN_SECRET, {
-   expiresIn: 7 * 24 * 60 * 60 * 1000, // longer-lived
+   expiresIn: 10000, // longer-lived
    
   });
 
@@ -120,7 +120,7 @@ function sendToken(res, id, role) {
     sameSite: "strict",
     path: '/',
     secure: process.env.NODE_ENV === "production",
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge:10000,
   },);
 
    res.cookie("refreshToken", refreshToken, {
@@ -128,7 +128,7 @@ function sendToken(res, id, role) {
     sameSite: "strict",
     path: '/',
     secure: process.env.NODE_ENV === "production",
-    maxAge:7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge:10000, // 7 days
   });
 
   return res.json({ message: "Success", id, role });

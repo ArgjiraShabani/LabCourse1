@@ -31,7 +31,6 @@ function Login(){
        const submitForm = (data) => {
           
           axios.post('http://localhost:3001/login', data,{withCredentials:true}).then(res => {
-            console.log(res.data)
             if (res.data.message === 'Success') {
               
                const role = res.data.role;
@@ -53,7 +52,7 @@ function Login(){
             // Login failed
             setErrorMessage(err.response.data.message);
           }else if(err.response.status===403){
-            setErrorMessage("Your accountis deactivated. Please contact the administrator");
+            setErrorMessage("Your account is deactivated. Please contact the administrator");
           }
            else {
             // Other errors

@@ -5,7 +5,6 @@ import HomePage from './Pages/HomePage';
 import MedicalStaff from './Pages/Staff';
 import Login from './Pages/Login';
 import AdminDashboard from './Dashboards/Admin/AdminDashboard';
-import PatientDashboard from './Dashboards/Patient/Pages/PatientDashboard';
 import MyProfile from './Dashboards/Patient/Pages/MyProfile';
 import BookAppointment from './Dashboards/Patient/Pages/BookAppointment';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -69,7 +68,6 @@ function Layout() {
           <Route path='/updateData' element={<UpdateData/>}></Route>---------------------------
 
           <Route path="/doctordashboard" element={<DoctorDashboard/>} />
-          <Route path='/patientdashboard/:id' element={<PatientDashboard/>}></Route>
           <Route path='/myprofile' element={<MyProfile/>}></Route>--------------
           <Route path='/bookAppointment' element={<BookAppointment/>}></Route>+++++++++++++
           <Route path="/ManageDepartments" element={<ManageDepartments />}></Route>

@@ -38,7 +38,8 @@ const MyProfile = () => {
     })
     .catch((err) => {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        navigate('/');
+        
+        navigate('/login');
       } else {
         console.error("Unexpected error", err);
       }
