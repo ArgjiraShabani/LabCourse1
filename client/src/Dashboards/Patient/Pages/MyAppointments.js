@@ -17,50 +17,36 @@ const MyAppointments = () => {
   const [formData, setFormData] = useState({ name: "", lastname: "", purpose: "" });
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
+  const [tokenExpired, setTokenExpired] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    api
-      .get("/my-appointments")
-      .then((res) => {
+    const fetchData = async () => {
+      try {
+        const res = await api.get("/my-appointments");
         const user = res.data.user;
 
         if (!user) {
-          Swal.fire({
-            icon: "error",
-            title: "Not logged in",
-            text: "Please log in as a patient.",
-            confirmButtonColor: "#51A485",
-          });
           navigate("/login");
           return;
         }
 
         if (user.role !== "patient") {
-          Swal.fire({
-            icon: "error",
-            title: "Access Denied",
-            text: "Only patients can access this page.",
-            confirmButtonColor: "#51A485",
-          });
           navigate("/");
           return;
         }
 
         setUserId(user.id);
-
-        const appointments = res.data.appointments || [];
-        setAppointments(appointments);
-        setNumberAppointments(appointments.length);
+        setAppointments(res.data.appointments || []);
+        setNumberAppointments(res.data.appointments?.length || 0);
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching appointments:", err);
+      } catch (err) {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          
+          setTokenExpired(true);
           navigate("/login");
         } else {
+          console.error("Unexpected error", err);
           Swal.fire({
             icon: "error",
             title: "Error",
@@ -68,11 +54,13 @@ const MyAppointments = () => {
             confirmButtonColor: "#51A485",
           });
         }
-      });
+      }
+    };
+    fetchData();
   }, [navigate]);
 
-  const cancelAppointment = (appointmentId) => {
-    Swal.fire({
+  const cancelAppointment = async (appointmentId) => {
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you really want to cancel this appointment?",
       icon: "warning",
@@ -81,68 +69,68 @@ const MyAppointments = () => {
       cancelButtonColor: "#51A485",
       confirmButtonText: "Yes, cancel it!",
       cancelButtonText: "No, keep it",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        api
-          .delete(`/my-appointments/${appointmentId}`)
-          .then(() => {
-            setAppointments((prev) => prev.filter((a) => a.id !== appointmentId));
-            setNumberAppointments(numberAppointments-1)
-            Swal.fire({
-              icon: "success",
-              title: "Cancelled!",
-              text: "Your appointment has been cancelled.",
-              confirmButtonColor: "#51A485",
-            });
-          })
-          .catch((err) => {
-            console.error("Error cancelling appointment:", err);
-            Swal.fire({
-              icon: "error",
-              title: "Failed",
-              text: "Appointment could not be cancelled.",
-              confirmButtonColor: "#d33",
-            });
-          });
-      }
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await api.delete(`/my-appointments/${appointmentId}`);
+      setAppointments(prev => prev.filter(a => a.id !== appointmentId));
+      setNumberAppointments(prev => prev - 1);
+      Swal.fire({
+        icon: "success",
+        title: "Cancelled!",
+        text: "Your appointment has been cancelled.",
+        confirmButtonColor: "#51A485",
+      });
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        setTokenExpired(true);
+        navigate("/login");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: "Appointment could not be cancelled.",
+          confirmButtonColor: "#d33",
+        });
+      }
+    }
   };
 
-const editAppointment = (appointmentId) => {
-  const appointmentToEdit = appointments.find((a) => a.id === appointmentId);
-  if (!appointmentToEdit) return;
+  const editAppointment = (appointmentId) => {
+    const appointmentToEdit = appointments.find((a) => a.id === appointmentId);
+    if (!appointmentToEdit) return;
 
-  setEditingAppointment(appointmentId);
-  setFormData({
-    name: appointmentToEdit.name || appointmentToEdit.patient_name || "",
-    lastname: appointmentToEdit.lastname || appointmentToEdit.patient_lastname || "",
-    purpose: appointmentToEdit.purpose || "",
-  });
-};
-
+    setEditingAppointment(appointmentId);
+    setFormData({
+      name: appointmentToEdit.name || appointmentToEdit.patient_name || "",
+      lastname: appointmentToEdit.lastname || appointmentToEdit.patient_lastname || "",
+      purpose: appointmentToEdit.purpose || "",
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
+  
+  const handleSave = async () => {
+    if (!editingAppointment) return;
 
- const handleSave = () => {
-  if (!editingAppointment) return;
+    if (!formData.name || !formData.lastname || !formData.purpose) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "All fields must be filled in before saving.",
+        confirmButtonColor: "#d33",
+      });
+      return;
+    }
 
-  if (!formData.name || !formData.lastname || !formData.purpose) {
-    Swal.fire({
-      icon: "error",
-      title: "Validation Error",
-      text: "All fields must be filled in before saving.",
-      confirmButtonColor: "#d33",
-    });
-    return;
-  }
-
-api
-  .put(`/my-appointments/${editingAppointment}`, formData)
-  .then(() => {
-    api.get("/my-appointments").then(res => {
+    try {
+      await api.put(`/my-appointments/${editingAppointment}`, formData);
+      const res = await api.get("/my-appointments");
       setAppointments(res.data.appointments);
       setEditingAppointment(null);
       Swal.fire({
@@ -151,20 +139,20 @@ api
         text: "Your appointment has been updated.",
         confirmButtonColor: "#51A485",
       });
-    });
-  })
-
-  .catch((err) => {
-    console.error("Error updating appointment:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Failed",
-      text: "Appointment was not updated.",
-      confirmButtonColor: "#d33",
-    });
-  });
-};
-
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        setTokenExpired(true);
+        navigate("/login");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: "Appointment was not updated.",
+          confirmButtonColor: "#d33",
+        });
+      }
+    }
+  };
 
   const handleCancelEdit = () => {
     Swal.fire({
@@ -184,9 +172,7 @@ api
     });
   };
 
-  if (loading) {
-    return <div className="text-center mt-5">Loading appointments...</div>;
-  }
+  if (loading) return <div className="text-center mt-5">Loading appointments...</div>;
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>
@@ -204,10 +190,7 @@ api
         <div className="row g-4">
           <h2>My Appointments</h2>
           <div className="col-12">
-            <div
-              className="card text-white h-100"
-              style={{ backgroundColor: "#4e73df", borderRadius: "15px" }}
-            >
+            <div className="card text-white h-100" style={{ backgroundColor: "#4e73df", borderRadius: "15px" }}>
               <div className="card-body d-flex align-items-center">
                 <FaCalendarCheck size={40} className="me-3" />
                 <div>
@@ -235,32 +218,18 @@ api
                 </tr>
               </thead>
               <tbody>
-                {appointments.map((appointment) => (
+                {appointments.map(appointment => (
                   <tr key={appointment.id}>
                     <td>{appointment.id || "-"}</td>
                     <td>{appointment.patient_name || "-"}</td>
                     <td>{appointment.patient_lastname || "-"}</td>
-                    <td>
-                      {(appointment.doctor_firstname || "-") +
-                        " " +
-                        (appointment.doctor_lastname || "")}
-                    </td>
-                    <td>
-                      {appointment.appointment_datetime
-                        ? new Date(appointment.appointment_datetime).toLocaleString()
-                        : "-"}
-                    </td>
+                    <td>{`${appointment.doctor_firstname || "-"} ${appointment.doctor_lastname || ""}`}</td>
+                    <td>{appointment.appointment_datetime ? new Date(appointment.appointment_datetime).toLocaleString() : "-"}</td>
                     <td>{appointment.purpose || "-"}</td>
                     <td
                       style={{
-                        color:
-                          appointment.department_status === 2 || appointment.service_status === 2
-                            ? "red"
-                            : "inherit",
-                        fontWeight:
-                          appointment.department_status === 2 || appointment.service_status === 2
-                            ? "bold"
-                            : "normal",
+                        color: appointment.department_status === 2 || appointment.service_status === 2 ? "red" : "inherit",
+                        fontWeight: appointment.department_status === 2 || appointment.service_status === 2 ? "bold" : "normal",
                       }}
                     >
                       {appointment.department_status === 2
@@ -271,26 +240,11 @@ api
                     </td>
                     <td>
                       {appointment.department_status === 2 || appointment.service_status === 2 ? (
-                        <button
-                          onClick={() => cancelAppointment(appointment.id)}
-                          className="btn btn-danger btn-sm"
-                        >
-                          Cancel
-                        </button>
+                        <button onClick={() => cancelAppointment(appointment.id)} className="btn btn-danger btn-sm">Cancel</button>
                       ) : (
                         <>
-                          <button
-                            onClick={() => cancelAppointment(appointment.id)}
-                            className="btn btn-danger btn-sm me-2"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => editAppointment(appointment.id)}
-                            className="btn btn-primary btn-sm"
-                          >
-                            Edit
-                          </button>
+                          <button onClick={() => cancelAppointment(appointment.id)} className="btn btn-danger btn-sm me-2">Cancel</button>
+                          <button onClick={() => editAppointment(appointment.id)} className="btn btn-primary btn-sm">Edit</button>
                         </>
                       )}
                     </td>
@@ -299,8 +253,8 @@ api
               </tbody>
             </table>
           </div>
-        ):(
-           <div className="table-responsive mt-4">
+        ) : (
+          <div className="table-responsive mt-4">
             <table className="table table-bordered table-hover align-middle">
               <thead className="table-light">
                 <tr>
@@ -314,10 +268,9 @@ api
                   <th>Actions</th>
                 </tr>
               </thead>
-              
-              </table>
-              <p style={{display:'flex',justifyContent:"center"}}>No appointments!</p>
-              </div>
+            </table>
+            <p style={{ display: "flex", justifyContent: "center" }}>No appointments!</p>
+          </div>
         )}
 
         {editingAppointment && (
@@ -326,40 +279,18 @@ api
               <h5 className="card-title">Edit Appointment #{editingAppointment}</h5>
               <div className="mb-3">
                 <label className="form-label">First Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-control"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
+                <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
               </div>
               <div className="mb-3">
                 <label className="form-label">Last Name</label>
-                <input
-                  type="text"
-                  name="lastname"
-                  className="form-control"
-                  value={formData.lastname}
-                  onChange={handleChange}
-                />
+                <input type="text" name="lastname" className="form-control" value={formData.lastname} onChange={handleChange} />
               </div>
               <div className="mb-3">
                 <label className="form-label">Purpose</label>
-                <input
-                  type="text"
-                  name="purpose"
-                  className="form-control"
-                  value={formData.purpose}
-                  onChange={handleChange}
-                />
+                <input type="text" name="purpose" className="form-control" value={formData.purpose} onChange={handleChange} />
               </div>
-              <button className="btn btn-success me-2" onClick={handleSave}>
-                Save
-              </button>
-              <button className="btn btn-secondary" onClick={handleCancelEdit}>
-                Cancel
-              </button>
+              <button className="btn btn-success me-2" onClick={handleSave}>Save</button>
+              <button className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>
             </div>
           </div>
         )}

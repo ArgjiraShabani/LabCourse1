@@ -9,54 +9,77 @@ const api = axios.create({
   withCredentials: true,
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
-
-  
+  const [tokenExpired, setTokenExpired] = useState(false);
 
   useEffect(() => {
-    axios.get(`http://localhost:3001/api/Appointment`, { withCredentials: true }) 
-      .then((res) => {
-        if (res.data.user?.role !== "doctor") {
+    const checkAccess = async () => {
+      try {
+        const res = await api.get("/api/Appointment");
+        const user = res.data.user;
+
+        if (!user || user.role !== "doctor") {
           Swal.fire({
             icon: "error",
             title: "Access Denied",
-            text: "Only admin can access this page.",
+            text: "Only doctors can access this page.",
             confirmButtonColor: "#51A485",
-          });
-          navigate("/login");
-        }else{
-           fetchAppointments();
+          }).then(() => navigate("/login"));
+          return;
         }
-      })
-      .catch((err) => {
+
+        fetchAppointments();
+      } catch (err) {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          
+          setTokenExpired(true);
           navigate("/login");
         } else {
           console.error("Unexpected error", err);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "An unexpected error occurred. Please try again later.",
+            confirmButtonColor: "#51A485",
+          });
         }
-      });
+      }
+    };
+
+    checkAccess();
   }, [navigate]);
 
-  const fetchAppointments = () => {
-    api
-      .get("/doctor-appointments")
-      .then((response) => {
-        const sorted = response.data.sort(
-          (a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime)
-        );
-        setAppointments(sorted);
-      })
-      .catch((error) => {
-        console.error("Error fetching appointments:", error);
+  const fetchAppointments = async () => {
+    try {
+      const response = await api.get("/doctor-appointments");
+      const sorted = response.data.sort(
+        (a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime)
+      );
+      setAppointments(sorted);
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        setTokenExpired(true);
+        navigate("/login");
+      } else {
+        console.error("Error fetching appointments:", err);
         Swal.fire({
           icon: "error",
           title: "Error",
           text: "An error occurred while fetching appointments.",
         });
-      });
+      }
+    }
   };
 
   const isToday = (dateStr) => {
@@ -69,7 +92,7 @@ const Appointment = () => {
     );
   };
 
-  const updateStatus = (appointmentId, newStatus, appointmentDate) => {
+  const updateStatus = async (appointmentId, newStatus, appointmentDate) => {
     if (!isToday(appointmentDate)) {
       Swal.fire({
         icon: "error",
@@ -79,7 +102,7 @@ const Appointment = () => {
       return;
     }
 
-    Swal.fire({
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to mark this appointment as completed?",
       icon: "warning",
@@ -87,27 +110,30 @@ const Appointment = () => {
       confirmButtonColor: "#51A485",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, complete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        api
-          .put(`/appointments/${appointmentId}/status`, { status: newStatus })
-          .then(() => {
-            fetchAppointments();
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: "Appointment marked as completed!",
-              showConfirmButton: false,
-              timer: 1200,
-            });
-          })
-          .catch((err) => {
-            const message = err.response?.data?.error || "Status update failed.";
-            Swal.fire({ icon: "error", title: "Error", text: message });
-            console.error("Error updating status:", err.response || err);
-          });
-      }
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await api.put(`/appointments/${appointmentId}/status`, { status: newStatus });
+      fetchAppointments();
+      Swal.fire({
+        position: "center",
+        icon: "success",
+        title: "Appointment marked as completed!",
+        showConfirmButton: false,
+        timer: 1200,
+      });
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        setTokenExpired(true);
+        navigate("/login");
+      } else {
+        const message = err.response?.data?.error || "Status update failed.";
+        Swal.fire({ icon: "error", title: "Error", text: message });
+        console.error("Error updating status:", err.response || err);
+      }
+    }
   };
 
   const todaysAppointments = appointments.filter((a) => isToday(a.appointment_datetime));
