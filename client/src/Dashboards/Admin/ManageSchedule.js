@@ -108,82 +108,127 @@ const ManageSchedule = () => {
   };
 
   const handleSave = async () => {
-    if (!selectedDoctor) {
+  if (!selectedDoctor) {
+    Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: "Please select a doctor first.",
+      confirmButtonColor: "#51A485",
+    });
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: "Save Changes?",
+    text: "Do you want to save changes for this doctor?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, save it!",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#51A485",
+  });
+  if (!result.isConfirmed) return;
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const requests = days.map((day) => {
+      const dayData = weeklyData[day];
+      if (dayData?.start_time && dayData?.end_time) {
+        if (dayData.schedule_id) {
+          return api.put(`/standardSchedules/${dayData.schedule_id}`, {
+            start_time: dayData.start_time,
+            end_time: dayData.end_time,
+          });
+        } else {
+          return api.post("/standardSchedules", {
+            doctor_id: selectedDoctor.value,
+            weekday: day,
+            start_time: dayData.start_time,
+            end_time: dayData.end_time,
+          });
+        }
+      }
+      return null;
+    });
+
+    await Promise.all(requests.filter(Boolean));
+
+    Swal.fire({
+      icon: "success",
+      title: "Saved",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    fetchDoctorSchedule(selectedDoctor.value);
+    fetchAllSchedules();
+
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
       Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Please select a doctor first.",
+        icon: "error",
+        title: "Access Denied",
+        text: err.response.status === 401 ? "Please login." : "You do not have permission.",
         confirmButtonColor: "#51A485",
       });
-      return;
+      navigate("/"); 
+    } else {
+      console.error("Error saving schedule:", err);
+      const msg = err.response?.data?.error || err.message || "Could not save schedule";
+      Swal.fire("Error", msg, "error");
+      setError(msg);
     }
+  } finally {
+    setLoading(false);
+  }
+};
 
-    const result = await Swal.fire({
-      title: "Save Changes?",
-      text: "Do you want to save changes for this doctor?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, save it!",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#51A485",
-    });
-    if (!result.isConfirmed) return;
-
-    setLoading(true);
-    try {
-      const requests = days.map((day) => {
-        const dayData = weeklyData[day];
-        if (dayData?.start_time && dayData?.end_time) {
-          if (dayData.schedule_id) {
-            return api.put(`/standardSchedules/${dayData.schedule_id}`, {
-              start_time: dayData.start_time,
-              end_time: dayData.end_time,
-            });
-          } else {
-            return api.post("/standardSchedules", {
-              doctor_id: selectedDoctor.value,
-              weekday: day,
-              start_time: dayData.start_time,
-              end_time: dayData.end_time,
-            });
-          }
-        }
-        return null;
-      });
-      await Promise.all(requests.filter(Boolean));
-      Swal.fire({ icon: "success", title: "Saved", timer: 1500, showConfirmButton: false });
-      fetchDoctorSchedule(selectedDoctor.value);
-      fetchAllSchedules();
-    } catch (err) {
-      console.error(err);
-      setError("Error saving schedule");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDeleteDay = async (doctorId, day) => {
-    const confirm = await Swal.fire({
-      title: `Delete all schedules for ${day}?`,
-      text: "This cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete!",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#51A485",
-    });
-    if (!confirm.isConfirmed) return;
+  const confirm = await Swal.fire({
+    title: `Delete all schedules for ${day}?`,
+    text: "This cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete!",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#51A485",
+  });
+  if (!confirm.isConfirmed) return;
 
-    try {
-      await api.delete(`/standardSchedules/day/${doctorId}/${day}`);
-      Swal.fire({ icon: "success", title: "Deleted", timer: 1500, showConfirmButton: false });
-      fetchDoctorSchedule(doctorId);
-      fetchAllSchedules();
-    } catch (err) {
-      console.error(err);
-      setError("Error deleting day schedule");
+  try {
+    await api.delete(`/standardSchedules/day/${doctorId}/${day}`);
+
+    Swal.fire({
+      icon: "success",
+      title: "Deleted",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    fetchDoctorSchedule(doctorId);
+    fetchAllSchedules();
+
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/"); 
+    } else {
+      console.error("Error deleting day schedule:", err);
+      const msg = err.response?.data?.error || err.message || "Could not delete day schedule";
+      Swal.fire("Error", msg, "error");
+      setError(msg);
     }
-  };
+  }
+};
+
 
   return (
     <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>

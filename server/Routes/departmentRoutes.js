@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../middlewares');
+const { authenticateToken, authorizeRoles, upload } = require('../middlewares');
 
 
 const {
@@ -11,8 +11,8 @@ const {
 } = require('../Controllers/departmentController');
 
 router.get('/departments', getDepartmentsHandler);
-router.post('/departments', upload.single('photo'), createDepartmentHandler);
-router.put('/departments/:id', upload.single('photo'), updateDepartmentHandler);
-router.delete('/departments/:id', deleteDepartmentHandler);
+router.post('/departments',authenticateToken,upload.single('photo'),createDepartmentHandler);
+router.put('/departments/:id', authenticateToken, upload.single('photo'), updateDepartmentHandler);
+router.delete('/departments/:id', authenticateToken, deleteDepartmentHandler);
 
 module.exports = router;

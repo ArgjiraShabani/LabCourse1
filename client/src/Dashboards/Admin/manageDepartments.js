@@ -58,41 +58,61 @@ const ManageDepartments = () => {
   };
 
   const handleCreate = async (e) => {
-    e.preventDefault();
-   const exists = departments.some(
-  (dept) => dept.department_name.toLowerCase() === departmentName.toLowerCase()
-);
-if (exists) {
-  Swal.fire("Error", "A department with this name already exists.", "error");
-  return;
-}
+  e.preventDefault();
+  const exists = departments.some(
+    (dept) =>
+      dept.department_name.toLowerCase() === departmentName.toLowerCase()
+  );
+  if (exists) {
+    Swal.fire("Error", "A department with this name already exists.", "error");
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append("department_name", departmentName);
-    formData.append("description", description);
-    if (photo) formData.append("photo", photo);
+  const formData = new FormData();
+  formData.append("department_name", departmentName);
+  formData.append("description", description);
+  if (photo) formData.append("photo", photo);
 
-   try {
-  const res = await api.post("/departments", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  Swal.fire({
-    icon: "success",
-    title: "Success",
-    text: res.data.message,   
-    timer: 1500,
-    showConfirmButton: false,
-  });
-      setDepartmentName("");
-      setDescription("");
-      setPhoto(null);
-      fetchDepartments();
-    } catch (error) {
-      console.error("Error creating department:", error);
-      const msg = error.response?.data?.error || error.message || "Could not create department";
-      Swal.fire("Error", msg, "error");
+  try {
+    const res = await api.post("/departments", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: res.data.message,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    setDepartmentName("");
+    setDescription("");
+    setPhoto(null);
+    fetchDepartments();
+  } catch (error) {
+    console.error("Error creating department:", error);
+
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Please login.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/"); 
+      return;
     }
-  };
+
+    const msg =
+      error.response?.data?.error ||
+      error.message ||
+      "Could not create department";
+    Swal.fire("Error", msg, "error");
+  }
+};
+
+
 
   const handleEdit = (department) => {
     setDepartmentName(department.department_name);
@@ -102,73 +122,101 @@ if (exists) {
     setPhoto(null);
   };
 
-  const handleUpdate = async (e) => {
-    e.preventDefault();
+ const handleUpdate = async (e) => {
+  e.preventDefault();
 
-    const exists = departments.some(
-      (dept) =>
-        dept.department_name.toLowerCase() === departmentName.toLowerCase() &&
-        dept.department_Id !== editingDepartmentId
-    );
-    if (exists) {
-      Swal.fire("Error", "A department with this name already exists.", "error");
-      return;
-    }
+  const exists = departments.some(
+    (dept) =>
+      dept.department_name.toLowerCase() === departmentName.toLowerCase() &&
+      dept.department_Id !== editingDepartmentId
+  );
+  if (exists) {
+    Swal.fire("Error", "A department with this name already exists.", "error");
+    return;
+  }
 
-    const formData = new FormData();
-    formData.append("department_name", departmentName);
-    formData.append("description", description);
-    if (photo) {
-      formData.append("photo", photo);
-      formData.append("image_path", photo.name);
-    }
+  const formData = new FormData();
+  formData.append("department_name", departmentName);
+  formData.append("description", description);
+  if (photo) {
+    formData.append("photo", photo);
+    formData.append("image_path", photo.name);
+  }
 
-    try {
-      await api.put(`/departments/${editingDepartmentId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      Swal.fire({
-        icon: "success",
-        title: "Updated",
-        text: "Department updated successfully!",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-      setDepartmentName("");
-      setDescription("");
-      setPhoto(null);
-      setEditMode(false);
-      fetchDepartments();
-    } catch (error) {
-      console.error("Error updating department:", error);
-      const msg = error.response?.data?.error || error.message || "Could not update department";
-      Swal.fire("Error", msg, "error");
-    }
-  };
-
-  const handleDelete = async (departmentId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#51A485",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+  try {
+    await api.put(`/departments/${editingDepartmentId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
-    if (!result.isConfirmed) return;
+    Swal.fire({
+      icon: "success",
+      title: "Updated",
+      text: "Department updated successfully!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
 
-    try {
-      await api.delete(`/departments/${departmentId}`);
-      Swal.fire("Deleted!", "Department has been deleted.", "success");
-      fetchDepartments();
-    } catch (error) {
+    setDepartmentName("");
+    setDescription("");
+    setPhoto(null);
+    setEditMode(false);
+    fetchDepartments();
+  } catch (error) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Please login.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/");
+    } else {
+      console.error("Error updating department:", error);
+      const msg =
+        error.response?.data?.error ||
+        error.message ||
+        "Could not update department";
+      Swal.fire("Error", msg, "error");
+    }
+  }
+};
+
+
+
+ const handleDelete = async (departmentId) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This action cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#51A485",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await api.delete(`/departments/${departmentId}`);
+    Swal.fire("Deleted!", "Department has been deleted.", "success");
+    fetchDepartments();
+  } catch (error) {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Please login.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/"); 
+    } else {
       console.error("Error deleting department:", error);
       const msg = error.response?.data?.error || error.message || "Could not delete department";
       Swal.fire("Error", msg, "error");
     }
-  };
+  }
+};
+
 
   return (
     <div className="d-flex" style={{ minHeight: "100vh" }}>

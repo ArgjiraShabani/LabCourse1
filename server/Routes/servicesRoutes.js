@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken } = require('../middlewares');
 
 const {
   getServicesHandler,
@@ -9,8 +10,8 @@ const {
 } = require('../Controllers/servicesController');
 
 router.get('/services', getServicesHandler);
-router.post('/services', createServiceHandler);
-router.put('/services/:id', updateServiceHandler);
-router.delete('/services/:id', deleteServiceHandler);
+router.post('/services', authenticateToken, createServiceHandler);
+router.put('/services/:id', authenticateToken, updateServiceHandler);
+router.delete('/services/:id', authenticateToken, deleteServiceHandler);
 
 module.exports = router;

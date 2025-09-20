@@ -8,7 +8,7 @@ import cardiologyImg from "../../../assets/Cardiology.jpg";
 import orthopedicsImg from "../../../assets/orthopedic.jpg";
 import gynecologyImg from "../../../assets/gynecology.jpg";
 import NavbarPatient from "../Components/NavbarPatient";
-import { useNavigate, useParams,} from 'react-router-dom'; 
+import { useNavigate, useParams } from 'react-router-dom'; 
 import Swal from "sweetalert2";
 import * as yup from "yup";
 import {useForm} from "react-hook-form";
@@ -19,46 +19,46 @@ import { Link } from "react-router-dom";
 
 function HomePagePatient() {
   const navigate = useNavigate();
-   const [id,setId]=useState(null);
+  const [id,setId]=useState(null);
 
   useEffect(() => {
-  axios
-    .get(`http://localhost:3001/homePagePatient`, {
-      withCredentials: true, // this sends the JWT cookie
-    })
-    .then((res) => {
-      if (res.data.user?.role !== 'patient') {
-        // Not a patient? Block it.
-        Swal.fire({
-          icon: 'error',
-          title: 'Access Denied',
-          text: 'Only patients can access this page.',
-        });
-        navigate('/');
-      }
-      setId(res.data.user.id);
-    })
-    .catch((err) => {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        navigate('/login');
-      } else {
-        console.error("Unexpected error", err);
-      }
-    });
-}, [id]);
+    axios
+      .get(`http://localhost:3001/homePagePatient`, { 
+        withCredentials: true, // this sends the JWT cookie
+      })
+      .then((res) => {
+        if (res.data.user?.role !== 'patient') {
+          // Not a patient? Block it.
+          Swal.fire({
+            icon: 'error',
+            title: 'Access Denied',
+            text: 'Only patients can access this page.',
+          });
+          navigate('/');
+        }
+        setId(res.data.user.id);
+      })
+      .catch((err) => {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          navigate('/login');
+        } else {
+          console.error("Unexpected error", err);
+        }
+      });
+  }, [id]);
 
   const [services, setServices] = useState([]);
   const [departments, setDepartments] = useState([]);
-   
+
 
   useEffect(() => {
     fetchDepartments();
     fetchServices();
   }, []);
-   
+
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/departments");
+      const res = await axios.get("http://localhost:3001/api/departments", { withCredentials: true });
       setDepartments(res.data);
     } catch (err) {
       console.error("Error fetching departments:", err);
@@ -67,7 +67,7 @@ function HomePagePatient() {
 
   const fetchServices = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/services");
+      const res = await axios.get("http://localhost:3001/api/services", { withCredentials: true });
       setServices(res.data);
     } catch (err) {
       console.error("Error fetching services:", err);
@@ -84,7 +84,7 @@ function HomePagePatient() {
     text:yup.string().required("Your message is required!")
   });
 
-   const {register,handleSubmit,formState: { errors},setValue,
+  const {register,handleSubmit,formState: { errors},setValue,
       reset,getValues}=useForm({
                 resolver:yupResolver(schema),
             });
@@ -93,41 +93,41 @@ function HomePagePatient() {
   function formSubmit(data){
     const info={
       text:data.text,
-      id:id
-    } 
+       id:id
+      }
     console.log(info)
-   
-      axios.post("http://localhost:3001/patient/feedbacks",info,{
-        withCredentials: true
-    }).then(res=>{
-          Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "Your feedback is sent!",
-                        showConfirmButton: false,
-                        timer: 1500
-                        });
-                        reset();
-      }) 
+
+    axios.post("http://localhost:3001/patient/feedbacks",info,{
+      withCredentials: true
+     }).then(res=>{
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Your feedback is sent!",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        reset();
+      })
       .catch((err) => {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-           Swal.fire({
-                                    icon: "error",
-                                    title: "Access Denied",
-                                    text: "Please login.",
-                                    confirmButtonColor: "#51A485",
-                                  });
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
           navigate('/');
         } else {
           console.error("Unexpected error", err);
         }
-    });
+      });
   }
 
 
   return (
     <>
-    <NavbarPatient/>
+      <NavbarPatient/>
       <div
         id="carouselExampleIndicators"
         className="carousel slide"
@@ -135,105 +135,105 @@ function HomePagePatient() {
       >
         <div className="carousel-indicators">
           <button
-            type="button"
+           type="button"
             data-bs-target="#carouselExampleIndicators"
-            data-bs-slide-to="0"
-            className="active"
-            aria-current="true"
-            aria-label="Slide 1"
-          ></button>
+             data-bs-slide-to="0"
+              className="active"
+               aria-current="true"
+                aria-label="Slide 1"
+                ></button>
           <button
-            type="button"
+           type="button"
             data-bs-target="#carouselExampleIndicators"
-            data-bs-slide-to="1"
-            aria-label="Slide 2"
-          ></button>
-          <button
-            type="button"
-            data-bs-target="#carouselExampleIndicators"
+             data-bs-slide-to="1"
+              aria-label="Slide 2"
+              ></button>
+          <button 
+          type="button"
+           data-bs-target="#carouselExampleIndicators"
             data-bs-slide-to="2"
-            aria-label="Slide 3"
-          ></button>
+             aria-label="Slide 3"
+             ></button>
         </div>
         <div className="carousel-inner" style={{ height: "100%" }}>
           <div className="carousel-item active" style={{ height: "100%" }}>
-            <img
-              src={slide1}
-              className="d-block w-100"
-              alt="slide1"
-              style={{
-                objectFit: "cover",
+            <img 
+            src={slide1}
+             className="d-block w-100" 
+             alt="slide1" 
+             style={{
+               objectFit: "cover",
                 filter: "brightness(0.6)",
-                height: "100%",
-              }}
-            />
+                 height: "100%",
+                  }}
+                   />
           </div>
           <div className="carousel-item " style={{ height: "100%" }}>
-            <img
-              src={slide2}
-              className="d-block w-100"
+            <img 
+            src={slide2}
+             className="d-block w-100"
               alt="slide2"
-              style={{
+               style={{ 
                 objectFit: "cover",
-                filter: "brightness(0.6)",
-                height: "100%",
-              }}
-            />
+                 filter: "brightness(0.6)",
+                  height: "100%",
+                   }}
+                    />
           </div>
           <div className="carousel-item " style={{ height: "100%" }}>
-            <img
-              src={slide3}
-              className="d-block w-100 "
+            <img 
+            src={slide3}
+             className="d-block w-100 "
               alt="slide3"
-              style={{
-                objectFit: "cover",
-                filter: "brightness(0.6)",
-                height: "100%",
-              }}
-            />
+               style={{
+                 objectFit: "cover",
+                  filter: "brightness(0.6)",
+                   height: "100%",
+                    }} 
+                    />
           </div>
         </div>
         <button
-          className="carousel-control-prev"
+         className="carousel-control-prev"
           type="button"
-          data-bs-target="#carouselExampleIndicators"
-          data-bs-slide="prev"
-        >
+           data-bs-target="#carouselExampleIndicators" 
+           data-bs-slide="prev"
+           >
           <span
-            className="carousel-control-prev-icon"
+           className="carousel-control-prev-icon"
             aria-hidden="true"
-          ></span>
+            ></span>
           <span className="visually-hidden">Previous</span>
         </button>
         <button
-          className="carousel-control-next"
+         className="carousel-control-next"
           type="button"
-          data-bs-target="#carouselExampleIndicators"
-          data-bs-slide="next"
-        >
+           data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="next"
+            >
           <span
-            className="carousel-control-next-icon"
+           className="carousel-control-next-icon"
             aria-hidden="true"
-          ></span>
+            ></span>
           <span className="visually-hidden">Next</span>
         </button>
       </div>
       <div
-        style={{
-          width: "100%",
+       style={{
+         width: "100%",
           padding: "80px 40px",
-          textAlign: "center",
-          border: "solid 2px #51A485",
-        }}
-      >
+           textAlign: "center",
+            border: "solid 2px #51A485",
+             }}
+             >
         <h1
-          style={{
-            textAlign: "center",
-            fontSize: "35px",
+         style={{
+           textAlign: "center",
+            fontSize: "35px", 
             color: "#51A485",
-            marginTop: "30px",
-          }}
-        >
+             marginTop: "30px",
+              }}
+              >
           Transforming your care. Healing starts here.
         </h1>
         <p style={{ fontSize: "25px" }}>
@@ -245,78 +245,78 @@ function HomePagePatient() {
           <br />
           Your next doctor's appintment is one click away.
         </p>
-        <div class="d-grid gap-2 col-6 mx-auto">
-          <Link
-            to={"/bookAppointment"}
-            className="btn btn-primary"
-            style={{
+        <div className="d-grid gap-2 col-6 mx-auto">
+          <Link 
+          to={"/bookAppointment"}
+           className="btn btn-primary"
+            style={{ 
               backgroundColor: "#51A485",
-              border: "none",
-              fontSize: "25px",
-              textDecoration: "none",
-              color: "white",
-              padding: "10px 20px",
-              display: "inline-block",
-            }}
-          >
+               border: "none",
+                fontSize: "25px",
+                 textDecoration: "none",
+                  color: "white",
+                   padding: "10px 20px",
+                    display: "inline-block",
+                     }}
+                     >
             Book your appointment
           </Link>
           <Link
-            to={`/staffPatient`}
+           to={`/staffPatient`}
             className="btn btn-primary"
-            style={{
-              backgroundColor: "#51A485",
-              border: "none",
-              fontSize: "25px",
-              textDecoration: "none",
-              color: "white",
-              padding: "10px 20px",
-              display: "inline-block",
-            }}
-          >
+             style={{
+               backgroundColor: "#51A485",
+                border: "none",
+                 fontSize: "25px", 
+                 textDecoration: "none",
+                  color: "white",
+                   padding: "10px 20px",
+                    display: "inline-block",
+                    }}
+                    >
             Our staff
           </Link>
         </div>
       </div>
       {/* Services Section */}
-        <section className="container my-5">
+      <section className="container my-5">
         <h2 className="text-center mb-4" style={{ color: "#51A485" }}>Our Services</h2>
         <p className="text-center mb-4" style={{ color: "#555" }}>
           At our hospital, your health and well-being are our top priorities. We offer a wide range of specialized medical services designed to meet your needs with professionalism and care. Below, you can explore the services we provide for you and your family.
         </p>
         <div className="row g-4">
-          
+
           {groupedServices.map(dept => (
             <div key={dept.department_Id} className="col-md-6 col-lg-3">
               <div className="card h-100 border-0 shadow-sm">
                 {dept.image_path && (
-                  <img
-                    src={`http://localhost:3001/uploads/${dept.image_path}`}
-                    className="card-img-top"
+                  <img 
+                  src={`http://localhost:3001/uploads/${dept.image_path}`}
+                   className="card-img-top"
                     alt={dept.department_name}
-                    style={{ height: "200px", objectFit: "cover" }}
-                  />
+                     style={{ height: "200px", objectFit: "cover" }}
+                      />
                 )}
                 <div className="card-body">
                   <h5 className="card-title" style={{ color: "#51A485" }}>{dept.department_name}</h5>
                   <p className="card-text">{dept.description}</p>
-             <ul>
-  {dept.services.map(service => {
-    const price = parseFloat(service.price);
-    return (
-      <li key={service.service_id}>
-        {service.service_name}
-        {price > 0 ? ` - $${price.toFixed(2)}` : ""}
-      </li>
-    );
-  })}
-</ul>
+                  <ul>
+                    {dept.services.map(service => {
+                      const price = parseFloat(service.price);
+                      return (
+                        <li key={service.service_id}>
+                          {service.service_name}
+                          {price > 0 ? ` - $${price.toFixed(2)}` : ""}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        
+
       </section>
 
 
@@ -324,7 +324,7 @@ function HomePagePatient() {
         <div className="container">
           <h2 className="text-center mb-5" style={{ color: "#51A485" }}>
             Contact Us
-          </h2>
+            </h2>
 
           <div className="row g-4">
             <div className="col-lg-6">
@@ -333,9 +333,9 @@ function HomePagePatient() {
                   <h5 style={{ color: "#51A485" }}>Our Location</h5>
                   <p className="mb-0">
                     <i
-                      className="bi bi-geo-alt-fill me-2"
-                      style={{ color: "#51A485" }}
-                    ></i>
+                     className="bi bi-geo-alt-fill me-2" 
+                     style={{ color: "#51A485" }}
+                     ></i>
                     Kosovë: Ulpianë, Prishtinë 10000
                   </p>
                 </div>
@@ -343,16 +343,16 @@ function HomePagePatient() {
                 <div className="mb-4">
                   <h5 style={{ color: "#51A485" }}>Contact Details</h5>
                   <p className="mb-2">
-                    <i
-                      className="bi bi-envelope-fill me-2"
-                      style={{ color: "#51A485" }}
-                    ></i>
+                    <i 
+                    className="bi bi-envelope-fill me-2"
+                     style={{ color: "#51A485" }}
+                     ></i>
                     carewareinfo@gmail.com
                   </p>
                   <p className="mb-0">
-                    <i
-                      className="bi bi-telephone-fill me-2"
-                      style={{ color: "#51A485" }}
+                    <i 
+                    className="bi bi-telephone-fill me-2" 
+                    style={{ color: "#51A485" }}
                     ></i>
                     +355 33 456 789 / +383 33 122 333
                   </p>
@@ -362,21 +362,21 @@ function HomePagePatient() {
 
                 <h5 className="mb-3" style={{ color: "#51A485" }}>
                   Leave us a feedback
-                </h5>
+                  </h5>
                 <form onSubmit={handleSubmit(formSubmit)}>
-                      <div className="row g-3">
-                        <div className="col-12">
-                          <textarea className="form-control" rows="3" name="text" placeholder="Your Message" {...register("text")} ></textarea>
-                           <p style={{color:"red"}}>{errors.text?.message}</p>
-                        </div>
-                        <div className="col-12">
-                          <button type="submit" className="btn w-100 py-2" style={{ backgroundColor: "#51A485",  color: "white" }}><i className="bi bi-send-fill me-2"></i> Send Message</button>
-                        </div>
-                      </div>
+                  <div className="row g-3">
+                    <div className="col-12">
+                      <textarea className="form-control" rows="3" name="text" placeholder="Your Message" {...register("text")} ></textarea>
+                      <p style={{color:"red"}}>{errors.text?.message}</p>
+                    </div>
+                    <div className="col-12">
+                      <button type="submit" className="btn w-100 py-2" style={{ backgroundColor: "#51A485",  color: "white" }}><i className="bi bi-send-fill me-2"></i> Send Message</button>
+                    </div>
+                  </div>
                 </form>
-              <div className="col-12" style={{marginTop:"10px"}}>
-                   <Link to={`/feedbacksPatient`} className="btn w-100 py-2" style={{backgroundColor:"#51A485",color:"white"}}>Check my Feedbacks</Link>
-               </div>
+                <div className="col-12" style={{marginTop:"10px"}}>
+                  <Link to={`/feedbacksPatient`} className="btn w-100 py-2" style={{backgroundColor:"#51A485",color:"white"}}>Check my Feedbacks</Link>
+                </div>
               </div>
             </div>
 

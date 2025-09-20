@@ -121,72 +121,88 @@ const WeeklySchedule = () => {
     }));
   };
 
-  const handleSave = async () => {
-    if (!selectedDoctor) {
-      Swal.fire({
-        icon: "warning",
-        title: "Warning",
-        text: "Please select a doctor first.",
-        confirmButtonColor: "#51A485",
-      });
-      return;
-    }
-
-    const result = await Swal.fire({
-      title: "Save Changes?",
-      text: "Do you want to save the changes to the schedule?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, save it!",
-      cancelButtonText: "Cancel",
+ const handleSave = async () => {
+  if (!selectedDoctor) {
+    Swal.fire({
+      icon: "warning",
+      title: "Warning",
+      text: "Please select a doctor first.",
       confirmButtonColor: "#51A485",
-      cancelButtonColor: "#51A485",
+    });
+    return;
+  }
+
+  const result = await Swal.fire({
+    title: "Save Changes?",
+    text: "Do you want to save the changes to the schedule?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Yes, save it!",
+    cancelButtonText: "Cancel",
+    confirmButtonColor: "#51A485",
+    cancelButtonColor: "#51A485",
+  });
+
+  if (!result.isConfirmed) return;
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const requests = weekDates.map((date) => {
+      const dayData = weeklyData[date];
+      if (dayData?.start_time && dayData?.end_time) {
+        if (dayData.schedule_id) {
+          return api.put(`/weekly-schedules/${dayData.schedule_id}`, {
+            start_time: dayData.start_time,
+            end_time: dayData.end_time,
+            is_custom: true,
+          });
+        } else {
+          return api.post("/weekly-schedules", {
+            doctor_id: selectedDoctor.value,
+            date,
+            start_time: dayData.start_time,
+            end_time: dayData.end_time,
+            is_custom: true,
+          });
+        }
+      }
+      return null;
     });
 
-    if (!result.isConfirmed) return;
+    await Promise.all(requests.filter(Boolean));
 
-    setLoading(true);
-    setError("");
-    try {
-      const requests = weekDates.map((date) => {
-        const dayData = weeklyData[date];
-        if (dayData?.start_time && dayData?.end_time) {
-          if (dayData.schedule_id) {
-            return api.put(`/weekly-schedules/${dayData.schedule_id}`, {
-              start_time: dayData.start_time,
-              end_time: dayData.end_time,
-              is_custom: true,
-            });
-          } else {
-            return api.post("/weekly-schedules", {
-              doctor_id: selectedDoctor.value,
-              date,
-              start_time: dayData.start_time,
-              end_time: dayData.end_time,
-              is_custom: true,
-            });
-          }
-        }
-        return null;
-      });
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Schedule saved successfully!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
 
-      await Promise.all(requests.filter(Boolean));
+    await fetchWeeklySchedule(selectedDoctor.value);
+    await fetchAllSchedules();
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
       Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Schedule saved successfully!",
-        timer: 1500,
-        showConfirmButton: false,
+        icon: "error",
+        title: "Access Denied",
+        text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+        confirmButtonColor: "#51A485",
       });
-      await fetchWeeklySchedule(selectedDoctor.value);
-      await fetchAllSchedules();
-    } catch (err) {
+      navigate("/");
+    } else {
       console.error("Error saving schedule:", err);
-      setError("Error while saving the schedule");
-    } finally {
-      setLoading(false);
+      const msg = err.response?.data?.error || err.message || "Could not save schedule";
+      Swal.fire("Error", msg, "error");
+      setError(msg);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const confirmDeletion = (scheduleId) => {
     Swal.fire({
@@ -204,22 +220,38 @@ const WeeklySchedule = () => {
   };
 
   const handleDeleteSchedule = async (schedule_id) => {
-    try {
-      await api.delete(`/weekly-schedules/${schedule_id}`);
+  try {
+    await api.delete(`/weekly-schedules/${schedule_id}`);
+
+    Swal.fire({
+      icon: "success",
+      title: "Deleted",
+      text: "Schedule deleted successfully!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    await fetchAllSchedules();
+    if (selectedDoctor) await fetchWeeklySchedule(selectedDoctor.value);
+
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
       Swal.fire({
-        icon: "success",
-        title: "Deleted",
-        text: "Schedule deleted successfully!",
-        timer: 1500,
-        showConfirmButton: false,
+        icon: "error",
+        title: "Access Denied",
+        text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+        confirmButtonColor: "#51A485",
       });
-      await fetchAllSchedules();
-      if (selectedDoctor) await fetchWeeklySchedule(selectedDoctor.value);
-    } catch (err) {
+      navigate("/");
+    } else {
       console.error("Error deleting schedule:", err);
-      setError("Error while deleting the schedule");
+      const msg = err.response?.data?.error || err.message || "Could not delete schedule";
+      Swal.fire("Error", msg, "error");
+      setError(msg);
     }
-  };
+  }
+};
+
 
   return (
     <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>

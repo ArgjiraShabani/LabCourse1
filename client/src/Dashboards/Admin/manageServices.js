@@ -65,41 +65,53 @@ const ManageServices = () => {
     }
   };
 
-  const handleCreateOrUpdate = async (e) => {
-    e.preventDefault();
-    if (!serviceName || !department_Id || !servicePrice) return;
+ const handleCreateOrUpdate = async (e) => {
+  e.preventDefault();
+  if (!serviceName || !department_Id || !servicePrice) return;
 
-    try {
-      if (editMode) {
-        await api.put(`/services/${editingServiceId}`, {
-          service_name: serviceName,
-          department_Id,
-          price: servicePrice,
-        });
-        Swal.fire("Updated", "Service updated successfully!", "success");
+  try {
+    if (editMode) {
+      await api.put(`/services/${editingServiceId}`, {
+        service_name: serviceName,
+        department_Id,
+        price: servicePrice,
+      });
+      Swal.fire("Updated", "Service updated successfully!", "success");
+    } else {
+      const res = await api.post("/services", {
+        service_name: serviceName,
+        department_Id,
+        price: servicePrice,
+      });
+      if (res.data.reactivated) {
+        Swal.fire("Reactivated", "This service was inactive and has been reactivated.", "success");
       } else {
-        const res = await api.post("/services", {
-          service_name: serviceName,
-          department_Id,
-          price: servicePrice,
-        });
-        if (res.data.reactivated) {
-          Swal.fire("Reactivated", "This service was inactive and has been reactivated.", "success");
-        } else {
-          Swal.fire("Created", "Service created successfully!", "success");
-        }
+        Swal.fire("Created", "Service created successfully!", "success");
       }
-
-      setServiceName("");
-      setDepartment_Id("");
-      setServicePrice("");
-      setEditMode(false);
-      setEditingServiceId(null);
-      fetchServices();
-    } catch (err) {
-      Swal.fire("Error", err.response?.data?.error || err.message || "Could not save service", "error");
     }
-  };
+
+    setServiceName("");
+    setDepartment_Id("");
+    setServicePrice("");
+    setEditMode(false);
+    setEditingServiceId(null);
+    fetchServices();
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Please login.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/");
+      return;
+    }
+
+    Swal.fire("Error", err.response?.data?.error || err.message || "Could not save service", "error");
+  }
+};
+
 
   const handleEdit = (service) => {
     setServiceName(service.service_name);
@@ -109,27 +121,39 @@ const ManageServices = () => {
     setEditingServiceId(service.service_id);
   };
 
-  const handleDelete = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This will mark the service as inactive!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#51A485",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, mark inactive!",
-    });
+ const handleDelete = async (id) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This will mark the service as inactive!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#51A485",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, mark inactive!",
+  });
 
-    if (!result.isConfirmed) return;
+  if (!result.isConfirmed) return;
 
-    try {
-      await api.delete(`/services/${id}`);
-      Swal.fire("Deleted!", "Service has been marked as inactive.", "success");
-      fetchServices();
-    } catch (err) {
+  try {
+    await api.delete(`/services/${id}`);
+    Swal.fire("Deleted!", "Service has been marked as inactive.", "success");
+    fetchServices();
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "Please login.",
+        confirmButtonColor: "#51A485",
+      });
+      navigate("/");
+    } else {
+      console.error("Error marking service inactive:", err);
       Swal.fire("Error", "Could not mark service as inactive", "error");
     }
-  };
+  }
+};
+
 
   const groupedServices = departments.map((dept) => ({
     ...dept,

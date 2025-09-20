@@ -65,7 +65,7 @@ const navigate=useNavigate();
         Axios.get('http://localhost:3001/api/roles'),
         Axios.get('http://localhost:3001/api/gender'),
         Axios.get('http://localhost:3001/api/specializations', { withCredentials: true }),
-        Axios.get('http://localhost:3001/api/departments'),
+        Axios.get('http://localhost:3001/api/departments',{ withCredentials: true }),
       ]);
 
       setRole(rolesRes.data);
