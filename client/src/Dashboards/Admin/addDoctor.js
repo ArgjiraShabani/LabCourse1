@@ -33,70 +33,79 @@ const {register,handleSubmit,formState: {errors},reset,setValue}=useForm({
         resolver: yupResolver(schema)
     });
 
-const navigate=useNavigate();
-     useEffect(() => {
-        Axios.get(`http://localhost:3001/addDoc`, {withCredentials: true})
-          .then((res) => {
-            if (res.data.user?.role !== "admin") {
-              Swal.fire({
-                icon: "error",
-                title: "Access Denied",
-                text: "Only admin can access this page.",
-                confirmButtonColor: "#51A485",
-              });
-              navigate("/login");
-            }
-          })
-          .catch((err) => {
-              console.error("Caught error:", err);
-
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                
-                navigate('/login');
-            } else {
-                console.error("Unexpected error", err);
-            }
-          });
-      }, [navigate]);
-
-    
+     
     const[role,setRole]=useState([]);
     const[gender,setGender]=useState([]);
     const[specialization,setSpecialization]=useState([]);
     const[department,setDepartment]=useState([]);
     const[show,setShow]=useState(false);
+     const[img,setImg]=useState(null);
     
+
+const navigate=useNavigate();
+     useEffect(() => {
+  const fetchData = async () => {
+    try {
+      
+      const res = await Axios.get(`http://localhost:3001/addDoc`, { withCredentials: true });
+
+      if (res.data.user?.role !== "admin") {
+        await Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Only admin can access this page.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/login");
+        return;
+      }
+
+     
+      const [rolesRes, genderRes, specializationRes, departmentRes] = await Promise.all([
+        Axios.get('http://localhost:3001/api/roles'),
+        Axios.get('http://localhost:3001/api/gender'),
+        Axios.get('http://localhost:3001/api/specializations', { withCredentials: true }),
+        Axios.get('http://localhost:3001/api/departments'),
+      ]);
+
+      setRole(rolesRes.data);
+      setGender(genderRes.data);
+      setSpecialization(specializationRes.data);
+      setDepartment(departmentRes.data);
+
+      
+      const doctorRole = rolesRes.data.find(r => r.role_name.toLowerCase() === "doctor");
+      if (doctorRole) {
+        setValue("role_id", doctorRole.role_id);
+      }
+
+    } catch (err) {
+      console.error("Error during admin check or fetching data:", err);
+
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate("/login");
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Something went wrong while loading the page.",
+          confirmButtonColor: "#51A485"
+        });
+      }
+    }
+  };
+
+  fetchData();
+}, [navigate, setValue]);
+
+
+   
     const handleClick=()=>{
         setShow(!show);
     }
 
-    const[img,setImg]=useState(null);
-    useEffect(()=>{
-        Axios.get('http://localhost:3001/api/roles',{ withCredentials: true }).then((response)=>{
-            setRole(response.data);
-            const doctorRole=response.data.find(r=>r.role_name.toLowerCase()==="doctor");
-            if(doctorRole){
-                setValue("role_id",doctorRole.role_id)
-            }
-        })
-    },[setValue]);
-    useEffect(()=>{
-        Axios.get('http://localhost:3001/api/gender',{ withCredentials: true }).then((response)=>{
-            setGender(response.data);
-        })
-
-    },[]);
-    useEffect(()=>{
-        Axios.get('http://localhost:3001/api/specializations',{ withCredentials: true }).then((response)=>{
-            setSpecialization(response.data);
-        })
-    },[]);
-    useEffect(()=>{
-        Axios.get('http://localhost:3001/api/departments').then((response)=>{
-            setDepartment(response.data);
-        })
-    },[]);
    
+  
     
     
     const onSubmit= async (data)=>{

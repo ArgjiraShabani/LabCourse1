@@ -25,6 +25,20 @@ const createDoctorHandler=async(req,res)=>{
   department_Id,
   education
  }=req.body;
+
+ const emailCheck=`SELECT email from patients where email=?
+ union select email from admin where email=?`;
+ db.query(emailCheck,[email,email],async(err,results)=>{
+    if (err) {
+        console.error("Error checking email existence:", err);
+        return res.status(500).json({ error: "Database error while checking email." });
+      }
+
+      if (results.length > 0) {
+        return res.status(400).json({ error: "Email already exists in the system." });
+      }
+
+ 
   const hashedPassword=await bcrypt.hash(password,13);
   const doctorData={
     first_name,
@@ -47,6 +61,7 @@ const createDoctorHandler=async(req,res)=>{
     }
     console.log("Insertion successful:",data);
     return res.json("Doctor has been successfully created");
+  });
   });
 
 }catch(error){

@@ -36,47 +36,53 @@ const ViewDoctors=()=>{
     };
      
     const navigate=useNavigate();
-         useEffect(() => {
-            Axios.get(`http://localhost:3001/viewDoc`, {withCredentials: true})
-              .then((res) => {
-                if (res.data.user?.role !== "admin") {
-                  Swal.fire({
-                    icon: "error",
-                    title: "Access Denied",
-                    text: "Only admin can access this page.",
-                    confirmButtonColor: "#51A485",
-                  });
-                  navigate("/login");
+    useEffect(() => {
+  Axios.get(`http://localhost:3001/viewDoc`, { withCredentials: true })
+    .then((res) => {
+      if (res.data.user?.role !== "admin") {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Only admin can access this page.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/login");
+      } else {
+        
+        Axios.get("http://localhost:3001/api/viewDoctors", { withCredentials: true })
+          .then((response) => {
+            const formattedData = response.data
+              .filter(doc => doc.is_active) // Hide inactive
+              .map((doctor) => {
+                if (doctor.date_of_birth) {
+                  return {
+                    ...doctor,
+                    date_of_birth: doctor.date_of_birth.split("T")[0],
+                  };
                 }
-              })
-              .catch((err) => {
-                  console.error("Caught error:", err);
-    
-                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                   
-                    navigate('/login');
-                } else {
-                    console.error("Unexpected error", err);
-                }
+                return doctor;
               });
-          }, [navigate]);
-    useEffect(()=>{
-        Axios.get("http://localhost:3001/api/viewDoctors",{
-            withCredentials: true
-        }).then((response)=>{
-            const formattedData=response.data.map((doctor)=>{
-                if(doctor.date_of_birth){
-                    return{
-                    ...doctor,date_of_birth: doctor.date_of_birth.split("T")[0],
-                };
-            }
-            return doctor;
-            })
-            console.log(formattedData)
+
             setDoctorList(formattedData);
             setFilteredDoctors(formattedData);
-        });
-    },[]);
+          })
+          .catch((err) => {
+            console.error("Error fetching doctors:", err);
+          });
+      }
+    })
+    .catch((err) => {
+      console.error("Caught error:", err);
+
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate("/login");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    });
+}, [navigate]);
+
+        
     const handleSearch=()=>{
         const term=searchTerm.trim().toLowerCase();
         
@@ -131,21 +137,7 @@ const ViewDoctors=()=>{
             <div style={{width: "250px"}}>
                 <Sidebar role="admin"/>
         </div>
-        {/*<div
-        style={{display: 'flex',
-        justifyContent:'flex-end',}}
-        >
-            
-        <Link to={'/deactivatedAccounts'} style={{
-        
-        padding: '10px 20px',
-        
-        color: '#51A485',
-        textDecoration: 'none',
-        borderRadius: '4px'
-    }}> View Deactivated Doctors</Link>
-        
-        </div>*/}
+       
         <div style={{flex:1,padding:'30px'}}>
 
             <div style={{
