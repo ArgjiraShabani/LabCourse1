@@ -122,109 +122,129 @@ useEffect(() => {
   }, [formData.service_id, services]);
 
   useEffect(() => {
-    const fetchSlots = async () => {
-      if (!selectedDate || !formData.doctor_id) return;
+  const fetchSlots = async () => {
+    if (!selectedDate || !formData.doctor_id) return;
 
-      const selDateObj = new Date(selectedDate);
-      const todayOnly = new Date();
-      todayOnly.setHours(0, 0, 0, 0);
+    const selDateObj = new Date(selectedDate);
+    const todayOnly = new Date();
+    todayOnly.setHours(0, 0, 0, 0);
 
-      if (selDateObj < todayOnly || selDateObj > maxDate) return;
+    if (selDateObj < todayOnly || selDateObj > maxDate) return;
 
-      try {
-        const [standardRes, customRes] = await Promise.all([
-          axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
-          axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
-        ]);
+    try {
+      const [standardRes, customRes] = await Promise.all([
+        axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
+        axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
+      ]);
 
-        const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
-        const custom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
-        const standard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
-        let todaySchedule = custom || standard;
+      const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
+      const custom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
+      const standard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
+      let todaySchedule = custom || standard;
 
-        const prevDay = new Date(selDateObj);
-        prevDay.setDate(prevDay.getDate() - 1);
-        const prevWeekday = prevDay.toLocaleDateString("en-US", { weekday: "long" });
-        const prevCustom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
-        const prevStandard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
-        let prevSchedule = prevCustom || prevStandard;
+      const prevDay = new Date(selDateObj);
+      prevDay.setDate(prevDay.getDate() - 1);
+      const prevWeekday = prevDay.toLocaleDateString("en-US", { weekday: "long" });
+      const prevCustom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
+      const prevStandard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
+      let prevSchedule = prevCustom || prevStandard;
 
-        let allSlots = [];
+      let allSlots = [];
 
-        if (prevSchedule) {
-          const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
-          const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
-          if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
-            allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
-          }
+      if (prevSchedule) {
+        const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
+        const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
+        if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
+          allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
         }
+      }
 
-        if (todaySchedule) {
-          const [startH, startM] = todaySchedule.start_time.split(":").map(Number);
-          const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
+      if (todaySchedule) {
+        const [startH, startM] = todaySchedule.start_time.split(":").map(Number);
+        const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
 
-          if (endH < startH || (endH === startH && endM < startM)) {
-            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
-          } else {
-            allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
-          }
+        if (endH < startH || (endH === startH && endM < startM)) {
+          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
+        } else {
+          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
         }
+      }
 
-        const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
-          params: { doctor_id: formData.doctor_id, date: selectedDate },
-          withCredentials: true,
+      const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
+        params: { doctor_id: formData.doctor_id, date: selectedDate },
+        withCredentials: true,
+      });
+
+      const bookedSlots = bookedRes.data;
+      setAvailableSlots(allSlots.filter(slot => !bookedSlots.includes(slot)));
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+          confirmButtonColor: "#51A485",
         });
-
-        const bookedSlots = bookedRes.data;
-        setAvailableSlots(allSlots.filter(slot => !bookedSlots.includes(slot)));
-      } catch (err) {
+        navigate("/");
+      } else {
         console.error("Error fetching available slots:", err.message);
         setAvailableSlots([]);
       }
-    };
+    }
+  };
 
-    fetchSlots();
-  }, [formData.doctor_id, selectedDate, maxDate]);
+  fetchSlots();
+}, [formData.doctor_id, selectedDate, maxDate,navigate]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedDate || !selectedTimeSlot) {
+ const handleSubmit = (e) => {
+  e.preventDefault();
+
+  if (!selectedDate || !selectedTimeSlot) {
+    Swal.fire({
+      icon: "warning",
+      title: "Missing Information",
+      text: "Please select a date and time slot.",
+      confirmButtonColor: "#51A485",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
+  axios
+    .post(
+      "http://localhost:3001/appointments",
+      {
+        ...formData,
+        patient_id: patientId,
+        appointment_datetime: `${selectedDate}T${selectedTimeSlot}`,
+        status: "pending",
+      },
+      { withCredentials: true }
+    )
+    .then((res) => {
       Swal.fire({
-        icon: "warning",
-        title: "Missing Information",
-        text: "Please select a date and time slot.",
+        icon: "success",
+        title: "Appointment Booked!",
+        text: res.data.message || "Your appointment has been successfully booked.",
         confirmButtonColor: "#51A485",
         confirmButtonText: "OK",
       });
-      return;
-    }
 
-    axios
-      .post(
-        "http://localhost:3001/appointments",
-        {
-          ...formData,
-          patient_id: patientId,
-          appointment_datetime: `${selectedDate}T${selectedTimeSlot}`,
-          status: "pending",
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
+      setFormData({ name: "", lastname: "", service_id: null, doctor_id: null, purpose: "" });
+      setSelectedDate("");
+      setSelectedTimeSlot("");
+      setAvailableSlots([]);
+    })
+    .catch((err) => {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
         Swal.fire({
-          icon: "success",
-          title: "Appointment Booked!",
-          text: res.data.message || "Your appointment has been successfully booked.",
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
           confirmButtonColor: "#51A485",
-          confirmButtonText: "OK",
         });
-
-        setFormData({ name: "", lastname: "", service_id: null, doctor_id: null, purpose: "" });
-        setSelectedDate("");
-        setSelectedTimeSlot("");
-        setAvailableSlots([]);
-      })
-      .catch((err) => {
+        navigate("/");
+      } else {
         console.error("Error while booking:", err.message);
         Swal.fire({
           icon: "error",
@@ -233,8 +253,10 @@ useEffect(() => {
           confirmButtonColor: "#d33",
           confirmButtonText: "OK",
         });
-      });
-  };
+      }
+    });
+};
+
 
   const serviceOptions = services.map((s) => ({ value: s.service_id, label: s.service_name }));
   const doctorOptions = doctors.map((d) => ({ value: d.doctor_id, label: `${d.first_name} ${d.last_name}` }));
