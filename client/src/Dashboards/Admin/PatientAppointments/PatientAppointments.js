@@ -71,7 +71,7 @@ function PatientAppointments() {
   const watchDoctor = watch("doctor_id");
   const watchDate = watch("date");
 
-   useEffect(() => {
+  useEffect(() => {
     axios.get("http://localhost:3001/api/settings", { withCredentials: true })
       .then(res => {
         const limit = res.data?.booking_days_limit ?? 30;
@@ -153,8 +153,8 @@ function PatientAppointments() {
     setSelectedDate(watchDate);
   }, [watchDoctor, watchDate]);
 
-  useEffect(() => {
-    const fetchSlots = async () => {
+ useEffect(() => {
+   const fetchSlots = async () => {
       if (!selectedDate || !formData.doctor_id) return;
 const stripTime = (d) => {
   const copy = new Date(d);
@@ -168,32 +168,71 @@ const todayStripped = stripTime(new Date());
 if (selDateObj < todayStripped || selDateObj > maxDate) return;
 
 
-      try {
-        const [standardRes, customRes] = await Promise.all([
-          axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
-          axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
-        ]);
+    try {
+      const [standardRes, customRes] = await Promise.all([
+        axios.get("http://localhost:3001/api/standardSchedules", { withCredentials: true }),
+        axios.get("http://localhost:3001/api/weekly-schedules", { withCredentials: true }),
+      ]);
 
-        const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
-        const custom = customRes.data.find(s => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday);
-        const standard = standardRes.data.find(s => s.doctor_id === parseInt(formData.doctor_id) && s.weekday === weekday);
+      const weekday = selDateObj.toLocaleDateString("en-US", { weekday: "long" });
+      const custom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
+      const standard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === weekday);
+      let todaySchedule = custom || standard;
 
-        let todaySchedule = custom || standard;
-        let allSlots = todaySchedule ? [...generateSlots(todaySchedule.start_time, todaySchedule.end_time)] : [];
+      const prevDay = new Date(selDateObj);
+      prevDay.setDate(prevDay.getDate() - 1);
+      const prevWeekday = prevDay.toLocaleDateString("en-US", { weekday: "long" });
+      const prevCustom = customRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
+      const prevStandard = standardRes.data.find(s => s.doctor_id === formData.doctor_id && s.weekday === prevWeekday);
+      let prevSchedule = prevCustom || prevStandard;
 
-        const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
-          params: { doctor_id: formData.doctor_id, date: selectedDate },
-          withCredentials: true,
+      let allSlots = [];
+
+      if (prevSchedule) {
+        const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
+        const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
+        if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
+          allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
+        }
+      }
+
+      if (todaySchedule) {
+        const [startH, startM] = todaySchedule.start_time.split(":").map(Number);
+        const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
+
+        if (endH < startH || (endH === startH && endM < startM)) {
+          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
+        } else {
+          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
+        }
+      }
+
+      const bookedRes = await axios.get("http://localhost:3001/appointments/bookedSlots", {
+        params: { doctor_id: formData.doctor_id, date: selectedDate },
+        withCredentials: true,
+      });
+
+      const bookedSlots = bookedRes.data;
+      setAvailableSlots(allSlots.filter(slot => !bookedSlots.includes(slot)));
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+          confirmButtonColor: "#51A485",
         });
-
-        setAvailableSlots(allSlots.filter(slot => !bookedRes.data.includes(slot)));
-      } catch (err) {
-        console.error("Error fetching slots:", err.message);
+        navigate("/");
+      } else {
+        console.error("Error fetching available slots:", err.message);
         setAvailableSlots([]);
       }
-    };
-    fetchSlots();
-  }, [formData.doctor_id, selectedDate, maxDate]);
+    }
+  };
+
+  fetchSlots();
+}, [formData.doctor_id, selectedDate, maxDate,navigate]);
+
 
 
   const openForm = (appointment = null) => {
@@ -218,51 +257,91 @@ if (selDateObj < todayStripped || selDateObj > maxDate) return;
   };
 
   const onSubmit = (data) => {
-    if (!data.date || !data.time) {
-      Swal.fire("Missing Info", "Please select date and time.", "warning");
-      return;
-    }
+  if (!data.date || !data.time) {
+    Swal.fire("Missing Info", "Please select date and time.", "warning");
+    return;
+  }
 
-    const payload = { ...data, appointment_datetime: `${data.date}T${data.time}`, status: "pending" };
+  const payload = { ...data, appointment_datetime: `${data.date}T${data.time}`, status: "pending" };
 
-    let req;
-    if (!editingId) {
-      req = axios.post("http://localhost:3001/appointments", payload, { withCredentials: true });
-    } else {
-      const url =
+  let req;
+  if (!editingId) {
+    req = axios.post("http://localhost:3001/appointments", payload, { withCredentials: true });
+  } else {
+    const url =
+      userRole === "admin"
+        ? `http://localhost:3001/appointments/${editingId}`
+        : `http://localhost:3001/my-appointments/${editingId}`;
+    req = axios.put(url, payload, { withCredentials: true });
+  }
+
+  req
+    .then(() => {
+      Swal.fire(editingId ? "Updated!" : "Booked!", "", "success");
+      setShowForm(false);
+      const fetchAppointmentsUrl =
         userRole === "admin"
-          ? `http://localhost:3001/appointments/${editingId}`
-          : `http://localhost:3001/my-appointments/${editingId}`;
-      req = axios.put(url, payload, { withCredentials: true });
-    }
+          ? "http://localhost:3001/all-patient-appointments"
+          : "http://localhost:3001/my-appointments";
+      axios
+        .get(fetchAppointmentsUrl, { withCredentials: true })
+        .then((res) => setAppointments(res.data))
+        .catch((err) => console.error("Error fetching appointments:", err));
+    })
+    .catch((error) => {
+      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "Please login.",
+          confirmButtonColor: "#51A485",
+        });
+        navigate("/");
+      } else {
+        Swal.fire("Error", "Something went wrong", "error");
+        console.error("Error submitting appointment:", error);
+      }
+    });
+};
 
-    req
-      .then(() => {
-        Swal.fire(editingId ? "Updated!" : "Booked!", "", "success");
-        setShowForm(false);
-        const fetchAppointmentsUrl =
-          userRole === "admin"
-            ? "http://localhost:3001/all-patient-appointments"
-            : "http://localhost:3001/my-appointments";
-        axios.get(fetchAppointmentsUrl, { withCredentials: true }).then((res) => setAppointments(res.data));
-      })
-      .catch(() => Swal.fire("Error", "Something went wrong", "error"));
-  };
 
    const handleDelete = (id) => {
-    Swal.fire({ title: "Delete this appointment?", icon: "warning", showCancelButton: true, confirmButtonText: "Delete" })
-      .then(result => {
-        if (result.isConfirmed) {
-          const url = userRole === "admin" ? `http://localhost:3001/all-patient-appointments/${id}` : `http://localhost:3001/my-appointments/${id}`;
-          axios.delete(url, { withCredentials: true })
-            .then(() => {
-              setAppointments(prev => prev.filter(a => a.id !== id));
-              Swal.fire("Deleted!", "", "success");
-            })
-            .catch(() => Swal.fire("Failed", "", "error"));
+  Swal.fire({
+    title: "Delete this appointment?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Delete",
+  }).then((result) => {
+    if (!result.isConfirmed) return;
+
+    const url =
+      userRole === "admin"
+        ? `http://localhost:3001/all-patient-appointments/${id}`
+        : `http://localhost:3001/my-appointments/${id}`;
+
+    axios
+      .delete(url, { withCredentials: true })
+      .then(() => {
+        setAppointments((prev) => prev.filter((a) => a.id !== id));
+        Swal.fire("Deleted!", "", "success");
+      })
+      .catch((error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          Swal.fire({
+            icon: "error",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
+          });
+          navigate("/");
+        } else {
+          Swal.fire("Failed", "", "error");
+          console.error("Error deleting appointment:", error);
         }
       });
-  };
+  });
+};
+
 
   const allPatients = Array.from(new Set(appointments.map(a => `${a.patient_name} ${a.patient_lastname}`))).map(p => ({ value: p, label: p }));
   const allDoctors = Array.from(new Set(appointments.map(a => a.doctor_name || `${a.doctor_firstname} ${a.doctor_lastname}`))).map(d => ({ value: d, label: d }));
@@ -300,7 +379,7 @@ const otherAppointmentsForAdmin = filteredAppointments.filter(
           <Button style={{ backgroundColor: "#51A485", borderColor: "#51A485" }} size="md" onClick={() => openForm()}>Book Appointment</Button>
         </div>
 
-        <div className="mb-3 d-flex flex-column flex-sm-row flex-wrap gap-2">
+<div className="mb-3 d-flex flex-column flex-sm-row flex-wrap gap-2">
           <Select
             options={allPatients} placeholder="All Patients"
             onChange={option => setFilterPatient(option?.value || "")}
