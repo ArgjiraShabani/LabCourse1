@@ -2,7 +2,7 @@ const bcrypt=require('bcrypt');
 const {createDoctor} = require('../Model/doctorModel');
 const {getDocPasswordById,updateDoctorById,getAllDoctors,
     deleteDoctor,getDoctorById,getStaff,getAllActiveDoctors,getAllPatients, getAppointmentNumber, updateMyProfile,
-    updateImage,removeImage
+    getImagePathByDoctorId
 }=require('../Model/doctorModel');
 const db=require('../db');
 
@@ -125,43 +125,58 @@ const updateDoctorHandler=(req,res)=>{
         }
     });
 };
-const updateMyProfileHandler=(req,res)=>{
-    const doctor_id=req.user.id;
-    const image_path= req.file ? `/uploads/${req.file.filename}` : null;
+const updateMyProfileHandler = (req, res) => {
+  const doctor_id = req.user.id;
+  let image_path;
 
-    const doctorData={
-                first_name: req.body.first_name,                            
-                last_name: req.body.last_name,
-                email: req.body.email,
-                
-                phone: req.body.phone,
-                
-                date_of_birth: req.body.date_of_birth,
-                gender_id: req.body.gender_id,
-                specialization_id: req.body.specialization_id,
-                department_Id: req.body.department_Id,
-                education: req.body.education,
-                image_path: image_path
-                
-            };
-            updateMyProfile(doctor_id,doctorData,(err,result)=>{
-                if(err){
-            console.error("Database error:", err);
-            return res.status(500).json({error: "Database error"});
-        }
+  if (req.file) {
+    image_path = `/uploads/${req.file.filename}`;
+    proceedUpdate();
+  } else {
+    
+    getImagePathByDoctorId(doctor_id, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
 
-        if(result.affectedRows===0){
-            return res.status(404).json({error: "Profile not found."});
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Profile not found." });
+      }
 
+      image_path = results[0].image_path; // use existing image path
+      proceedUpdate();
+    });
+  }
 
-        }
-        res.json({message: "Profile updated successfilly"});
-            })
+  function proceedUpdate() {
+    const doctorData = {
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      email: req.body.email,
+      phone: req.body.phone,
+      date_of_birth: req.body.date_of_birth,
+      gender_id: req.body.gender_id,
+      specialization_id: req.body.specialization_id,
+      department_Id: req.body.department_Id,
+      education: req.body.education,
+      image_path: image_path
+    };
 
+    updateMyProfile(doctor_id, doctorData, (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
 
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Profile not found." });
+      }
 
-}
-
+      res.json({ message: "Profile updated successfully" });
+    });
+  }
+};
 
 
 

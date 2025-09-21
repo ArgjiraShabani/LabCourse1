@@ -70,46 +70,57 @@ const updateDoctorById=(doctorId,doctorData,callback)=>{
    db.query(query,values,callback);
 };
 
-const updateMyProfile=(doctorId,doctorData,callback)=>{
-  const{
-        first_name,
-        last_name,
-        email,
-        
-        phone,
-       
-        date_of_birth,
-        gender_id,
-        specialization_id,
-        department_Id,
-        education,
-        image_path
-       
 
-    }=doctorData;
-     const query = `UPDATE doctors SET first_name=?, last_name=?, email=?, phone=?, 
-    date_of_birth=?, gender_id=?, specialization_id=?, department_Id=?, 
-    education=?,image_path=? WHERE doctor_id=?`;
-    
-   const values=[
-        first_name,
-        last_name,
-        email,
-        phone,        
-        date_of_birth,
-        gender_id,
-        specialization_id,
-        department_Id,
-        education, 
-        image_path,       
-        doctorId
+const updateMyProfile = (doctorId, doctorData, callback) => {
+  const {
+    first_name,
+    last_name,
+    email,
+    phone,
+    date_of_birth,
+    gender_id,
+    specialization_id,
+    department_Id,
+    education,
+    image_path
+  } = doctorData;
 
-   ];
-   db.query(query,values,callback);
+  const query = `
+    UPDATE doctors SET 
+      first_name = ?, 
+      last_name = ?, 
+      email = ?, 
+      phone = ?, 
+      date_of_birth = ?, 
+      gender_id = ?, 
+      specialization_id = ?, 
+      department_Id = ?, 
+      education = ?, 
+      image_path = ?
+    WHERE doctor_id = ?
+  `;
 
+  const values = [
+    first_name,
+    last_name,
+    email,
+    phone,
+    date_of_birth,
+    gender_id,
+    specialization_id,
+    department_Id,
+    education,
+    image_path,
+    doctorId
+  ];
 
-}
+  db.query(query, values, callback);
+};
 
+const getImagePathByDoctorId = (doctorId, callback) => {
+  const query = `SELECT image_path FROM doctors WHERE doctor_id = ?`;
+  db.query(query, [doctorId], callback);
+};
 
 
 const getAllDoctors = (callback) => {
@@ -219,5 +230,6 @@ module.exports={
     getAllPatients,
     getAppointmentNumber,
     updateMyProfile,
+    getImagePathByDoctorId
     
 };
