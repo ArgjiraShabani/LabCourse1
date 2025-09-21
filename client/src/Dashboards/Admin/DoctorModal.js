@@ -4,10 +4,12 @@ import { IoCloseSharp } from "react-icons/io5";
 import {FaUser,FaEnvelope,FaPhone,FaGenderless,FaStethoscope,FaHospital} from "react-icons/fa";
 import { PiStudentFill } from "react-icons/pi";
 import { LuCalendarDays } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
 
 function DoctorModal({doctor_id,closeModal}){
 
     const [docInfo,SetDocInfo] = useState({});
+    const navigate=useNavigate();
 
     useEffect(()=>{
         axios.get(`http://localhost:3001/api/doctorInfo/${doctor_id}`,{
@@ -21,8 +23,16 @@ function DoctorModal({doctor_id,closeModal}){
             SetDocInfo(response.data);
         })
         .catch((error)=>{
-            console.error("Error fetching user",error);
-        });
+            
+            
+                  if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                    navigate("/login");
+                  } else {
+                    console.error("Error fetching user",error);
+                    
+                  }
+        }
+        );
     },[doctor_id])
     return(
         <>
@@ -66,7 +76,7 @@ function DoctorModal({doctor_id,closeModal}){
             <div>
                 {docInfo.image_path?(
                 <img
-                src={`http://localhost:3001/uploads/${docInfo.image_path}`}
+                src={`http://localhost:3001/${docInfo.image_path}`}
                 alt={`${docInfo.first_name} ${docInfo.last_name}`}
                 style={{
                     width: '150px',

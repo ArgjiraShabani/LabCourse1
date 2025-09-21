@@ -1,6 +1,7 @@
 import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
 function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSubmitSuccess, result_id,isEditing}){
@@ -20,6 +21,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
     const[patientInfo,setPatientInfo]=useState({});
     const[doctorInfo,setDoctorInfo]=useState(null);
     const [loading, setLoading]=useState(false);
+    const navigate=useNavigate();
 
     const handleEmailSend=async()=>{
         setLoading(true);
@@ -88,15 +90,18 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                     console.log("fetched data",response.data)
                 
             }catch(error){
-                if(error.response && error.response.status===404){
-                    console.log("No report found for this patient and appointment.");
-                }else{
-                     console.error("Error fetching report:",error);
-
-                }
+                if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching report",error);
+                   
+            
                
             }
-        };
+        }
+    }
+        
         if((patient_id  && appointment_id) || result_id){
             fetchReport();
         }

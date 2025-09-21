@@ -82,9 +82,15 @@ function MedicalRecords(){
          });
          setSubmittedPrescription(submitted);
       })
-      .catch((error)=>{
-        console.error("Error fetching appointments:",error);
-      })
+               .catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching the appointments", err);
+                }
+          
+        });
 
     }
 
@@ -102,10 +108,15 @@ function MedicalRecords(){
         fetchAppointments();
 
       })
-      .catch((error)=>{
-        console.error("Error deleting report:", error);
-        swal.fire("Failed to delete report");
-      })
+              .catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    swal.fire("Error deleting the doctor");
+                }
+          
+        });
 
     }
 

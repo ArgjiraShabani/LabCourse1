@@ -40,9 +40,14 @@ const {register,handleSubmit,formState: {errors},reset,setValue}=useForm({
     const[department,setDepartment]=useState([]);
     const[show,setShow]=useState(false);
      const[img,setImg]=useState(null);
+
+
     
 
 const navigate=useNavigate();
+
+
+
      useEffect(() => {
   const fetchData = async () => {
     try {
@@ -139,13 +144,16 @@ const navigate=useNavigate();
         });
 
         }catch(error){
-           console.error("Error submitting form", error);
-            await swal.fire({
-                title: "Error!",
-                text: "Something went wrong.",
-                icon: "error",
-                confirmButtonText: "OK",
-            });
+           if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        navigate("/login");
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Something went wrong while loading the page.",
+          confirmButtonColor: "#51A485"
+        });
+      }
         };
        
 

@@ -32,7 +32,7 @@ const ViewDoctors=()=>{
             if(result.isConfirmed){
                 deleteDoctor(id);
             }
-        });
+        })
     };
      
     const navigate=useNavigate();
@@ -52,7 +52,7 @@ const ViewDoctors=()=>{
         Axios.get("http://localhost:3001/api/viewDoctors", { withCredentials: true })
           .then((response) => {
             const formattedData = response.data
-              .filter(doc => doc.is_active) // Hide inactive
+              .filter(doc => doc.is_active)
               .map((doctor) => {
                 if (doctor.date_of_birth) {
                   return {
@@ -65,10 +65,15 @@ const ViewDoctors=()=>{
 
             setDoctorList(formattedData);
             setFilteredDoctors(formattedData);
-          })
-          .catch((err) => {
-            console.error("Error fetching doctors:", err);
-          });
+          }).catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching the doctor", err);
+                }
+          
+        });
       }
     })
     .catch((err) => {
@@ -120,9 +125,14 @@ const ViewDoctors=()=>{
             swal.fire('Deactivated!','Doctor has been deactivated.','Success');
            
         })
-        .catch(error=>{
-            console.log(error);
-            swal.fire('Failed to delete doctor.');
+                 .catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error deletng the doctor", err);
+                }
+          
         });
         
     };

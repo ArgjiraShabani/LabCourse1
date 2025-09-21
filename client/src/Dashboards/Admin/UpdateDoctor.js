@@ -45,6 +45,7 @@ const UpdateDoctor=()=>{
             resolver: yupResolver(schema)
         });
     const[show,setShow]=useState(false);
+   
     
     const handleClick=()=>{
         setShow(!show);
@@ -97,32 +98,71 @@ const UpdateDoctor=()=>{
             });
             setImg(data.image_path);
         })
-        .catch((error)=>{
-            console.log("Error fetching the doctor",error);
+        .catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching the doctor", err);
+                }
+          
         });
         
     },[doctorId,role,gender,specialization,department,reset]);
 
     useEffect(()=>{
         Axios.get('http://localhost:3001/api/roles').then((response)=>{
-            setRole(response.data);
-        })
+            setRole(response.data)
+           
+        }).catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching the doctor", err);
+                }
+          
+        });
     },[]);
     useEffect(()=>{
         Axios.get('http://localhost:3001/api/gender').then((response)=>{
-            setGender(response.data);
-        })
+            setGender(response.data)
+        })        .catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching the doctor", err);
+                }
+          
+        });
 
     },[]);
     useEffect(()=>{
         Axios.get('http://localhost:3001/api/specializations',{withCredentials: true}).then((response)=>{
             setSpecialization(response.data);
-        })
+        }).catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching the doctor", err);
+                }
+          
+        });
     },[]);
     useEffect(()=>{
         Axios.get('http://localhost:3001/api/departments').then((response)=>{
             setDepartment(response.data);
-        })
+        }).catch((err)=>{
+             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                   
+                    navigate('/login');
+                } else {
+                    console.error("Error fetching the doctor", err);
+                }
+          
+        });
     },[]);
 
     const update= async (formValues)=>{
