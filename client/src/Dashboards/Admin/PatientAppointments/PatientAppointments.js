@@ -72,20 +72,29 @@ function PatientAppointments() {
   const watchDate = watch("date");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/settings", { withCredentials: true })
-      .then(res => {
-        const limit = res.data?.booking_days_limit ?? 30;
-        setDaysLimit(limit);
-        const max = new Date(today);
-        max.setDate(max.getDate() + limit);
-        setMaxDate(max);
-      })
-      .catch(() => {
-        const max = new Date(today);
-        max.setDate(max.getDate() + 30);
-        setMaxDate(max);
-      });
-  }, []);
+  axios
+    .get("http://localhost:3001/api/settings", { withCredentials: true })
+    .then((res) => {
+      const limit = res.data?.booking_days_limit ?? 30;
+      setDaysLimit(limit);
+
+      if (limit > 0) {
+  const max = new Date(today);
+  max.setDate(max.getDate() + (limit - 1));
+  setMaxDate(max);
+} else {
+  const max = new Date(today);
+  max.setDate(today.getDate() - 1);
+  setMaxDate(max);
+}
+
+    })
+    .catch(() => {
+      const max = new Date(today);
+      max.setDate(max.getDate() + 29); 
+      setMaxDate(max);
+    });
+}, []);
 
   useEffect(() => {
   axios
@@ -154,19 +163,14 @@ function PatientAppointments() {
   }, [watchDoctor, watchDate]);
 
  useEffect(() => {
-   const fetchSlots = async () => {
-      if (!selectedDate || !formData.doctor_id) return;
-const stripTime = (d) => {
-  const copy = new Date(d);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-};
+  const fetchSlots = async () => {
+    if (!selectedDate || !formData.doctor_id) return;
 
-const selDateObj = stripTime(new Date(selectedDate));
-const todayStripped = stripTime(new Date());
+    const selDateObj = new Date(selectedDate);
+    const todayOnly = new Date();
+    todayOnly.setHours(0, 0, 0, 0);
 
-if (selDateObj < todayStripped || selDateObj > maxDate) return;
-
+    if (selDateObj < todayOnly || selDateObj > maxDate) return;
 
     try {
       const [standardRes, customRes] = await Promise.all([
@@ -379,35 +383,42 @@ const otherAppointmentsForAdmin = filteredAppointments.filter(
           <Button style={{ backgroundColor: "#51A485", borderColor: "#51A485" }} size="md" onClick={() => openForm()}>Book Appointment</Button>
         </div>
 
-<div className="mb-3 d-flex flex-column flex-sm-row flex-wrap gap-2">
-          <Select
-            options={allPatients} placeholder="All Patients"
-            onChange={option => setFilterPatient(option?.value || "")}
-            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
-            menuPortalTarget={document.body}
-            isClearable
-          />
-          <Select
-            options={allDoctors} placeholder="All Doctors"
-            onChange={option => setFilterDoctor(option?.value || "")}
-            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
-            menuPortalTarget={document.body}
-            isClearable
-          />
-          <Select
-            options={allServices} placeholder="All Services"
-            onChange={option => setFilterService(option?.value || "")}
-            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
-            menuPortalTarget={document.body}
-            isClearable
-          />
-          <input
-            type="date"
-            className="form-control"
-            onChange={e => setFilterDate(e.target.value)}
-            style={{ border: "2px solid #51A485", borderRadius: "5px" }}
-          />
-        </div>
+       <div className="mb-3 d-flex flex-wrap gap-2 align-items-center">
+  <Select
+    options={allPatients} placeholder="All Patients"
+    onChange={option => setFilterPatient(option?.value || "")}
+    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+    menuPortalTarget={document.body}
+    isClearable
+  />
+  <Select
+    options={allDoctors} placeholder="All Doctors"
+    onChange={option => setFilterDoctor(option?.value || "")}
+    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+    menuPortalTarget={document.body}
+    isClearable
+  />
+  <Select
+    options={allServices} placeholder="All Services"
+    onChange={option => setFilterService(option?.value || "")}
+    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+    menuPortalTarget={document.body}
+    isClearable
+  />
+  <input
+    type="date"
+    className="form-control"
+    style={{
+      width: "200px", 
+      height: "38px",  
+       border: "1px solid hsl(0, 0%, 80%)", 
+      borderRadius: "5px",
+      padding: "0 10px",
+    }}
+    onChange={e => setFilterDate(e.target.value)}
+
+  />
+</div>
 
    <h2>All Appointments</h2>
 <Suspense fallback={<div>Loading Table...</div>}>

@@ -19,7 +19,7 @@ const getDoctorsByDepartment = (departmentId, callback) => {
            dep.status_id AS department_status
     FROM doctors d
     JOIN departments dep ON d.department_id = dep.department_Id
-    WHERE d.department_id = ?
+    WHERE d.department_id = ? and is_active=1
   `;
   db.query(sql, [departmentId], callback);
 };
@@ -258,7 +258,7 @@ const getServiceById = (serviceId, callback) => {
 };
 
 const getDoctorById = (doctorId, callback) => {
-  const query = "SELECT first_name, last_name FROM doctors WHERE doctor_id = ?";
+  const query = "SELECT first_name, last_name FROM doctors WHERE doctor_id = ? and is_active=1";
   db.query(query, [doctorId], (err, results) => {
     if (err) return callback(err);
     if (results.length === 0) return callback(null, null);

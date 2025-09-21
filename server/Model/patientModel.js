@@ -142,8 +142,8 @@ const getPatientsForDropdown = (callback) => {
   const sql = `
     SELECT patient_id, first_name, last_name
     FROM patients
-    WHERE status_id = 1
-  `;
+    WHERE status_id = 1 and isdeleted=0`
+  ;
   db.query(sql, callback);
 };
 
