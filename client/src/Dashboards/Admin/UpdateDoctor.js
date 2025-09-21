@@ -15,7 +15,7 @@ const UpdateDoctor=()=>{
         first_name: yup.string().required("First name is required"),
         last_name: yup.string().required("Last name is required"),
         gender_id: yup.number().typeError("Gender is required").required(),
-        date_of_birth: yup.date().required("Date of birth is required"),
+        date_of_birth: yup.date().max(new Date(), "Date of birth cannot be in the future").required("Date of birth is required"),
         phone: yup.string().required("Phone is required"),
         specialization_id: yup.number().typeError("Specialization is required").required(),
         department_Id: yup.number().typeError("Department is required").required(),
