@@ -14,6 +14,15 @@ function DoctorSpecializations(){
     const [editingId, setEditingId]=useState(null);
     const [editingName, setEditingName]= useState('');
 
+    const handleAuthError=(error,navigate,customMessage=null)=>{
+        if(error.response?.status===401 || error.response?.status===403){
+            navigate("/login");
+            return true;
+        }
+         console.error(customMessage || "Unexpected error:", error);
+         return false;
+    };
+
     const confirmDeletion=(specializationId)=>{
         swal.fire({
              title: "Are you sure you want to delete the specialization?",
@@ -45,15 +54,8 @@ function DoctorSpecializations(){
                 }
               })
               .catch((err) => {
-                  console.error("Caught error:", err);
-    
-                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                   
-                    navigate('/login');
-                } else {
-                    console.error("Unexpected error", err);
-                }
-              });
+        handleAuthError(err, navigate, "Error checking admin access");
+      });
           }, [navigate]);
 
     useEffect(()=>{
@@ -63,8 +65,9 @@ function DoctorSpecializations(){
           axios.get("http://localhost:3001/api/specializations",{withCredentials: true}).then((response)=>{
             setSpecialization(response.data);
         }) .catch((error) => {
-            console.error("Error fetching specializations:", error);
-        });
+  handleAuthError(error, navigate, "Error fetching specializations");
+  
+});
     }
     const deleteSpecialization=(specializationId)=>{
         console.log("delete specialization Id:",specializationId);
@@ -73,10 +76,12 @@ function DoctorSpecializations(){
         }).then(()=>{
             fetchSpecializations();
             swal.fire('Deleted!','Specialization has been deleted.','success');
-        }).catch(error=>{
-            console.log(error);
-            swal.fire('Failed to delete specialization.');
-        });
+        }).catch((error) => {
+  const handled = handleAuthError(error, navigate, "Error deleting specialization");
+  if (!handled) {
+    swal.fire('Error', 'Failed to delete specialization.', 'error');
+  }
+});
     }
 
     const handleUpdate=async(id)=>{
@@ -91,10 +96,12 @@ function DoctorSpecializations(){
             swal.fire('Updated!', 'Specialization has been updated.','success');
             setEditingId(null);
             fetchSpecializations();
-        }catch(error){
-            console.error("Error updating specialization:", error);
-            swal.fire('Error', 'Failed to update specialization.', 'error');
-        }
+        }catch (error) {
+  const handled = handleAuthError(error, navigate, "Error updating specialization");
+  if (!handled) {
+    swal.fire('Error', 'Failed to update specialization.', 'error');
+  }
+}
     };
 
     
@@ -115,10 +122,12 @@ function DoctorSpecializations(){
             alert("Specialization added successfully!");
             setSpecializationName('');
             fetchSpecializations();
-    }catch(error){
-            console.log("Error adding specialization:",error);
-            alert("Error adding specialization");
-        }
+    }catch (err) {
+  const handled = handleAuthError(err, navigate, "Error adding specialization");
+  if (!handled) {
+    alert("Error adding specialization");
+  }
+}
     };
         
    

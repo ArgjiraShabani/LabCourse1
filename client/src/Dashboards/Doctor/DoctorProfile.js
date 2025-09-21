@@ -18,88 +18,141 @@ function DoctorProfile() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios.get("http://localhost:3001/api/gender", { withCredentials: true }).then((res) => {
-      setGender(res.data);
-    });
-    axios.get("http://localhost:3001/api/specializations", { withCredentials: true }).then((res) => {
-      setSpecialization(res.data);
-    });
-    axios.get("http://localhost:3001/api/departments").then((res) => {
-      setDepartment(res.data);
-    });
-  }, []);
+ useEffect(() => {
+  const fetchDoctorProfile = async () => {
+    try {
+     
+      const profileRes = await axios.get("http://localhost:3001/api/doctorProfile", { withCredentials: true });
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:3001/api/doctorId", { withCredentials: true })
-      .then((response) => {
-        const birthDate = response.data.date_of_birth.split("T")[0];
-        response.data.date_of_birth = birthDate;
-        setDoctorData(response.data);
-        setFormData(response.data);
-      })
-      .catch((error) => {
-        if (error.response?.status === 401 || error.response?.status === 403) {
-          
-          navigate("/login");
-        } else {
-          console.error("Error fetching doctor data:", error);
-        }
-      });
-  }, [navigate]);
-
-  const handleSave = () => {
-    const data = new FormData();
-    data.append("first_name", formData.first_name);
-    data.append("last_name", formData.last_name);
-    data.append("email", formData.email);
-    data.append("phone", formData.phone);
-    data.append("date_of_birth", formData.date_of_birth);
-    data.append("gender_id", formData.gender_id);
-    data.append("specialization_id", formData.specialization_id);
-    data.append("department_Id", formData.department_Id);
-    data.append("education", formData.education);
-
-    if (uploadImage) {
-      data.append("img", uploadImage);
-    }
-
-    axios
-      .put("http://localhost:3001/api/updateMyProfile", data, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then(() => {
+      if (profileRes.data.user?.role !== "doctor") {
         Swal.fire({
-          icon: "success",
-          title: "Profile Updated",
-          text: "Your profile has been successfully updated.",
+          icon: "error",
+          title: "Access Denied",
+          text: "Only doctors can access this page.",
         });
-        setIsEditing(false);
-        setUploadImage(null);
+        return navigate("/login");
+      }
 
-       
-        axios
-          .get("http://localhost:3001/api/doctorId", { withCredentials: true })
-          .then((response) => {
-            const birthDate = response.data.date_of_birth.split("T")[0];
-            response.data.date_of_birth = birthDate;
-            setDoctorData(response.data);
-            setFormData(response.data);
-          });
-      })
-      .catch((error) => {
+      
+      const dataRes = await axios.get("http://localhost:3001/api/doctorId", { withCredentials: true });
+
+      const birthDate = dataRes.data.date_of_birth.split("T")[0];
+      dataRes.data.date_of_birth = birthDate;
+
+      setDoctorData(dataRes.data);
+      setFormData(dataRes.data);
+    } catch (error) {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        navigate("/login");
+        return;
+      } else {
+        console.error("Unexpected error fetching doctor profile:", error);
+      }
+    }
+  };
+
+  fetchDoctorProfile();
+}, [navigate]);
+
+
+ useEffect(() => {
+  axios
+    .get("http://localhost:3001/api/gender", { withCredentials: true })
+    .then((res) => {
+      setGender(res.data);
+    })
+    .catch((error) => {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        navigate("/login");
+        return;
+      }
+      console.error("Error fetching gender data:", error);
+    });
+
+  axios
+    .get("http://localhost:3001/api/specializations", { withCredentials: true })
+    .then((res) => {
+      setSpecialization(res.data);
+    })
+    .catch((error) => {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        navigate("/login");
+        return;
+      }
+      console.error("Error fetching specializations:", error);
+    });
+
+  axios
+    .get("http://localhost:3001/api/departments")
+    .then((res) => {
+      setDepartment(res.data);
+    })
+    .catch((error) => {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        navigate("/login");
+        return;
+      }
+      console.error("Error fetching departments:", error);
+    });
+}, [navigate]);
+
+ 
+
+ const handleSave = () => {
+  const data = new FormData();
+  data.append("first_name", formData.first_name);
+  data.append("last_name", formData.last_name);
+  data.append("email", formData.email);
+  data.append("phone", formData.phone);
+  data.append("date_of_birth", formData.date_of_birth);
+  data.append("gender_id", formData.gender_id);
+  data.append("specialization_id", formData.specialization_id);
+  data.append("department_Id", formData.department_Id);
+  data.append("education", formData.education);
+
+  if (uploadImage) {
+    data.append("img", uploadImage);
+  }
+
+  axios
+    .put("http://localhost:3001/api/updateMyProfile", data, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then(() => {
+      Swal.fire({
+        icon: "success",
+        title: "Profile Updated",
+        text: "Your profile has been successfully updated.",
+      });
+      setIsEditing(false);
+      setUploadImage(null);
+
+      axios
+        .get("http://localhost:3001/api/doctorId", { withCredentials: true })
+        .then((response) => {
+          const birthDate = response.data.date_of_birth.split("T")[0];
+          response.data.date_of_birth = birthDate;
+          setDoctorData(response.data);
+          setFormData(response.data);
+        });
+    })
+    .catch((error) => {
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        navigate("/login");
+        
+      } else {
         Swal.fire({
           icon: "error",
           title: "Update Failed",
           text: "Something went wrong while updating the profile.",
         });
         console.error("Update error:", error);
-      });
-  };
+      }
+    });
+};
 
   if (!doctorData) {
     return <div>Loading profile...</div>;

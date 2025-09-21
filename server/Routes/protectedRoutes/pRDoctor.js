@@ -8,6 +8,9 @@ const {getDoctorByIdHandler}= require('../../Controllers/doctorController');
 router.get('/doctorDashboard',authenticateToken,authorizeRoles("doctor"), (req, res) => {
   res.json({ message: "Welcome Doctor", user: req.user });
 });
+router.get('/doctorProfile',authenticateToken,authorizeRoles('doctor'),(req,res)=>{
+  res.json({message: "Welcome Doctor", user: req.user});
+})
 router.get('/doctorId',authenticateToken, authorizeRoles("doctor"),getDoctorByIdHandler);
 router.get('/medRecords',authenticateToken, authorizeRoles("doctor"),(req,res)=>{
   res.json({message: "Welcome Doctor", user: req.user});
