@@ -254,9 +254,9 @@ const WeeklySchedule = () => {
 
 
   return (
-    <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>
-      <Sidebar role="admin" />
-      <div className="container mt-4 flex-grow-1">
+<div className="d-flex flex-row min-vh-100">
+  <Sidebar role="admin" />
+  <div className="container mt-4 flex-grow-1">
         <h2 className="mb-4">Manage Weekly Schedule</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 

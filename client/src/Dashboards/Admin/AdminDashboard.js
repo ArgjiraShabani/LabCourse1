@@ -136,9 +136,9 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="d-flex flex-column flex-lg-row min-vh-100">
-      <Sidebar role="admin" />
-      <div className="flex-grow-1 p-3 p-lg-4">
+<div className="d-flex flex-row min-vh-100">
+  <Sidebar role="admin" />
+  <div className="flex-grow-1 p-3 p-lg-4">
         <h2 className="mb-4 text-center text-lg-start">Welcome to the Admin Dashboard</h2>
 
         <div className="row">
