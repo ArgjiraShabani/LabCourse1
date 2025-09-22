@@ -63,34 +63,46 @@ const handleSaveSettings = () => {
     cancelButtonColor: "#d33",
     confirmButtonText: "Save",
   }).then((result) => {
-    if (result.isConfirmed) {
-       console.log("Saving settings:", bookingDaysLimit);
-      axios
-        .put(
-          "http://localhost:3001/api/settings",
-          { booking_days_limit: Number(bookingDaysLimit) || 0 }, 
-          { withCredentials: true }
-        )
-        .then(() => {
-          Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Settings updated!",
-            showConfirmButton: false,
-            timer: 1100,
-          });
-        })
-        .catch((err) => {
-          console.error("Error updating settings:", err);
+    if (!result.isConfirmed) return;
+
+    axios
+      .put(
+        "http://localhost:3001/api/settings",
+        { booking_days_limit: Number(bookingDaysLimit) || 0 },
+        { withCredentials: true }
+      )
+      .then(() => {
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Settings updated!",
+          showConfirmButton: false,
+          timer: 1100,
+        });
+      })
+      .catch((err) => {
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
           Swal.fire({
             icon: "error",
-            title: "Error",
-            text: "Could not update settings.",
+            title: "Access Denied",
+            text: "Please login.",
+            confirmButtonColor: "#51A485",
           });
+          navigate("/login");
+          return;
+        }
+
+        console.error("Error updating settings:", err);
+        const msg = err.response?.data?.error || err.message || "Could not update settings.";
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: msg,
         });
-    }
+      });
   });
 };
+
 
     const [blood,setBlood]=useState([]);
     const [role,setRole]=useState([]);
