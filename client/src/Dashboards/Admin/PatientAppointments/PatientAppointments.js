@@ -374,9 +374,9 @@ const otherAppointmentsForAdmin = filteredAppointments.filter(
   if (userRole !== "admin") return null;
 
   return (
-    <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>
-      <Sidebar role={userRole} />
-      <div className="container py-4 flex-grow-1">
+<div className="d-flex flex-row" style={{ minHeight: "100vh" }}>
+  <Sidebar role={userRole} />
+  <div className="container py-4 flex-grow-1">
 
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start gap-2 mb-4">
           <h2>Appointments</h2>

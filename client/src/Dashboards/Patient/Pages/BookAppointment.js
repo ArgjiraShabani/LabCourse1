@@ -263,9 +263,9 @@ useEffect(() => {
   const timeSlotOptions = availableSlots.map((slot) => ({ value: slot, label: slot }));
 
   return (
-    <div className="d-flex flex-column flex-lg-row" style={{ minHeight: "100vh" }}>
-      <Sidebar role="patient" id={patientId} />
-      <div className="container mt-5">
+   <div className="d-flex flex-row" style={{ minHeight: "100vh" }}>
+  <Sidebar role="patient" id={patientId} />
+  <div className="container mt-5 flex-grow-1">
         <h2>Book Appointment</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
