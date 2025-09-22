@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Sidebar from "../../Components/AdminSidebar";
 import Swal from "sweetalert2";
@@ -11,7 +11,7 @@ const api = axios.create({
 
 api.interceptors.response.use(
   (response) => response,
-  error => {
+  (error) => {
     if (error.response && error.response.status === 401) {
       window.location.href = "/login";
     }
@@ -22,7 +22,27 @@ api.interceptors.response.use(
 const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
-  const [tokenExpired, setTokenExpired] = useState(false);
+
+  const fetchAppointments = useCallback(async () => {
+    try {
+      const response = await api.get("/doctor-appointments");
+      const sorted = response.data.sort(
+        (a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime)
+      );
+      setAppointments(sorted);
+    } catch (err) {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        navigate("/login");
+      } else {
+        console.error("Error fetching appointments:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "An error occurred while fetching appointments.",
+        });
+      }
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -43,7 +63,6 @@ const Appointment = () => {
         fetchAppointments();
       } catch (err) {
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          setTokenExpired(true);
           navigate("/login");
         } else {
           console.error("Unexpected error", err);
@@ -58,29 +77,7 @@ const Appointment = () => {
     };
 
     checkAccess();
-  }, [navigate]);
-
-  const fetchAppointments = async () => {
-    try {
-      const response = await api.get("/doctor-appointments");
-      const sorted = response.data.sort(
-        (a, b) => new Date(a.appointment_datetime) - new Date(b.appointment_datetime)
-      );
-      setAppointments(sorted);
-    } catch (err) {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        setTokenExpired(true);
-        navigate("/login");
-      } else {
-        console.error("Error fetching appointments:", err);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "An error occurred while fetching appointments.",
-        });
-      }
-    }
-  };
+  }, [navigate, fetchAppointments]);
 
   const isToday = (dateStr) => {
     const date = new Date(dateStr);
@@ -126,7 +123,6 @@ const Appointment = () => {
       });
     } catch (err) {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        setTokenExpired(true);
         navigate("/login");
       } else {
         const message = err.response?.data?.error || "Status update failed.";
@@ -205,9 +201,9 @@ const Appointment = () => {
   );
 
   return (
-<div className="d-flex flex-row min-vh-100">
-  <Sidebar role="doctor" />
-  <div className="p-3 p-lg-4 flex-grow-1">
+    <div className="d-flex flex-column flex-lg-row min-vh-100">
+      <Sidebar role="doctor" />
+      <div className="p-3 p-lg-4 flex-grow-1">
         <h2 className="mb-3 mb-lg-4">Today's Appointments</h2>
         {renderTable(todaysAppointments, false)}
 

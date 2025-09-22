@@ -126,7 +126,6 @@ const AuditLog = () => {
             <thead className="table-dark">
               <tr>
                 <th>ID</th>
-                <th>Admin ID</th>
                 <th>Table Name</th>
                 <th>Record ID</th>
                 <th>Action</th>
@@ -145,7 +144,6 @@ const AuditLog = () => {
                 logs.map((log) => (
                   <tr key={log.audit_id}>
                     <td>{log.audit_id}</td>
-                    <td>{log.admin_id}</td>
                     <td>{log.table_name}</td>
                     <td>{log.record_id}</td>
                     <td style={{ fontWeight: "bold" }}>{log.action}</td>
@@ -163,4 +161,3 @@ const AuditLog = () => {
 };
 
 export default AuditLog;
-
