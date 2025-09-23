@@ -15,7 +15,13 @@ const UpdateDoctor=()=>{
         first_name: yup.string().required("First name is required"),
         last_name: yup.string().required("Last name is required"),
         gender_id: yup.number().typeError("Gender is required").required(),
-        date_of_birth: yup.date().max(new Date(), "Date of birth cannot be in the future").required("Date of birth is required"),
+        date_of_birth: yup
+  .date()
+  .nullable()
+  .transform((curr, orig) => orig === "" ? null : curr)
+  .max(new Date(), "Date of birth cannot be in the future")
+  .required("Date of birth is required"),
+
         phone: yup.string().required("Phone is required"),
         specialization_id: yup.number().typeError("Specialization is required").required(),
         department_Id: yup.number().typeError("Department is required").required(),
@@ -376,9 +382,13 @@ const UpdateDoctor=()=>{
                             <select name="role_id" id="role" className={`form-control w-100 ${errors.role_id?'is-invalid': ''}`} aria-describedby="role"
                             {...register("role_id",{ valueAsNumber: true })} >
                                 <option value="">Select role</option>
-                                {role.map(r=>(
-                                    <option key={`role-${r.role_id}`} value={r.role_id}>{r.role_name}</option>
-                                ))}
+                               {role
+  .filter((r) => r.role_name.toLowerCase() === "doctor")
+  .map((r) => (
+    <option key={r.role_id} value={r.role_id}>
+      {r.role_name}
+    </option>
+))}
                                 
                         </select>
                          {errors.role_id && (

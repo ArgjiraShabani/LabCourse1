@@ -20,7 +20,13 @@ function AdminDoctor(){
     first_name: yup.string().required("First name is required"),
     last_name: yup.string().required("Last name is required"),
     gender_id: yup.number().typeError("Gender is required").required(),
-    date_of_birth: yup.date().max(new Date(), "Date of birth cannot be in the future").required("Date of birth is required"),
+    date_of_birth: yup
+  .date()
+  .nullable()
+  .transform((curr, orig) => orig === "" ? null : curr)
+  .max(new Date(), "Date of birth cannot be in the future")
+  .required("Date of birth is required"),
+
     phone: yup.string().required("Phone is required"),
     specialization_id: yup.number().typeError("Specialization is required").required(),
     education: yup.string().required("Education is required"),
@@ -329,11 +335,13 @@ const navigate=useNavigate();
                             
                            >
                                 <option value="">Select Role</option>
-                                {role.map((r) => (
-                            <option key={r.role_id} value={r.role_id}>
-                             {r.role_name}
-                            </option>
-                            ))}
+                             {role
+  .filter((r) => r.role_name.toLowerCase() === "doctor")
+  .map((r) => (
+    <option key={r.role_id} value={r.role_id}>
+      {r.role_name}
+    </option>
+))}
                               
                                 
                         </select>
