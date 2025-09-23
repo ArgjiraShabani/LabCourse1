@@ -148,6 +148,7 @@ function DoctorProfile() {
       const response = await axios.get("http://localhost:3001/api/doctorId", { withCredentials: true });
       const birthDate = response.data.date_of_birth.split("T")[0];
       response.data.date_of_birth = birthDate;
+      console.log(response.data)
       setDoctorData(response.data);
       setFormData(response.data);
     } catch (err) {
@@ -172,7 +173,7 @@ function DoctorProfile() {
       }
     }
   };
-
+  {console.log(doctorData)}
   if (!doctorData) {
     return <div>Loading profile...</div>;
   }
@@ -217,8 +218,9 @@ function DoctorProfile() {
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : doctorData.image_path ? (
+                
                 <img
-                  src={`http://localhost:3001${doctorData.image_path}`}
+                  src={`http://localhost:3001/uploads/${doctorData.image_path}`}
                   alt={`${doctorData.first_name} ${doctorData.last_name}`}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />

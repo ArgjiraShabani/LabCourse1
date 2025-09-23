@@ -130,7 +130,7 @@ const updateMyProfileHandler = (req, res) => {
   let image_path;
 
   if (req.file) {
-    image_path = `/uploads/${req.file.filename}`;
+    image_path = `${req.file.filename}`;
     proceedUpdate();
   } else {
     
