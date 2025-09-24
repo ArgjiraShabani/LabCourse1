@@ -14,6 +14,8 @@ import { generateSlots } from "./utils";
 const AppointmentsTable = lazy(() => import("./AppointmentTable"));
 const AppointmentForm = lazy(() => import("./AppointmentForm"));
 
+
+
 const schema = yup.object().shape({
   patient_id: yup.number().when("$isEditing", (isEditing, schema) =>
     isEditing ? schema.notRequired() : schema.required("Patient is required")
@@ -49,12 +51,14 @@ function PatientAppointments() {
   const [filterDoctor, setFilterDoctor] = useState("");
   const [filterService, setFilterService] = useState("");
   const [filterDate, setFilterDate] = useState("");
+ const [appointmentDuration, setAppointmentDuration] = useState(30); 
 
   const today = new Date();
   const [daysLimit, setDaysLimit] = useState(30);
   const [maxDate, setMaxDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState("");
   const [formData, setFormData] = useState({ doctor_id: "", service_id: "" });
+  
 
   const {
     register,
@@ -76,22 +80,22 @@ function PatientAppointments() {
     .get("http://localhost:3001/api/settings", { withCredentials: true })
     .then((res) => {
       const limit = res.data?.booking_days_limit ?? 30;
+      const duration = res.data?.appointment_duration_minutes ?? 30;
+
       setDaysLimit(limit);
+      setAppointmentDuration(duration);
 
       if (limit > 0) {
-  const max = new Date(today);
-  max.setDate(max.getDate() + (limit - 1));
-  setMaxDate(max);
-} else {
-  const max = new Date(today);
-  max.setDate(today.getDate() - 1);
-  setMaxDate(max);
-}
-
+        const max = new Date(today);
+        max.setDate(max.getDate() + (limit - 1));
+        setMaxDate(max);
+      } else {
+        setMaxDate(today);
+      }
     })
     .catch(() => {
       const max = new Date(today);
-      max.setDate(max.getDate() + 29); 
+      max.setDate(max.getDate() + 29);
       setMaxDate(max);
     });
 }, []);
@@ -162,7 +166,7 @@ function PatientAppointments() {
     setSelectedDate(watchDate);
   }, [watchDoctor, watchDate]);
 
- useEffect(() => {
+useEffect(() => {
   const fetchSlots = async () => {
     if (!selectedDate || !formData.doctor_id) return;
 
@@ -196,7 +200,7 @@ function PatientAppointments() {
         const [prevStartH, prevStartM] = prevSchedule.start_time.split(":").map(Number);
         const [prevEndH, prevEndM] = prevSchedule.end_time.split(":").map(Number);
         if (prevEndH < prevStartH || (prevEndH === prevStartH && prevEndM < prevStartM)) {
-          allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time)];
+          allSlots = [...allSlots, ...generateSlots("00:00", prevSchedule.end_time, appointmentDuration)];
         }
       }
 
@@ -205,9 +209,9 @@ function PatientAppointments() {
         const [endH, endM] = todaySchedule.end_time.split(":").map(Number);
 
         if (endH < startH || (endH === startH && endM < startM)) {
-          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59")];
+          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, "23:59", appointmentDuration)];
         } else {
-          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time)];
+          allSlots = [...allSlots, ...generateSlots(todaySchedule.start_time, todaySchedule.end_time, appointmentDuration)];
         }
       }
 
@@ -235,7 +239,8 @@ function PatientAppointments() {
   };
 
   fetchSlots();
-}, [formData.doctor_id, selectedDate, maxDate,navigate]);
+}, [formData.doctor_id, selectedDate, maxDate, navigate, appointmentDuration]);
+
 
 
 
