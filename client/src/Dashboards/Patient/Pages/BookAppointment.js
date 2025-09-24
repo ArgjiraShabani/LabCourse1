@@ -18,6 +18,7 @@ function BookAppointment() {
   const [maxDate, setMaxDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [appointmentDuration, setAppointmentDuration] = useState(30); 
   const [formData, setFormData] = useState({
     name: "",
     lastname: "",
@@ -31,38 +32,42 @@ function BookAppointment() {
   const today = new Date();
 
   function generateSlots(start, end) {
-    const slots = [];
-    let [h, m] = start.split(":").map(Number);
-    const [endH, endM] = end.split(":").map(Number);
+  const slots = [];
+  let [h, m] = start.split(":").map(Number);
+  const [endH, endM] = end.split(":").map(Number);
 
-    while (h < endH || (h === endH && m < endM)) {
-      slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-      m += 30;
-      if (m >= 60) {
-        h++;
-        m -= 60;
-      }
+  while (h < endH || (h === endH && m < endM)) {
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    m += appointmentDuration; 
+    if (m >= 60) {
+      h++;
+      m -= 60;
     }
-    return slots;
   }
+  return slots;
+}
+
 useEffect(() => {
   axios
     .get("http://localhost:3001/api/settings", { withCredentials: true })
     .then((res) => {
       const limit = res.data?.booking_days_limit ?? 30;
+      const duration = res.data?.appointment_duration_minutes ?? 30;
+
       setDaysLimit(limit);
+      setAppointmentDuration(duration);
 
       if (limit > 0) {
         const max = new Date(today);
-        max.setDate(max.getDate() + (limit - 1)); 
+        max.setDate(max.getDate() + (limit - 1));
         setMaxDate(max);
       } else {
-        setMaxDate(today); 
+        setMaxDate(today);
       }
     })
     .catch(() => {
       const max = new Date(today);
-      max.setDate(max.getDate() + 29); 
+      max.setDate(max.getDate() + 29);
       setMaxDate(max);
     });
 }, []);
