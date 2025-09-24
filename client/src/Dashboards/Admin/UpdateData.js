@@ -68,7 +68,10 @@ const handleSaveSettings = () => {
     axios
       .put(
         "http://localhost:3001/api/settings",
-        { booking_days_limit: Number(bookingDaysLimit) || 0 },
+        { 
+          booking_days_limit: Number(bookingDaysLimit) || 0,
+          appointment_duration_minutes: Number(appointmentDuration) || 30
+        },
         { withCredentials: true }
       )
       .then(() => {
@@ -104,11 +107,14 @@ const handleSaveSettings = () => {
 };
 
 
+
     const [blood,setBlood]=useState([]);
     const [role,setRole]=useState([]);
     const [gender,setGender]=useState([]);
     const [editingBlood, setEditingBlood] = useState({});
     const [editingGender, setEditingGender] = useState({});
+    const [appointmentDuration, setAppointmentDuration] = useState(30);
+
 
    
     
@@ -178,6 +184,23 @@ const {
     useEffect(()=>{
        fetchBlood();
     },[]);
+
+
+    useEffect(() => {
+  axios
+    .get("http://localhost:3001/api/settings", { withCredentials: true })
+    .then((res) => {
+      if (res.data) {
+        if (res.data.booking_days_limit !== undefined) {
+          setBookingDaysLimit(Number(res.data.booking_days_limit));
+        }
+        if (res.data.appointment_duration_minutes !== undefined) {
+          setAppointmentDuration(Number(res.data.appointment_duration_minutes));
+        }
+      }
+    })
+    .catch((err) => console.error("Error fetching settings:", err));
+}, []);
 
      /* function fetchRoles(){
      axios.get("http://localhost:3001/api/roles").then((response)=>{
@@ -489,7 +512,7 @@ function handleDeleteBlood(id,nameData){
                   
     }
     return(
-        <div className="d-flex" style={{ minHeight: "100vh" }}>
+         <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar role="admin" />
       <div className="container py-4 flex-grow-1">
       
@@ -636,11 +659,27 @@ function handleDeleteBlood(id,nameData){
           Save
         </Button>
       </div>
+      <label>Appointment Duration (minutes):</label>
+  <div className="d-flex">
+    <input
+      type="number"
+      className="form-control me-2"
+      value={appointmentDuration}
+      onChange={(e) => setAppointmentDuration(e.target.value)}
+      min={1}
+    />
+    <Button
+      style={{ backgroundColor: "#51A485", borderColor: "white" }}
+      onClick={handleSaveSettings}
+    >
+      Save
+    </Button>
+  </div>
     </div>
 
-      </div>
+     </div>
     </div>
-    )
-}
+  );
+};
 
 export default UpdateData;
