@@ -31,7 +31,9 @@ router.post("/login", (req, res) => {
         if (match) return sendToken(res, user.id, user.role);
 
         // Check doctor if password doesn't match
-        checkDoctor(email, password, res);
+        //checkDoctor(email, password, res);
+         return res.status(401).json({ message: "Your password is incorrect!" });
+
       }).catch((err) => {
         return res.status(500).json("Bcrypt error (patients)");
       });
@@ -62,7 +64,9 @@ router.post("/login", (req, res) => {
         if (match) return sendToken(res, user.id, user.role);
 
         // Check admin if password doesn't match
-        checkAdmin(email, password, res);
+        //checkAdmin(email, password, res);
+        return res.status(401).json({ message: "Your password is incorrect!" });
+
       }).catch((err) => {
         return res.status(500).json("Bcrypt error (doctors)");
       });
@@ -88,13 +92,13 @@ router.post("/login", (req, res) => {
               const user = data[0];
               bcrypt.compare(password, user.password).then((match) => {
                 if (match) return sendToken(res, user.id, user.role);
-                return res.status(401).json({ message: "Invalid email or password" });
+                return res.status(401).json({ message: "Your password is incorrect!" });
               }).catch((err) => {
                 return res.status(500).json("Bcrypt error (admin)");
               });
             } else {
               // No user found
-              return res.status(401).json({ message: "Invalid email or password" });
+              return res.status(401).json({ message: "Invalid email.Please check your email! " });
             }
           });
       };
