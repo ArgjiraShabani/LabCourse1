@@ -344,7 +344,14 @@ function handleDeleteBlood(id,nameData){
                                               });
                               navigate('/');
                             } else {
-                              console.error("Unexpected error", err);
+                               Swal.fire({
+                                                icon: "error",
+                                                title: "",
+                                                text: "Blood not updated.Please check again!.",
+                                                confirmButtonColor: "#51A485",
+                                              });
+                                            
+
                             }
           }
       )};
@@ -385,7 +392,13 @@ function handleDeleteBlood(id,nameData){
                                               });
                               navigate('/');
                             } else {
-                              console.error("Unexpected error", err);
+                               Swal.fire({
+                                                icon: "error",
+                                                title: "",
+                                                text: "Gender not updated.Please check again!.",
+                                                confirmButtonColor: "#51A485",
+                                              });
+                                            
                             }
           });
       };

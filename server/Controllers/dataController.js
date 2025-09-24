@@ -53,6 +53,7 @@ const setBloodHandler=(req,res)=>{
          if(err){
         return res.status(500).json({error: err.message});
     }
+    
     console.log("Insertion successful:",data);
     return res.json("Blood has been successfully created");
     });
@@ -136,14 +137,15 @@ const updateBloodHandler=(req,res)=>{
     const id=req.body.id;
     const newValue=req.body.newValue;
     updateBlood([newValue,id],(err,results)=>{
-        if(err){
-              return res.status(500).json({error: "Database error"});
-            }
-        if(results.affectedRows===0){
-               res.json("This blood does not exist!")
-          }else{
-                   res.json(results);
-              };
+       if (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(400).json({ message: 'Blood name already exists.' });
+      } else {
+        return res.status(500).json({ message: 'Internal server error.' });
+      }
+    }
+
+    res.status(200).json({ message: 'Blood updated successfully.' });
     });
 };
 
@@ -151,18 +153,21 @@ const updateGenderHandler=(req,res)=>{
     const id=req.body.id;
     const newValue=req.body.newValue;
     updateGender([newValue,id],(err,results)=>{
-        if(err){
-              return res.status(500).json({error: "Database error"});
-            }
-        if(results.affectedRows===0){
-               res.json("This gender does not exist!")
-          }else{
-                   res.json(results);
-              };
-    });
-};
+            if (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(400).json({ message: 'Gender name already exists.' });
+      } else {
+        return res.status(500).json({ message: 'Internal server error.' });
+      }
+    }
 
-const setRoleHandler=(req,res)=>{
+    res.status(200).json({ message: 'Gender updated successfully.' });
+  }
+    )};
+
+
+
+  const setRoleHandler=(req,res)=>{
     const role=req.body.role;
     setRole(role,(err,results)=>{
             if(err){
