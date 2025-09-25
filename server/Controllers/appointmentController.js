@@ -76,7 +76,7 @@ const getAllAppointments = (req, res) => {
 
 const deleteAppointment = (req, res) => {
   const appointmentId = req.params.id;
-  const adminId = req.user.id; 
+const adminId = req.user.id; 
   appointmentModel.deleteAppointment(appointmentId, (err, result) => {
     if (err) {
       console.error("Error while deleting the appointment:", err);
@@ -88,21 +88,21 @@ const deleteAppointment = (req, res) => {
     }
 
     if (req.user.role === 'admin') {
-  auditModel.createLog({
-    admin_id: req.user.id,
-    table_name: "appointments",
-    record_id: appointmentId,
-    action: "DELETE",
-    description: `Admin deleted appointment ID ${appointmentId}`
-  }, (err) => {
-    if (err) console.error("Error logging audit:", err);
-  });
-}
+      auditModel.createLog({
+        admin_id: req.user.id,
+        table_name: "appointments",
+        record_id: appointmentId,
+        action: "DELETE",
+        description: `Admin deleted appointment ID ${appointmentId} (soft delete)`
+      }, (err) => {
+        if (err) console.error("Error logging audit:", err);
+      });
+    }
 
-
-    res.json({ message: "Appointment deleted successfully." });
+    res.json({ message: "Appointment deleted (soft delete)." });
   });
 };
+
 
 
 const getMyAppointments = (req, res) => {

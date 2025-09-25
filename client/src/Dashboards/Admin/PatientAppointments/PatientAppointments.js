@@ -367,9 +367,20 @@ useEffect(() => {
       (filterDate === "" || dateOnly === filterDate);
   });
 
-  const completedAppointments = filteredAppointments.filter(
-  app => (app.status || "pending").toLowerCase() === "completed"
-);
+  const todayStr = today.toISOString().split("T")[0];
+
+const completedAppointments = filteredAppointments.filter(app => {
+  const appDate = new Date(app.appointment_datetime);
+  return (
+    (app.status || "pending").toLowerCase() === "completed" &&
+    appDate.getFullYear() === today.getFullYear() &&
+    appDate.getMonth() === today.getMonth() &&
+    appDate.getDate() === today.getDate()
+  );
+});
+
+
+
 const otherAppointmentsForAdmin = filteredAppointments.filter(
   app => (app.status || "pending").toLowerCase() !== "completed"
 );
@@ -436,13 +447,13 @@ const otherAppointmentsForAdmin = filteredAppointments.filter(
   </div>
 </Suspense>
 
-<h2 className="mt-5">Completed Appointments</h2>
+<h2 className="mt-5">Completed Appointments For Today</h2>
 <Suspense fallback={<div>Loading Completed Appointments...</div>}>
   <div className="table-responsive">
     <AppointmentsTable 
       appointments={completedAppointments} 
       onEdit={null}
-      onDelete={handleDelete} 
+      onDelete={null} 
     />
   </div>
 </Suspense>
