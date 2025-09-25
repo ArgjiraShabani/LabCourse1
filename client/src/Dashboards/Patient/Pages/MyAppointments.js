@@ -75,8 +75,8 @@ const MyAppointments = () => {
 
     try {
       await api.delete(`/my-appointments/${appointmentId}`);
-      setAppointments(prev => prev.filter(a => a.id !== appointmentId));
-      setNumberAppointments(prev => prev - 1);
+      setAppointments((prev) => prev.filter((a) => a.id !== appointmentId));
+      setNumberAppointments((prev) => prev - 1);
       Swal.fire({
         icon: "success",
         title: "Cancelled!",
@@ -112,9 +112,9 @@ const MyAppointments = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSave = async () => {
     if (!editingAppointment) return;
 
@@ -190,7 +190,10 @@ const MyAppointments = () => {
         <div className="row g-4">
           <h2>My Appointments</h2>
           <div className="col-12">
-            <div className="card text-white h-100" style={{ backgroundColor: "#4e73df", borderRadius: "15px" }}>
+            <div
+              className="card text-white h-100"
+              style={{ backgroundColor: "#4e73df", borderRadius: "15px" }}
+            >
               <div className="card-body d-flex align-items-center">
                 <FaCalendarCheck size={40} className="me-3" />
                 <div>
@@ -214,42 +217,100 @@ const MyAppointments = () => {
                   <th>Date & Time</th>
                   <th>Purpose</th>
                   <th>Service</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {appointments.map(appointment => (
-                  <tr key={appointment.id}>
-                    <td>{appointment.id || "-"}</td>
-                    <td>{appointment.patient_name || "-"}</td>
-                    <td>{appointment.patient_lastname || "-"}</td>
-                    <td>{`${appointment.doctor_firstname || "-"} ${appointment.doctor_lastname || ""}`}</td>
-                    <td>{appointment.appointment_datetime ? new Date(appointment.appointment_datetime).toLocaleString() : "-"}</td>
-                    <td>{appointment.purpose || "-"}</td>
-                    <td
-                      style={{
-                        color: appointment.department_status === 2 || appointment.service_status === 2 ? "red" : "inherit",
-                        fontWeight: appointment.department_status === 2 || appointment.service_status === 2 ? "bold" : "normal",
-                      }}
+                {appointments.map((appointment) => {
+                  const status = (appointment.status || "").toLowerCase().trim();
+                  return (
+                    <tr
+                      key={appointment.id}
+                      className={status === "completed" ? "table-success" : ""}
                     >
-                      {appointment.department_status === 2
-                        ? "Department inactive, contact the hospital"
-                        : appointment.service_status === 2
-                        ? "Service inactive, contact the hospital"
-                        : appointment.service_name || "-"}
-                    </td>
-                    <td>
-                      {appointment.department_status === 2 || appointment.service_status === 2 ? (
-                        <button onClick={() => cancelAppointment(appointment.id)} className="btn btn-danger btn-sm">Cancel</button>
-                      ) : (
-                        <>
-                          <button onClick={() => cancelAppointment(appointment.id)} className="btn btn-danger btn-sm me-2">Cancel</button>
-                          <button onClick={() => editAppointment(appointment.id)} className="btn btn-primary btn-sm">Edit</button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      <td>{appointment.id || "-"}</td>
+                      <td>{appointment.patient_name || "-"}</td>
+                      <td>{appointment.patient_lastname || "-"}</td>
+                      <td>{`${appointment.doctor_firstname || "-"} ${
+                        appointment.doctor_lastname || ""
+                      }`}</td>
+                      <td>
+                        {appointment.appointment_datetime
+                          ? new Date(appointment.appointment_datetime).toLocaleString()
+                          : "-"}
+                      </td>
+                      <td>{appointment.purpose || "-"}</td>
+                      <td
+                        style={{
+                          color:
+                            appointment.department_status === 2 ||
+                            appointment.service_status === 2
+                              ? "red"
+                              : "inherit",
+                          fontWeight:
+                            appointment.department_status === 2 ||
+                            appointment.service_status === 2
+                              ? "bold"
+                              : "normal",
+                        }}
+                      >
+                        {appointment.department_status === 2
+                          ? "Department inactive, contact the hospital"
+                          : appointment.service_status === 2
+                          ? "Service inactive, contact the hospital"
+                          : appointment.service_name || "-"}
+                      </td>
+                      <td
+                        style={{
+                          color:
+                            appointment.status === "cancelled"
+                              ? "red"
+                              : appointment.status === "completed"
+                              ? "green"
+                              : "inherit",
+                          fontWeight:
+                            appointment.status === "cancelled" ? "bold" : "normal",
+                        }}
+                      >
+                        {appointment.status || "-"}
+                      </td>
+                      <td>
+                        {appointment.department_status === 2 ||
+                        appointment.service_status === 2 ? (
+                          <button
+                            onClick={() => cancelAppointment(appointment.id)}
+                            className="btn btn-danger btn-sm"
+                          >
+                            Cancel
+                          </button>
+                        ) : appointment.status === "completed" ? (
+                          <button
+                            onClick={() => cancelAppointment(appointment.id)}
+                            className="btn btn-danger btn-sm"
+                          >
+                            Delete
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => cancelAppointment(appointment.id)}
+                              className="btn btn-danger btn-sm me-2"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => editAppointment(appointment.id)}
+                              className="btn btn-primary btn-sm"
+                            >
+                              Edit
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -265,6 +326,7 @@ const MyAppointments = () => {
                   <th>Date & Time</th>
                   <th>Purpose</th>
                   <th>Service</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -279,18 +341,40 @@ const MyAppointments = () => {
               <h5 className="card-title">Edit Appointment #{editingAppointment}</h5>
               <div className="mb-3">
                 <label className="form-label">First Name</label>
-                <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} />
+                <input
+                  type="text"
+                  name="name"
+                  className="form-control"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Last Name</label>
-                <input type="text" name="lastname" className="form-control" value={formData.lastname} onChange={handleChange} />
+                <input
+                  type="text"
+                  name="lastname"
+                  className="form-control"
+                  value={formData.lastname}
+                  onChange={handleChange}
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Purpose</label>
-                <input type="text" name="purpose" className="form-control" value={formData.purpose} onChange={handleChange} />
+                <input
+                  type="text"
+                  name="purpose"
+                  className="form-control"
+                  value={formData.purpose}
+                  onChange={handleChange}
+                />
               </div>
-              <button className="btn btn-success me-2" onClick={handleSave}>Save</button>
-              <button className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>
+              <button className="btn btn-success me-2" onClick={handleSave}>
+                Save
+              </button>
+              <button className="btn btn-secondary" onClick={handleCancelEdit}>
+                Cancel
+              </button>
             </div>
           </div>
         )}

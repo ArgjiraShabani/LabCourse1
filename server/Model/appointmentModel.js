@@ -83,12 +83,13 @@ const getAllAppointments = (doctorId, callback) => {
     LEFT JOIN patients p ON a.patient_id = p.patient_id
     LEFT JOIN services s ON a.service_id = s.service_id
     LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+    WHERE a.is_deleted = 0
   `;
 
   const values = [];
 
   if (doctorId) {
-    sql += " WHERE a.doctor_id = ?";
+    sql += " AND a.doctor_id = ?";
     values.push(doctorId);
   }
 
@@ -98,9 +99,10 @@ const getAllAppointments = (doctorId, callback) => {
 };
 
 const deleteAppointment = (appointmentId, callback) => {
-  const sql = "DELETE FROM appointments WHERE appointment_id = ?";
+  const sql = "UPDATE appointments SET is_deleted = 1 WHERE appointment_id = ?";
   db.query(sql, [appointmentId], callback);
 };
+
 
 const getAppointmentsByPatient = (patientId, callback) => {
   const sql = `
@@ -115,12 +117,13 @@ const getAppointmentsByPatient = (patientId, callback) => {
       d.first_name AS doctor_firstname,
       d.last_name AS doctor_lastname,
       dep.department_name,
-      dep.status_id AS department_status   -- statusi i departmentit
+      dep.status_id AS department_status,
+        a.status   
     FROM appointments a
     LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
     LEFT JOIN services s ON a.service_id = s.service_id
     LEFT JOIN departments dep ON s.department_Id = dep.department_Id
-    WHERE a.patient_id = ?
+    WHERE a.patient_id = ? AND a.is_deleted = 0
     ORDER BY a.appointment_datetime DESC
   `;
   db.query(sql, [patientId], callback);
@@ -191,12 +194,13 @@ const getAllAppointmentsByDoctor = (doctorId, callback) => {
     LEFT JOIN patients p ON a.patient_id = p.patient_id
     LEFT JOIN services s ON a.service_id = s.service_id
     LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+    WHERE a.is_deleted = 0
   `;
 
   const values = [];
 
   if (doctorId) {
-    sql += " WHERE a.doctor_id = ?";
+    sql += " AND a.doctor_id = ?";
     values.push(doctorId);
   }
 
@@ -204,6 +208,7 @@ const getAllAppointmentsByDoctor = (doctorId, callback) => {
 
   db.query(sql, values, callback);
 };
+
 
 const updateAppointmentByAdmin = (appointmentId, data, callback) => {
   const {
