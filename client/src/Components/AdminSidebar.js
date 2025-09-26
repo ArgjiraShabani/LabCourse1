@@ -1,27 +1,24 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { TiArrowSortedUp, TiArrowSortedDown } from "react-icons/ti";
 import { FaBars, FaTimes } from "react-icons/fa";
-
 
 const Sidebar = ({ role, id }) => {
   const [doctorMenuOpen, setDoctorMenuOpen] = useState(false);
   const [scheduleMenuOpen, setScheduleMenuOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleDoctorMenu = () => {
+  const toggleDoctorMenu = () => 
     setDoctorMenuOpen(!doctorMenuOpen);
-  };
- const toggleScheduleMenu = () => {
-  setScheduleMenuOpen(!scheduleMenuOpen);
-};
-const toggleSidebar = () => setIsOpen(!isOpen);
+  const toggleScheduleMenu = () => 
+    setScheduleMenuOpen(!scheduleMenuOpen);
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
     <>
       <style>
         {`
-        .sidebar {
+          .sidebar {
             background-color: #51A485;
             width: 250px;
             min-height: 100vh;
@@ -82,47 +79,48 @@ const toggleSidebar = () => setIsOpen(!isOpen);
       </button>
 
       <div
-  className={`sidebar text-white p-3 ${isOpen ? "open" : ""}`}
-  style={{
-    backgroundColor: "#51A485",
-    width: "250px",
-    minHeight: "100vh",
-  }}
->
-
+       className={`sidebar text-white p-3 ${isOpen ? "open" : ""}`}
+       >
         {role === "admin" ? (
           <>
             <h4 className="text-center mb-4">Admin Panel</h4>
             <ul className="nav flex-column">
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/adminDashboard`}
-                  className="nav-link text-white active shadow-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Dashboard
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/ManageDepartments`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Departments
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/ManageServices`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Services
-                </Link>
+                </NavLink>
               </li>
 
               <li className="nav-item mb-2">
                 <div
                   onClick={toggleDoctorMenu}
                   className="nav-link text-white hover-link"
+                  style={{ cursor: "pointer" }}
                 >
                   Doctors{" "}
                   {doctorMenuOpen ? (
@@ -132,54 +130,74 @@ const toggleSidebar = () => setIsOpen(!isOpen);
                   )}
                 </div>
                 {doctorMenuOpen && (
-                  <ul className="submenu list-unstyled">
+                  <ul className="submenu list-unstyled ps-3">
                     <li className="nav-item mb-2">
-                      <Link
+                      <NavLink
                         to="/doctors"
-                        className="nav-link text-white hover-link"
+                        className={({ isActive }) =>
+                          `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                        }
                       >
                         Add Doctors
-                      </Link>
+                      </NavLink>
                     </li>
                     <li className="nav-item mb-2">
-                      <Link
+                      <NavLink
                         to="/viewDoctors"
-                        className="nav-link text-white hover-link"
+                        className={({ isActive }) =>
+                          `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                        }
                       >
                         View Doctors
-                      </Link>
+                      </NavLink>
                     </li>
                     <li className="nav-item mb-2">
-                      <Link
+                      <NavLink
                         to="/doctorSpecializations"
-                        className="nav-link text-white hover-link"
+                        className={({ isActive }) =>
+                          `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                        }
                       >
                         Doctor Specializations
-                      </Link>
+                      </NavLink>
                     </li>
                   </ul>
                 )}
               </li>
 
               <li className="nav-item mb-2">
-                <Link to="/patient" className="nav-link text-white hover-link">
-                Patients
-                </Link>
+                <NavLink
+                  to="/patient"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
+                >
+                  Patients
+                </NavLink>
               </li>
+
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to="/registerPatient"
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Register Patients
-                </Link>
+                </NavLink>
               </li>
+
               <li className="nav-item mb-2">
-                <Link
-                   to={`/patientAppointments`}
-                  className="nav-link text-white hover-link"
-                >Patient Appointments</Link>
+                <NavLink
+                  to={`/patientAppointments`}
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
+                >
+                  Patient Appointments
+                </NavLink>
               </li>
+
               <li className="nav-item mb-2">
                 <div
                   onClick={toggleScheduleMenu}
@@ -196,56 +214,69 @@ const toggleSidebar = () => setIsOpen(!isOpen);
                 {scheduleMenuOpen && (
                   <ul className="submenu list-unstyled ps-3">
                     <li className="nav-item mb-2">
-                      <Link
+                      <NavLink
                         to={`/ManageSchedule`}
-                        className="nav-link text-white hover-link"
+                        className={({ isActive }) =>
+                          `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                        }
                       >
                         Standard Schedule
-                      </Link>
+                      </NavLink>
                     </li>
                     <li className="nav-item mb-2">
-                      <Link
+                      <NavLink
                         to={`/WeeklySchedule`}
-                        className="nav-link text-white hover-link"
+                        className={({ isActive }) =>
+                          `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                        }
                       >
                         Weekly Schedule
-                      </Link>
+                      </NavLink>
                     </li>
                   </ul>
                 )}
-                </li>
+              </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/FeedbacksAdmin/`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Feedbacks
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/updateData/`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Update Data
-                </Link>
+                </NavLink>
               </li>
+
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/auditLog/`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Audit Log
-                </Link>
+                </NavLink>
               </li>
-               <li>
-                  <Link
-                      to="/logout"
-                      className="nav-link text-white hover-link"
-                      style={{ fontWeight: "bold" }}>
-                              LOG OUT
-                   </Link>
-                </li>
+
+              <li className="nav-item mt-4">
+                <NavLink
+                  to="/logout"
+                  className="nav-link text-white"
+                  style={{ fontWeight: "bold" }}
+                >
+                  LOG OUT
+                </NavLink>
+              </li>
             </ul>
           </>
         ) : role === "doctor" ? (
@@ -253,119 +284,128 @@ const toggleSidebar = () => setIsOpen(!isOpen);
             <h4 className="text-center mb-4">Doctor Panel</h4>
             <ul className="nav flex-column">
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/doctordashboard`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Dashboard Overview
-                </Link>
+                </NavLink>
               </li>
-              
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to="/DoctorSchedule/"
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Schedule
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/Appointment`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Patient Appointments
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to="/medicalRecords/:id"
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Prescriptions
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/doctorProfile`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   My Profile
-                </Link>
+                </NavLink>
               </li>
-               <li>
-                  <Link
-                      to="/logout"
-                      className="nav-link text-white hover-link"
-                      style={{  fontWeight: "bold" }}>
-                              LOG OUT
-                   </Link>
-                </li>
+              <li className="nav-item mt-4">
+                <NavLink
+                  to="/logout"
+                  className="nav-link text-white"
+                  style={{ fontWeight: "bold" }}
+                >
+                  LOG OUT
+                </NavLink>
+              </li>
             </ul>
           </>
         ) : role === "patient" ? (
           <>
             <h4 className="text-center mb-4">Patient Dashboard</h4>
             <ul className="nav flex-column">
-              {/*<li className="nav-item mb-2">
-                <Link
-                  to={`/patientdashboard/${id}`}
-                  className="nav-link text-white  hover-link"
-                >
-                  Dashboard
-                </Link>
-              </li>*/}
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/myAppointments`}
-                  className="nav-link text-white  hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   My Appointments
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/bookAppointment`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   Book Appointments
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/myprofile`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   My Profile
-                </Link>
+                </NavLink>
               </li>
               <li className="nav-item mb-2">
-                <Link
+                <NavLink
                   to={`/feedbacksPatient`}
-                  className="nav-link text-white hover-link"
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
                 >
                   My Feedbacks
-                </Link>
+                </NavLink>
               </li>
-             {/* <li className="nav-item mb-2">
-                <a href="#" className="nav-link text-white hover-link">
-                  Message
-                </a>
-              </li>
-               */}
-              <li className="nav-item mt-4">
-                <Link to={`/homePagePatient`} className="nav-link text-white">
+              <li className="nav-item mb-2">
+                <NavLink
+                  to={`/homePagePatient`}
+                  className={({ isActive }) =>
+                    `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
+                  }
+                >
                   Home
-                </Link>
+                </NavLink>
               </li>
-                <li>
-                  <Link
-                      to="/logout"
-                      className="nav-link text-white hover-link"
-                      style={{ fontWeight: "bold" }}> 
-                              LOG OUT
-                   </Link>
-                </li>
+              <li className="nav-item mt-4">
+                <NavLink
+                  to="/logout"
+                  className="nav-link text-white"
+                  style={{ fontWeight: "bold" }}>
+                  LOG OUT
+                </NavLink>
+              </li>
             </ul>
           </>
         ) : null}
