@@ -5,6 +5,7 @@ import {FaUser,FaEnvelope,FaPhone,FaGenderless,FaStethoscope,FaHospital} from "r
 import { PiStudentFill } from "react-icons/pi";
 import { LuCalendarDays } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function DoctorModal({doctor_id,closeModal}){
 
@@ -21,12 +22,20 @@ function DoctorModal({doctor_id,closeModal}){
             const birthDate=response.data.date_of_birth.split("T")[0];
             response.data.date_of_birth=birthDate;
             SetDocInfo(response.data);
+            console.log("Modal image_path:", response.data.image_path);
         })
         .catch((error)=>{
             
             
                   if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                   
                     navigate("/login");
+                     Swal.fire({
+                            icon: "error",
+                            title: "Access Denied",
+                            text: error.response.status === 401 ? "Please login." : "You do not have permission.",
+                            confirmButtonColor: "#51A485",
+                          });
                   } else {
                     console.error("Error fetching user",error);
                     

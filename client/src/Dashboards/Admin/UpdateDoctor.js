@@ -73,8 +73,15 @@ const UpdateDoctor=()=>{
               .catch((err) => {
     
                 if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                   
                     navigate('/login');
+                    Swal.fire({
+                            icon: "error",
+                            title: "Access Denied",
+                            text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+                            confirmButtonColor: "#51A485",
+                          });
+                   
+                    
                 } else {
                     console.error("Unexpected error", err);
                 }
@@ -106,8 +113,15 @@ const UpdateDoctor=()=>{
         })
         .catch((err)=>{
              if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                navigate('/login');
+                Swal.fire({
+                        icon: "error",
+                        title: "Access Denied",
+                        text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+                        confirmButtonColor: "#51A485",
+                      });
                    
-                    navigate('/login');
+                    
                 } else {
                     console.error("Error fetching the doctor", err);
                 }
@@ -122,6 +136,7 @@ const UpdateDoctor=()=>{
            
         }).catch((err)=>{
              if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                
                    
                     navigate('/login');
                 } else {
@@ -173,46 +188,66 @@ const UpdateDoctor=()=>{
 
     const update= async (formValues)=>{
         
-     try{
-        
-        const data= new FormData();
-        const formattedValues = {
-        ...formValues,
-        date_of_birth: new Date(formValues.date_of_birth).toISOString().split('T')[0], 
-        };
-        Object.entries(formattedValues).forEach(([key,value])=>{
-            data.append(key,value);
-        });
-        if(img){
-            data.append("img",img);
-        }
-        
-        const response=await
-        Axios.put(`http://localhost:3001/api/updateDoctors/${doctorId}`,data, {withCredentials: true});
-        
-            await swal.fire({
-            title: "Success!",
-            text: "Your form was updated successfully.",
-            icon: "success",
-            confirmButtonText: "OK",});
-           
-             navigate("/viewDoctors");
-        
+     try {
+    const data = new FormData();
 
-        }
-    catch(error){
-            console.log("Error updating doctor:",error);
-           
-           await swal.fire({
-                title: "Error!",
-                text: "Something went wrong.",
-                icon: "error",
-                confirmButtonText: "OK",
-            });
-       
-       
-        
+    
+    const formattedValues = {
+        ...formValues,
+        date_of_birth: new Date(formValues.date_of_birth).toISOString().split('T')[0],
+    };
+
+   
+    Object.entries(formattedValues).forEach(([key, value]) => {
+        data.append(key, value);
+    });
+
+   
+    if (img) {
+        data.append("img", img);
     }
+
+    
+    const response = await Axios.put(
+        `http://localhost:3001/api/updateDoctors/${doctorId}`,
+        data,
+        { withCredentials: true }
+    );
+
+    
+    await swal.fire({
+        title: "Success!",
+        text: "Your form was updated successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+    });
+
+    
+    navigate("/viewDoctors");
+
+} catch (err) {
+    
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        await swal.fire({
+            title: "Access Denied!",
+            text: "You don't have permission to perform this action.",
+            icon: "error",
+            confirmButtonText: "OK",
+        });
+
+        navigate("/login");
+
+    } else {
+        
+        await swal.fire({
+            title: "Error!",
+            text: "Something went wrong.",
+            icon: "error",
+            confirmButtonText: "OK",
+        });
+    }
+}
+
 };
     
     

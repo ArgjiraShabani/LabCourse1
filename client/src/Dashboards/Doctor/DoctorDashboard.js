@@ -57,14 +57,14 @@ const fetchAppointments=()=>{
   .then((response)=>{
     setAppointments(response.data);
   })
-  .catch((error )=>{
-     if (error.response) {
-        console.error("Error fetching appointments:", error.response.status, error.response.data);
-    } else {
-        console.error("Network error or no response:", error.message);
-    }
-
-  })
+  .catch((err)=> {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      
+        navigate("/login");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    })
 }
 
 
@@ -76,14 +76,14 @@ const fetchTotalPatients=()=>{
     setDoctorName(`${first_name} ${last_name}`);
 
   })
-  .catch((error )=>{
-     if (error.response) {
-        console.error("Error fetching patient number:", error.response.status, error.response.data);
-    } else {
-        console.error("Network error or no response:", error.message);
-    }
-
-  })
+  .catch((err)=> {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      
+        navigate("/login");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    })
 
 }
 
@@ -95,14 +95,14 @@ const fetchAppointmentNumber=()=>{
     
 
   })
-  .catch((error )=>{
-     if (error.response) {
-        console.error("Error fetching appointment number:", error.response.status, error.response.data);
-    } else {
-        console.error("Network error or no response:", error.message);
-    }
-
-  })
+  .catch((err)=> {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      
+        navigate("/login");
+      } else {
+        console.error("Unexpected error", err);
+      }
+    })
 }
 
 const isToday=(dateStr)=>{

@@ -67,6 +67,12 @@ const ViewDoctors=()=>{
             setFilteredDoctors(formattedData);
           }).catch((err)=>{
              if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+              Swal.fire({
+                      icon: "error",
+                      title: "Access Denied",
+                      text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+                      confirmButtonColor: "#51A485",
+                    });
                    
                     navigate('/login');
                 } else {
@@ -81,6 +87,13 @@ const ViewDoctors=()=>{
 
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
         navigate("/login");
+        Swal.fire({
+                icon: "error",
+                title: "Access Denied",
+                text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+                confirmButtonColor: "#51A485",
+              });
+        
       } else {
         console.error("Unexpected error", err);
       }
@@ -127,8 +140,15 @@ const ViewDoctors=()=>{
         })
                  .catch((err)=>{
              if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+               navigate('/login');
+              Swal.fire({
+                      icon: "error",
+                      title: "Access Denied",
+                      text: err.response.status === 401 ? "Please login." : "You do not have permission.",
+                      confirmButtonColor: "#51A485",
+                    });
                    
-                    navigate('/login');
+                   
                 } else {
                     console.error("Error deletng the doctor", err);
                 }
