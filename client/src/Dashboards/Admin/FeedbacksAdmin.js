@@ -204,6 +204,8 @@ function handleDelete(id){
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Patient ID</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>First Name</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Last Name</th>
+              <th style={{ backgroundColor: '#51A485', color: 'white' }}>Email</th>
+
               <th style={{ backgroundColor: '#51A485', color: 'white',width:'50%'}}>Message</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Date</th>
               <th style={{ backgroundColor: '#51A485', color: 'white' }}>Delete</th>
@@ -216,6 +218,7 @@ function handleDelete(id){
                   <td>{value.patient_id}</td>
                   <td>{value.first_name}</td>
                   <td>{value.last_name}</td>
+                  <td>{value.email}</td>
                   <td>{value.feedback_text}</td>
                   <td>{value.created_at}</td>
                   <td>
