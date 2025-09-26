@@ -28,11 +28,15 @@ const addSchedule = (doctor_id, weekday, start_time, end_time, callback) => {
   const query = `
     INSERT INTO standard_schedules (doctor_id, weekday, start_time, end_time)
     VALUES (?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      start_time = VALUES(start_time), 
+      end_time = VALUES(end_time)
   `;
   db.query(query, [doctor_id, weekday, start_time, end_time], (err, result) => {
     callback(err, result);
   });
 };
+
 
 const updateSchedule = (schedule_id, start_time, end_time, callback) => {
   const query = `
