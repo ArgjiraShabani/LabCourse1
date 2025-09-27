@@ -264,9 +264,9 @@ const ViewDoctors=()=>{
         {/*<td >{doctor.date_of_birth}</td>
         <td >{doctor.gender_name}</td>*/}
         
-        <td>{doctor.specialization_name || "No specialization"}</td>
+        <td>{doctor.specialization_name || "Unknown"}</td>
         <td>
-            {doctor.department_status === 2 ? "Inactive" : doctor.department_name}
+            {doctor.department_status === 2 ? "Unknown" : doctor.department_name}
         </td>
         <td>
             {doctor.is_active ? "Active" : "Inactive"}
