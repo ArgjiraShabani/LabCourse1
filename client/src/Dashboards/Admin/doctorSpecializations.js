@@ -191,9 +191,11 @@ function DoctorSpecializations(){
   </thead>
   <tbody>
     {specialization.length===0?(
+        <tr>
         <td colSpan="9" style={{ textAlign: "center", padding: "15px", color: "#888" }}>
         No specializations found.
       </td>
+      </tr>
     ):(
     specialization.map((s)=>(
         <tr key={s.specialization_id}>
@@ -253,6 +255,7 @@ function DoctorSpecializations(){
 
         
       </tr>
+      
 
     )))}
     
