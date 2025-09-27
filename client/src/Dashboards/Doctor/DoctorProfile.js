@@ -20,6 +20,20 @@ function DoctorProfile() {
 
   const navigate = useNavigate();
 
+  const checkAuth = async () => {
+  try {
+    await axios.get("http://localhost:3001/api/checkAuth", { withCredentials: true });
+    return true;
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      navigate("/login");
+    } else {
+      console.error("Unexpected error checking auth", err);
+    }
+    return false;
+  }
+};
+
   useEffect(() => {
     const fetchDoctorProfile = async () => {
       try {
@@ -38,7 +52,7 @@ function DoctorProfile() {
 
         const birthDate = dataRes.data.date_of_birth.split("T")[0];
         dataRes.data.date_of_birth = birthDate;
-
+        console.log("profile image_path:", dataRes.data.image_path);
         setDoctorData(dataRes.data);
         setFormData(dataRes.data);
       } catch (error) {
@@ -401,7 +415,13 @@ function DoctorProfile() {
                 </button>
               </>
             ) : (
-              <button className="btn btn-primary" style={{ backgroundColor: "#51A485" }} onClick={() => setIsEditing(true)}>
+              <button className="btn btn-primary" style={{ backgroundColor: "#51A485" }} 
+               onClick={async () => {
+    const isAuthenticated = await checkAuth();
+    if (isAuthenticated) {
+      setIsEditing(true);
+    }
+  }}>
                 Edit profile
               </button>
             )}
