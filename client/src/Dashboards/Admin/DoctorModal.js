@@ -149,7 +149,7 @@ function DoctorModal({doctor_id,closeModal}){
                     Specialization:  {docInfo.specialization_name || "Unknown"} </li>
                 <li className="list-group-item border-0 px-0 py-1" style={{backgroundColor: '#f8f9fa'}}>
                     <FaHospital size={18} color="#51A485" title="Gender" className="me-2"/>
-                    Department:  { docInfo.department_name} </li>
+                    Department:  { docInfo.department_name || "Unknown"} </li>
 
             </ul>
            

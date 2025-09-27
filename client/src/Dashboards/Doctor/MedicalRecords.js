@@ -24,7 +24,21 @@ function MedicalRecords(){
     
     const navigate=useNavigate();
 
-    
+   const checkAuth = async () => {
+  try {
+    await axios.get("http://localhost:3001/api/checkAuth", {
+      withCredentials: true,
+    });
+    return true;
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      navigate("/login");
+    } else {
+      console.error("Unexpected error checking auth", err);
+    }
+    return false;
+  }
+}; 
 
  useEffect(() => {
   axios
@@ -120,7 +134,9 @@ function MedicalRecords(){
 
     }
 
-    const openEditModal=(p)=>{
+    const openEditModal=async (p)=>{
+      const isAuthenticated = await checkAuth();
+     if (!isAuthenticated) return;
       setSelectedPatient({
         patient_id: p.patient_id,
         appointment_id: p.appointment_id,
@@ -183,7 +199,9 @@ function MedicalRecords(){
                                                 cursor: 'pointer',
                                                 fontSize: '14px',
                                                 transition: 'background-color 0.3s',
-                                            }} onClick={()=>{
+                                            }} onClick={async ()=>{
+                                              const isAuthenticated=await checkAuth();
+                                              if(!isAuthenticated) return;
                                               setSelectedPatient({
                                                 patient_id: p.patient_id,
                                                 appointment_id: p.appointment_id,
@@ -196,14 +214,17 @@ function MedicalRecords(){
                                               setOpenModal(true);
        }}>{submittedPrescription[`${p.patient_id}_${p.appointment_id}`]? 'View prescription':'Write prescription'}</button></td>
        <td> <button
-                  onClick={()=>openEditModal(p)}
-                   
-                   style={{
-                       background: 'none',
-                       border: 'none',
-                       padding: 0,
-                       cursor: 'pointer'
-                   }}>
+    onClick={() => openEditModal(p)}
+    disabled={!submittedPrescription[`${p.patient_id}_${p.appointment_id}`]}
+    style={{
+      background: 'none',
+      border: 'none',
+      padding: 0,
+      cursor: submittedPrescription[`${p.patient_id}_${p.appointment_id}`] ? 'pointer' : 'not-allowed',
+      opacity: submittedPrescription[`${p.patient_id}_${p.appointment_id}`] ? 1 : 0.5,
+    }}
+    title={submittedPrescription[`${p.patient_id}_${p.appointment_id}`] ? "Update" : "Disabled until prescription is submitted"}
+  >
                    <FaRegEdit size={18} color="#51A485" title="Update"/></button>
                    
                </td>
@@ -211,14 +232,18 @@ function MedicalRecords(){
              
                
                <td>
-                <button 
-               onClick={()=>{confirmDeletion(p.result_id)}}
-                   style={{
-                       background: 'none',
-                       border: 'none',
-                       padding: 0,
-                       cursor: 'pointer'
-                   }}><GoTrash size={18} color="#51A485" title="Delete"/></button>
+                <button
+    onClick={() => confirmDeletion(p.result_id)}
+    disabled={!submittedPrescription[`${p.patient_id}_${p.appointment_id}`]}
+    style={{
+      background: 'none',
+      border: 'none',
+      padding: 0,
+      cursor: submittedPrescription[`${p.patient_id}_${p.appointment_id}`] ? 'pointer' : 'not-allowed',
+      opacity: submittedPrescription[`${p.patient_id}_${p.appointment_id}`] ? 1 : 0.5,
+    }}
+    title={submittedPrescription[`${p.patient_id}_${p.appointment_id}`] ? "Delete" : "Disabled until prescription is submitted"}
+  ><GoTrash size={18} color="#51A485" title="Delete"/></button>
                 </td>
       
        

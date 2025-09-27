@@ -2,183 +2,193 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useEffect, useState} from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import * as yup from "yup";
 
 import axios from "axios";
 function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSubmitSuccess, result_id,isEditing}){
 
     const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    symptoms: "",
-    diagnose: "",
-    alergies: "",
-    result_text: "",
-    attachment: "",
-  });
+        first_name: "",
+        last_name: "",
+        symptoms: "",
+        diagnose: "",
+        alergies: "",
+        result_text: "",
+        attachment: "",
+    });
 
+    const [patientInfo, setPatientInfo] = useState({});
+    const [doctorInfo, setDoctorInfo] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
 
+    const validationSchema = yup.object().shape({
+    first_name: yup.string().required("First name is required"),
+    last_name: yup.string().required("Last name is required"),
+    symptoms: yup.string().required("Symptoms are required"),
+    diagnose: yup.string().required("Diagnose is required"),
+    alergies: yup.string().required("Alergies are required"),
+    result_text: yup.string().required("Description is required"),
+});
 
-    const[patientInfo,setPatientInfo]=useState({});
-    const[doctorInfo,setDoctorInfo]=useState(null);
-    const [loading, setLoading]=useState(false);
-    const navigate=useNavigate();
+    const navigate = useNavigate();
 
-    const handleEmailSend=async()=>{
+   
+    const handleApiError = (error, message = "Something went wrong") => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            navigate('/login');
+            return;
+           
+        } else {
+            console.error(message, error);
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.response?.data?.message || message,
+                confirmButtonColor: "#51A485",
+            });
+        }
+    };
+
+    const handleEmailSend = async () => {
         setLoading(true);
-        try{
-            const data={
+        try {
+            const data = {
                 subject: "Medical Report",
                 text: "Please find the report attached",
                 patient_id,
                 appointment_id
-                
             };
+
             console.log("Sending email with data", data);
 
-            const response=await axios.post(
+            const response = await axios.post(
                 `http://localhost:3001/api/sendReport`,
                 data,
-                {withCredentials: true
-                   
-                }
+                { withCredentials: true }
             );
+
+            Swal.fire({
+                icon: "success",
+                title: "Report Sent Successfully!",
+                text: response.data.message,
+                confirmButtonColor: "#51A485",
+            });
+        } catch (error) {
+            handleApiError(error, "Error sending email");
+        } finally {
             setLoading(false);
-                  Swal.fire({
-                            icon: "success",
-                            title: "Report Sent Successfully!",
-                            text: response.data.message,
-                            confirmButtonColor: "#51A485",
-                  })
-        }catch(error){
-            console.log("Error sending email:",error);
-            setLoading(false);
-               Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: error.response?.data?.message || "Something went wrong",
-                            confirmButtonColor: "#51A485",
-                  });
         }
     };
 
-    
-    
-    useEffect(()=>{
-        const fetchReport=async()=>{
-            try{
+    useEffect(() => {
+        const fetchReport = async () => {
+            try {
                 let url;
-                if(isEditing && result_id){
-                    url=`http://localhost:3001/api/getReportId/${result_id}`;
+                if (isEditing && result_id) {
+                    url = `http://localhost:3001/api/getReportId/${result_id}`;
+                } else if(readOnly) {
+                    url = `http://localhost:3001/api/getReports/${patient_id}/${appointment_id}`;
                 }else{
-                    url=`http://localhost:3001/api/getReports/${patient_id}/${appointment_id}`;
+                    return;
                 }
-                const response=await axios.get(url,{
+
+                const response = await axios.get(url, {
                     withCredentials: true
                 });
-                console.log("Fetched report", response.data);
-                
-                
-                    setFormData(prev=>({
-                        first_name: response.data.first_name || "",
-                        last_name: response.data.last_name || "",
-                        symptoms: response.data.symptoms || "",
-                        diagnose: response.data.diagnose || "",
-                        alergies: response.data.alergies || "",
-                        result_text: response.data.result_text || "",
-                        attachment: response.data.attachment || ""
-                    }));
-                    console.log("fetched data",response.data)
-                
-            }catch(error){
-                if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-                   
-                    navigate('/login');
-                } else {
-                    console.error("Error fetching report",error);
-                   
-            
-               
-            }
-        }
-    }
-        
-        if((patient_id  && appointment_id) || result_id){
-            fetchReport();
-        }
-    },[patient_id,appointment_id, result_id,isEditing]);
 
-    const handleChange=(e)=>{
-        setFormData({...formData,[e.target.id]: e.target.value});
+                setFormData(prev => ({
+                    first_name: response.data.first_name || "",
+                    last_name: response.data.last_name || "",
+                    symptoms: response.data.symptoms || "",
+                    diagnose: response.data.diagnose || "",
+                    alergies: response.data.alergies || "",
+                    result_text: response.data.result_text || "",
+                    attachment: response.data.attachment || ""
+                }));
+            } catch (error) {
+                handleApiError(error, "Error fetching report");
+            }
+        };
+        fetchReport();
+
+        /*if ((patient_id && appointment_id) || result_id) {
+            fetchReport();
+        }*/
+    }, [patient_id, appointment_id, result_id, isEditing]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value });
     };
-    const handleFileChange=(e)=>{
+
+    const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
-    const handleSubmit= async (e)=>{
-        e.preventDefault();
-        const data=new FormData();
-        
-        data.append("patient_id",patient_id);
-        data.append("appointment_id",appointment_id);
-        data.append("first_name",formData.first_name);
-        data.append("last_name",formData.last_name)
-        data.append("symptoms",formData.symptoms);
-        data.append("diagnose",formData.diagnose);
-        data.append("alergies",formData.alergies);
-        data.append("result_text",formData.result_text);
 
-        if(file) data.append("attachment",file);
+    const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try{
+    try {
+       
+        await validationSchema.validate(formData, { abortEarly: false });
 
-            if(isEditing && result_id){
-                await axios.put(`http://localhost:3001/api/updateReports/${result_id}`, data, {
-                    withCredentials: true
-                });
-                Swal.fire({
-            title: "Success!",
-            text: "Your report was updated successfully.",
-            icon: "success",
-            confirmButtonText: "OK",
-        });
-            }else{
-                await axios.post(
-            `http://localhost:3001/api/reports/${patient_id}`,
-            data,
-            {
+       
+        setFormErrors({});
+
+        const data = new FormData();
+
+        data.append("patient_id", patient_id);
+        data.append("appointment_id", appointment_id);
+        data.append("first_name", formData.first_name);
+        data.append("last_name", formData.last_name);
+        data.append("symptoms", formData.symptoms);
+        data.append("diagnose", formData.diagnose);
+        data.append("alergies", formData.alergies);
+        data.append("result_text", formData.result_text);
+
+        if (file) data.append("attachment", file);
+
+        if (isEditing && result_id) {
+            await axios.put(`http://localhost:3001/api/updateReports/${result_id}`, data, {
                 withCredentials: true
-            }
-        );
-        Swal.fire({
-            title: "Success!",
-            text: "Your report was created successfully.",
-            icon: "success",
-            confirmButtonText: "OK",
-        });
-
-            }
-            
-
-        
-
-        
-        
-        if(onSubmitSuccess){
-            onSubmitSuccess(patient_id,appointment_id);
-        }
-        closeModal();
-        
-
-        
-    }catch(error){
-        console.error("Error submitting form",error);
-        Swal.fire({
-                title: "Error!",
-                text: "Something went wrong.",
-                icon: "error",
+            });
+            Swal.fire({
+                title: "Success!",
+                text: "Your report was updated successfully.",
+                icon: "success",
                 confirmButtonText: "OK",
             });
+        } else {
+            await axios.post(
+                `http://localhost:3001/api/reports/${patient_id}`,
+                data,
+                { withCredentials: true }
+            );
+            Swal.fire({
+                title: "Success!",
+                text: "Your report was created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+        }
+
+        if (onSubmitSuccess) {
+            onSubmitSuccess(patient_id, appointment_id);
+        }
+        closeModal();
+    } catch (error) {
+        if (error.name === "ValidationError") {
+           
+            const errors = {};
+            error.inner.forEach((err) => {
+                errors[err.path] = err.message;
+            });
+            setFormErrors(errors);
+        } else {
+            handleApiError(error, "Error submitting form");
+        }
     }
-}
+};
 
     
     return(
@@ -228,6 +238,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
             <div className="col-sm-10">
                 <input type="text" className="form-control" id="first_name"
                 value={formData.first_name} onChange={handleChange} readOnly={readOnly} />
+                {formErrors.first_name && <div className="text-danger">{formErrors.first_name}</div>}
             </div>
             </div>
             <div className="row mb-3">
@@ -235,6 +246,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
             <div className="col-sm-10">
                 <input type="text" className="form-control" id="last_name"
                 value={formData.last_name} onChange={handleChange} readOnly={readOnly} />
+                {formErrors.last_name && <div className="text-danger">{formErrors.last_name}</div>}
             </div>
             </div>
 
@@ -245,6 +257,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                 <div className="col-sm-10">
                 <input type="text" className="form-control" id="symptoms" aria-describedby="symptoms"
                 value={formData.symptoms} onChange={handleChange} readOnly={readOnly}/>
+                {formErrors.symptoms && <div className="text-danger">{formErrors.symptoms}</div>}
                 </div>
 
 
@@ -254,6 +267,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                 <div className="col-sm-10">
                 <input type="text" className="form-control" id="diagnose"
                 value={formData.diagnose} onChange={handleChange} readOnly={readOnly}/>
+                {formErrors.diagnose && <div className="text-danger">{formErrors.diagnose}</div>}
                 </div>
 
                 </div>
@@ -262,6 +276,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                 <div className="col-sm-10">
                     <input type="text" className="form-control" id="alergies"
                     value={formData.alergies} onChange={handleChange} readOnly={readOnly}/>
+                    {formErrors.alergies && <div className="text-danger">{formErrors.alergies}</div>}
                 </div>
 
 
@@ -272,6 +287,7 @@ function Modal({closeModal,patient_id,appointment_id,file,setFile,readOnly,onSub
                 <div className="col-sm-10">
                  <input type="text" className="form-control" id="result_text"
                  value={formData.result_text} onChange={handleChange} readOnly={readOnly}/>
+                 {formErrors.result_text && <div className="text-danger">{formErrors.result_text}</div>}
                 </div>
 
 

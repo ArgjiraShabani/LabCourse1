@@ -17,5 +17,7 @@ router.get('/getReports/:patient_id/:appointment_id', authenticateToken,getRepor
 router.delete('/deleteReports/:result_id', authenticateToken, deleteReportHandler);
 router.put('/updateReports/:result_id', authenticateToken,upload.single('attachment'), updateReportHandler);
 router.get('/getReportId/:result_id', authenticateToken,getReportByIdHandler);
-
+router.get('/checkAuth', authenticateToken, (req, res) => {
+    res.status(200).json({ message: "Authenticated" });
+});
 module.exports=router;
