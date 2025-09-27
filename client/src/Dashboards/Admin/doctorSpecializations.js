@@ -48,7 +48,7 @@ function DoctorSpecializations(){
     }
     const navigate=useNavigate();
          useEffect(() => {
-            axios.get(`http://localhost:3001/specializations`, {withCredentials: true})
+            axios.get(`http://localhost:3001/specialization`, {withCredentials: true})
               .then((res) => {
                 if (res.data.user?.role !== "admin") {
                   Swal.fire({
