@@ -7,7 +7,6 @@ import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-// ✅ Validation Schema
 const schema = yup.object().shape({
   name: yup.string().required("Firstname is required!").matches(/^\S+$/, "Firstname cannot contain spaces!"),
   lastname: yup.string().required("Lastname is required!").matches(/^\S+$/, "Lastname cannot contain spaces!"),
@@ -26,8 +25,9 @@ const schema = yup.object().shape({
 });
 
 function UpdatePatient() {
-  const { id } = useParams(); // ✅ Get patient ID from URL
+  const { id } = useParams(); 
   const navigate = useNavigate();
+  const [info, setInfo] = useState(null);
 
   useEffect(() => {
   axios
@@ -36,44 +36,18 @@ function UpdatePatient() {
     })
     .then((res) => {
       if (res.data.user?.role !== 'admin') {
-        // Not a patient? Block it.
+       
         Swal.fire({
           icon: 'error',
           title: 'Access Denied',
           text: 'Only admin can access this page.',
         });
         navigate('/login');
-      }
-    })
-    .catch((err) => {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        
-        navigate('/login');
-      } else {
-        console.error("Unexpected error", err);
-      }
-    });
-}, [id]);
-
-  const [info, setInfo] = useState(null);
-  const [gender, setGender] = useState([]);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    getValues
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
-
-  useEffect(() => {
-    axios.get(`http://localhost:3001/patient/patientInfoForUpdation/${id}`, {
+      }else{
+        axios.get(`http://localhost:3001/patient/patientInfoForUpdation/${id}`, {
       withCredentials: true,
     })
     .then((res) => {
-        console.log(res.data);
       const patient = res.data[0];
       setInfo(patient);
     }).catch(err=>{
@@ -89,9 +63,34 @@ function UpdatePatient() {
         console.error("Unexpected error", err);
       };
     });
-  }, [id]);
+      };
+    })
+    .catch((err) => {
+      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        
+        navigate('/login');
+      } else {
+        console.error("Unexpected error", err);
+      }
+    });
+}, [id]);
 
-  // ✅ Reset form with fetched data
+  
+  const [gender, setGender] = useState([]);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    getValues
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
+  
+
+
   useEffect(() => {
     if (info) {
      
@@ -106,12 +105,12 @@ function UpdatePatient() {
     }
   }, [info, reset]);
 
-  // ✅ Get gender and blood type options
+  
   useEffect(() => {
     axios.get('http://localhost:3001/api/gender').then((res) => setGender(res.data));
   }, []);
 
-  // ✅ Submit form
+
   const formSubmit = (data) => {
       const formData = new FormData();
     formData.append("first_name", data.name);
@@ -121,9 +120,9 @@ function UpdatePatient() {
     formData.append("date_of_birth", data.birth);
     formData.append("gender_name", data.gender);
 
-    const fileInput = getValues("photo"); // get the File from file input
+    const fileInput = getValues("photo"); 
     if (fileInput && fileInput[0]) {
-      formData.append("image", fileInput[0]); // append the file only if selected
+      formData.append("image", fileInput[0]);
     }
 
     Swal.fire({
@@ -140,7 +139,7 @@ function UpdatePatient() {
         })
         .then((res) => {
           Swal.fire("Success", "Patient information updated!", "success");
-          navigate("/patient"); // go back to patient list
+          navigate("/patient"); 
         })
         .catch((err) => {
           if (err.response && (err.response.status === 401 || err.response.status === 403)) {

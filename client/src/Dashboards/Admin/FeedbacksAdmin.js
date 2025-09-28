@@ -13,66 +13,7 @@ const FeedbacksAdmin = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
-  /*
-  useEffect(() => {
-  axios
-    .get(`http://localhost:3001/FeedbacksAdmin`, {
-      withCredentials: true, // this sends the JWT cookie
-    })
-    .then((res) => {
-      if (res.data.user?.role !== 'admin') {
-        // Not a patient? Block it.
-        Swal.fire({
-          icon: 'error',
-          title: 'Access Denied',
-          text: 'Only admin can access this page.',
-        });
-        navigate('/login');
-      }
-    })
-    .catch((err) => {
-      if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-         
 
-        navigate('/login');
-      } else {
-        console.error("Unexpected error", err);
-      }
-    });
-}, []);
-
-  useEffect(() => {
-    axios.get('http://localhost:3001/api/feedbacksAdmin',{
-        withCredentials: true
-    }).then((response)=>{
-       const formattedData = response.data.map(item => {
-        if (item.created_at) {
-          const datePart = item.created_at.split("T")[0];
-          const [year, month, day] = datePart.split("-");
-          const formattedDate = `${month}-${day}-${year}`;
-          return {
-            ...item,
-            created_at: formattedDate
-          };
-        }
-        return item;
-      });
-            setFeedbacks(formattedData);
-        })
-        .catch((err)=>{
-               if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                 Swal.fire({
-                                          icon: "error",
-                                          title: "Access Denied",
-                                          text: "Please login.",
-                                          confirmButtonColor: "#51A485",
-                                        });
-                   navigate('/');
-              } else {
-                      console.error("Unexpected error", err);
-                    }
-        })
-  }, []);*/
   useEffect(() => {
   axios
     .get(`http://localhost:3001/FeedbacksAdmin`, {

@@ -202,18 +202,7 @@ const {
     .catch((err) => console.error("Error fetching settings:", err));
 }, []);
 
-     /* function fetchRoles(){
-     axios.get("http://localhost:3001/api/roles").then((response)=>{
-            console.log(response.data);
-            setRole(response.data);
-        }).catch((error)=>{
-            console.log(error);
-        })
-      };
-  useEffect(()=>{
-        fetchRoles();
-    },[]);*/
-
+   
 
     function handleDeleteGender(id,nameData){
       
@@ -406,35 +395,7 @@ function handleDeleteBlood(id,nameData){
 
 
 
-      /*function handleAddRole(event){
       
-      Swal.fire({
-            title: "Are you sure about adding?",
-            showCancelButton: true,
-            confirmButtonColor: "#51A485",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Add"
-             }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post("http://localhost:3001/api/addRole",event,{
-        withCredentials: true
-    }).then((response)=>{
-                           Swal.fire({
-                                 position: "center",
-                                 icon: "success",
-                                 title: "Role is added!",
-                                 showConfirmButton: false,
-                                 timer: 1100
-                                   });   
-
-                                   resetRole();
-                                   fetchRoles();
-                      }).catch((error)=>{
-                          console.log(error);
-                      })
-                }
-    })
-  }*/
     function handleAddGender(event){
        Swal.fire({
             title: "Are you sure about adding?",
@@ -624,7 +585,7 @@ function handleDeleteBlood(id,nameData){
             <tbody>
              {blood.map((value,key)=>{
                     return(
-                        <tr>
+                        <tr key={key}>
                     <td>{value.blood_type}</td>
                     <td>
                       <form className="d-flex">

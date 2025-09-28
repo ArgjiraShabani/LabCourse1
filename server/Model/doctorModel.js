@@ -180,7 +180,7 @@ FROM doctors d left join roles r on d.role_id=r.role_id
 };
 
 const getStaff=(callback)=>{
-    const sql=`SELECT doctors.first_name,doctors.last_name,doctors.image_path,specialization.specialization_name
+    const sql=`SELECT doctors.doctor_id,doctors.first_name,doctors.last_name,doctors.image_path,specialization.specialization_name
      FROM doctors left join specialization 
      on doctors.specialization_id=specialization.specialization_id`;
     db.query(sql,callback);

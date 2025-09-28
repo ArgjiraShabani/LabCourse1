@@ -30,7 +30,6 @@ const {getPatientAppointments,
 
 const getPatientByIdHandler=(req,res)=>{
       const patientId=req.params.id;
-      console.log(patientId)
 
     getPatientById(patientId,(err,results)=>{
         if(err){
@@ -176,7 +175,6 @@ const updatePatientHandler=(req,res)=>{
   const blood=req.body.blood_type==='null' ? null:req.body.blood_type;
   let genderId=null;
   let bloodId=null;
-  console.log(req.body)
 
   getImagePath(id, (err, data) => {
   if (err) {

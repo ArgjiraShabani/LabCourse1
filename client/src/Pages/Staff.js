@@ -8,14 +8,12 @@ import { useState,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 function MedicalStaff(){
-    console.log("hello")
 
     const [staffList,setstaffList]=useState([]);
 
 
     useEffect(()=>{
         Axios.get("http://localhost:3001/api/staff").then((response)=>{
-            console.log(response.data)
             setstaffList(response.data);
         })
     },[])
@@ -24,24 +22,21 @@ function MedicalStaff(){
         <>
             
             <Navbar/>
-            <div class="container my-4">
-                <h1 class="text-center display-4" style={{color:"#51A485",marginTop:"50px",fontWeight:"bold"}}> Medical Staff</h1>
+            <div className="container my-4">
+                <h1 className="text-center display-4" style={{color:"#51A485",marginTop:"50px",fontWeight:"bold"}}> Medical Staff</h1>
             </div>
             <div style={{display:"flex",justifyContent:"center",padding:"20px",flexWrap:"wrap",gap:"40px",}}>
                  {staffList.map((val,key)=>{
                         return(
-                            <>
-                            {console.log(val)
-                            }
-                            <div class="card" style={{width: "18rem",border:"1px solid #51A485"}}>
-                             <img src={val.image_path ? `http://localhost:3001/uploads/${val.image_path}`: "https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png"} class="card-img-top" alt="..." style={{height:"270px",objectFit:"cover"}}/>
-                             <div class="card-body">
+                            
+                            <div key={val.id || val.doctor_id} className="card" style={{width: "18rem",border:"1px solid #51A485"}}>
+                             <img src={val.image_path ? `http://localhost:3001/uploads/${val.image_path}`: "https://www.nicepng.com/png/detail/867-8678512_doctor-icon-physician.png"} className="card-img-top" alt="..." style={{height:"270px",objectFit:"cover"}}/>
+                             <div className="card-body">
                                  <p>Firstname: {val.first_name}</p>
                                  <p>Lastname: {val.last_name}</p>
                                  <p>Specialization: {val.specialization_name?val.specialization_name:"---"}</p>
                              </div>
                              </div> 
-                             </>
                         )
                     })}
     

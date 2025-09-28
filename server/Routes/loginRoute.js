@@ -6,11 +6,11 @@ const bcrypt = require("bcrypt");
 require('dotenv').config();
 
 
-// Login route
+
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  // Patient login check
+ 
   const patientQuery = `
     SELECT patients.patient_id AS id, patients.password, roles.role_name AS role,patients.isdeleted,status.status_name
     FROM patients
@@ -30,15 +30,14 @@ router.post("/login", (req, res) => {
       bcrypt.compare(password, user.password).then((match) => {
         if (match) return sendToken(res, user.id, user.role);
 
-        // Check doctor if password doesn't match
-        //checkDoctor(email, password, res);
+        
          return res.status(401).json({ message: "Your password is incorrect!" });
 
       }).catch((err) => {
         return res.status(500).json("Bcrypt error (patients)");
       });
     } else {
-      // No patient found, check doctor
+      
       checkDoctor(email, password, res);
     }
   });
@@ -63,15 +62,14 @@ router.post("/login", (req, res) => {
       bcrypt.compare(password, user.password).then((match) => {
         if (match) return sendToken(res, user.id, user.role);
 
-        // Check admin if password doesn't match
-        //checkAdmin(email, password, res);
+        
         return res.status(401).json({ message: "Your password is incorrect!" });
 
       }).catch((err) => {
         return res.status(500).json("Bcrypt error (doctors)");
       });
     } else {
-      // No doctor found, check admin
+      
       checkAdmin(email, password, res);
     }
   })
@@ -97,7 +95,7 @@ router.post("/login", (req, res) => {
                 return res.status(500).json("Bcrypt error (admin)");
               });
             } else {
-              // No user found
+              
               return res.status(401).json({ message: "Invalid email.Please check your email! " });
             }
           });
@@ -115,7 +113,7 @@ function sendToken(res, id, role) {
   });
 
   const refreshToken = jwt.sign({ id, role }, process.env.REFRESH_TOKEN_SECRET, {
-   expiresIn: '31d', // longer-lived
+   expiresIn: '31d', 
    
   });
 
@@ -132,7 +130,7 @@ function sendToken(res, id, role) {
     sameSite: "strict",
     path: '/',
     secure: process.env.NODE_ENV === "production",
-    maxAge:1000*60*60*24*31, // 7 days
+    maxAge:1000*60*60*24*31, 
   });
 
   return res.json({ message: "Success", id, role });

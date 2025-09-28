@@ -22,9 +22,7 @@ const schema =yup.object().shape({
                     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
                     .matches(/[^a-zA-Z0-9]/, "Password must contain at least one symbol")
                     .matches(/[0-9]/,"Password must contain at least a number!"),
-        /*confirmedPassword: yup.string()
-            .required('Confirm password is required!')
-            .oneOf([yup.ref('password'), null], 'Passwords must match!'), */
+        
         phoneNumber: yup.string()
             .required('Phone number is required!')
             .matches(/^\+?(\d{1,4})?[\s\(\)-]?\(?\d{1,4}\)?[\s\(\)-]?\d{1,4}[\s\(\)-]?\d{1,4}$|^0\d{8,12}$/,"Phone number must be a valid number!")
@@ -134,38 +132,7 @@ function Register(){
                  resolver:yupResolver(schema),
              });
      
-/*
-     useEffect(()=>{
-    axios.get('http://localhost:3001/api/gender').then((response)=>{
-      setGender(response.data);
-    })
-  },[]);
-   useEffect(()=>{
-    axios.get('http://localhost:3001/api/blood').then((response)=>{
-      setBlood(response.data);
-    })
-  },[]);*/
-  /*
-  useEffect(()=>{
-        axios.get("http://localhost:3001/api/status",{
-        withCredentials: true
-    }).then((response)=>{
-            setStatus(response.data);
-        }).catch(err=>{
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                Swal.fire({
-                          icon: "error",
-                          title: "Access Denied",
-                          text: "Please login.",
-                          confirmButtonColor: "#51A485",
-                        });
-                navigate('/');
-            } else {
-                console.error("Unexpected error", err);
-            }
-        })
-    },[]);
-    */
+
     const formSubmit=(e)=>{
 
         const formdata=new FormData();
@@ -272,7 +239,7 @@ function Register(){
                     <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap"}}>
                     <div className="mb-3">
                     <select className="form-control" name="gender" {...register("gender")}>
-                        <option value="" disabled selected>Gender</option>
+                        <option value="" hidden>Gender</option>
                         {gender.map((value,key)=>{
                             return(
                             <option key={key}>{value.gender_name}</option>
@@ -283,7 +250,7 @@ function Register(){
                     </div>
                     <div className="mb-3">
                     <select className="form-control" name="blood" {...register("blood")}  >
-                       <option value="" disabled selected>Blood</option>
+                       <option value="" hidden>Blood</option>
                         {blood.map((value,key)=>{
                             return(
                             <option key={key} >{value.blood_type}</option>
@@ -294,7 +261,7 @@ function Register(){
                    </div>
                    <div className="mb-3">
                     <select className="form-control" name="status" {...register("status")} >
-                        <option value="" disabled selected>Status</option>
+                        <option value="" hidden>Status</option>
                          {status.map((value,key)=>{
                             return(
                             <option key={key}>{value.status_name}</option>

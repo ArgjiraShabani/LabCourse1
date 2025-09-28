@@ -207,8 +207,8 @@ const [newFeedbackText, setNewFeedbackText] = useState("");
             <tbody> 
           {info.length>0 ? (info.map((value,key)=>{
             return(
-              <>
-              <tr>
+              
+              <tr key={key}>
             <td>{value.feedback_text}</td>
             <td >{value.created_at}</td>
             <td>
@@ -220,7 +220,7 @@ const [newFeedbackText, setNewFeedbackText] = useState("");
             </td>
 
             </tr>
-            </>
+            
             )
           })):(
             <tr>
