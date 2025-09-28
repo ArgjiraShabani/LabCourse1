@@ -376,7 +376,7 @@ function DoctorProfile() {
                   {errors.gender_id && <div className="invalid-feedback d-block">{errors.gender_id}</div>}
                 </>
               ) : (
-                `${doctorData.gender_name}`
+                `${doctorData.gender_name || 'Unknown'}`
               )}
             </li>
             <li className="list-group-item">

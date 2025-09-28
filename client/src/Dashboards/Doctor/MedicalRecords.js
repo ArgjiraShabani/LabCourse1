@@ -178,9 +178,10 @@ function MedicalRecords(){
                 </thead>
                 <tbody>
                   {patientList.length===0?(
+                    <tr>
                     <td colSpan="9" style={{ textAlign: "center", padding: "15px", color: "#888" }}>
         No prescriptions found.
-      </td>
+      </td></tr>
                   ):(
                   patientList.map((p)=>(
                     <tr key={`${p.patient_id}_${p.appointment_id}`} style={{ borderBottom: '1px solid #dddddd' }}>

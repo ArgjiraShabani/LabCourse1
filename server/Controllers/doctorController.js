@@ -86,20 +86,20 @@ const updateDoctorHandler=(req,res)=>{
         const savedImagePath=results[0].image_path;
 
         const updateDoctor=(hashedPassword)=>{
-            const doctorData={
-                first_name: req.body.first_name,                            
-                last_name: req.body.last_name,
-                email: req.body.email,
-                password: hashedPassword,
-                phone: req.body.phone,
-                role_id: req.body.role_id,
-                date_of_birth: req.body.date_of_birth,
-                gender_id: req.body.gender_id,
-                specialization_id: req.body.specialization_id,
-                department_Id: req.body.department_Id,
-                education: req.body.education,
-                image_path: req.file? req.file.filename: savedImagePath,
-            };
+     const doctorData = {
+  first_name: req.body.first_name,
+  last_name: req.body.last_name,
+  email: req.body.email,
+  password: hashedPassword,
+  phone: req.body.phone,
+  role_id: Number(req.body.role_id) || null,
+  date_of_birth: req.body.date_of_birth,
+  gender_id: Number(req.body.gender_id) || null,
+  specialization_id: Number(req.body.specialization_id) || null,
+  department_Id: Number(req.body.department_Id) || null,
+  education: req.body.education,
+  image_path: req.file ? req.file.filename : savedImagePath,
+};
 
             updateDoctorById(doctorId,doctorData,(err,results)=>{
                 if(err){
@@ -151,18 +151,20 @@ const updateMyProfileHandler = (req, res) => {
   }
 
   function proceedUpdate() {
-    const doctorData = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      email: req.body.email,
-      phone: req.body.phone,
-      date_of_birth: req.body.date_of_birth,
-      gender_id: req.body.gender_id,
-      specialization_id: req.body.specialization_id,
-      department_Id: req.body.department_Id,
-      education: req.body.education,
-      image_path: image_path
-    };
+   const doctorData = {
+  first_name: req.body.first_name,
+  last_name: req.body.last_name,
+  email: req.body.email,
+  password: hashedPassword,
+  phone: req.body.phone,
+  role_id: Number(req.body.role_id) || null,
+  date_of_birth: req.body.date_of_birth,
+  gender_id: Number(req.body.gender_id) || null,
+  specialization_id: Number(req.body.specialization_id) || null,
+  department_Id: Number(req.body.department_Id) || null,
+  education: req.body.education,
+  image_path: req.file ? req.file.filename : savedImagePath,
+};
 
     updateMyProfile(doctor_id, doctorData, (err, result) => {
       if (err) {
