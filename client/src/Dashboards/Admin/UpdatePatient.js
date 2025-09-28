@@ -200,7 +200,7 @@ function UpdatePatient() {
           <div className="mb-3">
             <label>Gender</label>
              <select  className="form-control" name="gender" {...register("gender")}>
-            <option value='' disabled hidden>Select gender</option>
+            <option value='null' disabled hidden>Select gender</option>
 
               {gender.map((value,key)=>{
                 return(

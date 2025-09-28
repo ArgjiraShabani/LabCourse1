@@ -38,7 +38,7 @@ function MedicalStaff(){
                              <div class="card-body">
                                  <p>Firstname: {val.first_name}</p>
                                  <p>Lastname: {val.last_name}</p>
-                                 <p>Specialization: {val.specialization_name}</p>
+                                 <p>Specialization: {val.specialization_name?val.specialization_name:"---"}</p>
                              </div>
                              </div> 
                              </>

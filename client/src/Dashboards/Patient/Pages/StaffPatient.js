@@ -70,7 +70,7 @@ useEffect(()=>{
                              <div class="card-body">
                                  <p>Name: {val.first_name}</p>
                                  <p>LastName: {val.last_name}</p>
-                                 <p>Specialization: {val.specialization_name}</p>
+                                 <p>Specialization: {val.specialization_name?val.specialization_name:"---"}</p>
                              </div>
                              </div> 
                              </>
