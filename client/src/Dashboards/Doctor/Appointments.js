@@ -191,9 +191,9 @@ const Appointment = () => {
   );
 
   return (
-    <div className="d-flex flex-column flex-lg-row min-vh-100">
-      <Sidebar role="doctor" />
-      <div className="p-3 p-lg-4 flex-grow-1">
+<div className="d-flex flex-row min-vh-100">
+  <Sidebar role="doctor" />
+  <div className="p-3 p-lg-4 flex-grow-1">
         <h2 className="mb-3 mb-lg-4">Today's Appointments</h2>
         {renderTable(todaysAppointments, false)}
 

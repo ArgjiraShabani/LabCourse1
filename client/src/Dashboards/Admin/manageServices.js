@@ -116,7 +116,7 @@ const ManageServices = () => {
   const handleEdit = (service) => {
     setServiceName(service.service_name);
     setDepartment_Id(service.department_Id);
-    setServicePrice(service.price); // vendos çmimin kur editon
+    setServicePrice(service.price);
     setEditMode(true);
     setEditingServiceId(service.service_id);
   };
