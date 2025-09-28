@@ -234,7 +234,7 @@ const ManageSchedule = () => {
 <div className="d-flex flex-row min-vh-100">
   <Sidebar role="admin" />
   <div className="container mt-4 flex-grow-1">
-        <h2 className="mb-4">Set Weekly Schedule for Doctor</h2>
+        <h2 className="mb-4">Set Standard Schedule for Doctor</h2>
         {error && <div className="alert alert-danger">{error}</div>}
 
         <div className="mb-3" style={{ maxWidth: "400px" }}>

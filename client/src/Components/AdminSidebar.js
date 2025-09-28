@@ -230,7 +230,7 @@ const Sidebar = ({ role, id }) => {
                           `nav-link text-white ${isActive ? "active shadow-link" : "hover-link"}`
                         }
                       >
-                        Weekly Schedule
+                        Special Schedule
                       </NavLink>
                     </li>
                   </ul>

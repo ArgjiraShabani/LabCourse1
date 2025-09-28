@@ -7,7 +7,7 @@ import {
   FaUserShield, FaProcedures, FaUserMd, FaBuilding, FaCalendarCheck, FaFileAlt 
 } from 'react-icons/fa';
 
-import {
+import { 
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -17,7 +17,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler   
 } from 'chart.js';
+
 
 import { Line } from 'react-chartjs-2';
 
@@ -29,8 +31,10 @@ ChartJS.register(
   PointElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler  
 );
+
 
 const api = axios.create({
   baseURL: "http://localhost:3001/api",

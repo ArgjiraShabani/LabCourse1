@@ -1,6 +1,4 @@
 import './App.css';
-import Navbar from './Components/Navbar';
-import Footer from './Components/Footer';
 import HomePage from './Pages/HomePage';
 import MedicalStaff from './Pages/Staff';
 import Login from './Pages/Login';

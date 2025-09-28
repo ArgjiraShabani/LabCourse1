@@ -3,10 +3,6 @@ import axios from "axios"; // Import axios
 import slide1 from "../assets/family_doctor.jpg";
 import slide2 from "../assets/ooking-ahead-the-outlook-for-australias-private-hospitals.jpg";
 import slide3 from "../assets/Brain-Stimulation-Surgery-20250204-01.jpg";
-import surgeryImg from "../assets/surgery.jpg";
-import cardiologyImg from "../assets/Cardiology.jpg";
-import orthopedicsImg from "../assets/orthopedic.jpg";
-import gynecologyImg from "../assets/gynecology.jpg";
 import Navbar from "../Components/Navbar";
 
 import "../App.css";
@@ -165,7 +161,7 @@ function HomePage() {
           <br />
           Your next doctor's appintment is one click away.
         </p>
-        <div class="d-grid gap-2 col-6 mx-auto">
+        <div className="d-grid gap-2 col-6 mx-auto">
           <Link
             to="/Login"
             className="btn btn-primary"
