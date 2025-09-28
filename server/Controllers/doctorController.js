@@ -83,6 +83,7 @@ const updateDoctorHandler=(req,res)=>{
         }
 
         const savedPassword=results[0].password;
+        const savedImagePath=results[0].image_path;
 
         const updateDoctor=(hashedPassword)=>{
             const doctorData={
@@ -97,7 +98,7 @@ const updateDoctorHandler=(req,res)=>{
                 specialization_id: req.body.specialization_id,
                 department_Id: req.body.department_Id,
                 education: req.body.education,
-                image_path: req.file? req.file.filename: req.body.image_path,
+                image_path: req.file? req.file.filename: savedImagePath,
             };
 
             updateDoctorById(doctorId,doctorData,(err,results)=>{
@@ -144,7 +145,7 @@ const updateMyProfileHandler = (req, res) => {
         return res.status(404).json({ error: "Profile not found." });
       }
 
-      image_path = results[0].image_path; // use existing image path
+      image_path = results[0].image_path;
       proceedUpdate();
     });
   }

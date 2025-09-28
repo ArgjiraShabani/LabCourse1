@@ -24,7 +24,7 @@ const createDoctor=(doctorData,callback)=>{
 };
 
 const getDocPasswordById=(doctorId,callback)=>{
-    const query="Select password FROM doctors WHERE doctor_id=?";
+    const query="Select password,image_path FROM doctors WHERE doctor_id=?";
     db.query(query,[doctorId],callback);
 
 };
