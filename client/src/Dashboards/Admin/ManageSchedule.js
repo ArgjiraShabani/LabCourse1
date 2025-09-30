@@ -12,7 +12,7 @@ const api = axios.create({
 
 const ManageSchedule = () => {
   const [doctors, setDoctors] = useState([]);
-  const [selectedDoctor, setSelectedDoctor] = useState(null); // react-select object
+  const [selectedDoctor, setSelectedDoctor] = useState(null); 
   const [weeklyData, setWeeklyData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,7 +47,6 @@ const ManageSchedule = () => {
   const fetchDoctors = async () => {
     try {
       const res = await api.get("/allDoctors");
-      // Transform data for react-select
       const options = res.data.map((d) => ({ value: d.id, label: d.name }));
       setDoctors(options);
     } catch (err) {

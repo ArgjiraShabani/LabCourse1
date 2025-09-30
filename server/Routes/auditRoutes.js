@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auditController = require("../Controllers/auditController");
-const { authenticateToken, authorizeRoles } = require("../middlewares"); // siguro që ky path është i saktë
+const { authenticateToken, authorizeRoles } = require("../middlewares"); 
 
 router.get(
   "/audit-log",
