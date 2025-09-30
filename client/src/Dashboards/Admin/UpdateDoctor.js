@@ -74,12 +74,7 @@ const UpdateDoctor=()=>{
     
                 if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                     navigate('/login');
-                    Swal.fire({
-                            icon: "error",
-                            title: "Access Denied",
-                            text: err.response.status === 401 ? "Please login." : "You do not have permission.",
-                            confirmButtonColor: "#51A485",
-                          });
+                   
                    
                     
                 } else {
@@ -114,13 +109,7 @@ const UpdateDoctor=()=>{
         .catch((err)=>{
              if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                 navigate('/login');
-                Swal.fire({
-                        icon: "error",
-                        title: "Access Denied",
-                        text: err.response.status === 401 ? "Please login." : "You do not have permission.",
-                        confirmButtonColor: "#51A485",
-                      });
-                   
+           
                     
                 } else {
                     console.error("Error fetching the doctor", err);
@@ -228,13 +217,7 @@ const UpdateDoctor=()=>{
 } catch (err) {
     
     if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-        await swal.fire({
-            title: "Access Denied!",
-            text: "You don't have permission to perform this action.",
-            icon: "error",
-            confirmButtonText: "OK",
-        });
-
+       
         navigate("/login");
 
     } else {

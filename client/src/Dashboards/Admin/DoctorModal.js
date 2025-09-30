@@ -30,12 +30,7 @@ function DoctorModal({doctor_id,closeModal}){
                   if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                    
                     navigate("/login");
-                     Swal.fire({
-                            icon: "error",
-                            title: "Access Denied",
-                            text: error.response.status === 401 ? "Please login." : "You do not have permission.",
-                            confirmButtonColor: "#51A485",
-                          });
+                    
                   } else {
                     console.error("Error fetching user",error);
                     

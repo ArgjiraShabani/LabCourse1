@@ -152,12 +152,7 @@ const navigate=useNavigate();
         }catch(error){
            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             navigate("/login");
-            Swal.fire({
-                    icon: "error",
-                    title: "Access Denied",
-                    text: error.response.status === 401 ? "Please login." : "You do not have permission.",
-                    confirmButtonColor: "#51A485",
-                  });
+           
         
       } else {
         await Swal.fire({
@@ -190,7 +185,7 @@ const navigate=useNavigate();
             `}
         </style>
         <div style={{display: "flex",minHeight: "100vh"}}>
-            <div style={{width: "250px"}}>
+            <div style={{ width: "250px", alignSelf: "stretch" }}>
                 <Sidebar role="admin"/>
             </div>
             <div style={{

@@ -17,12 +17,7 @@ function DoctorSpecializations(){
     const handleAuthError=(error,navigate,customMessage=null)=>{
         if(error.response?.status===401 || error.response?.status===403){
             navigate("/login");
-            Swal.fire({
-                    icon: "error",
-                    title: "Access Denied",
-                    text: error.response.status === 401 ? "Please login." : "You do not have permission.",
-                    confirmButtonColor: "#51A485",
-                  });
+           
             
             return true;
         }
@@ -136,6 +131,8 @@ function DoctorSpecializations(){
   }
 }
     };
+
+    
         
    
     return(
