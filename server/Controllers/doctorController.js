@@ -126,6 +126,7 @@ const updateDoctorHandler=(req,res)=>{
         }
     });
 };
+///////////////////////////////////////////////////
 const updateMyProfileHandler = (req, res) => {
   const doctor_id = req.user.id;
   let image_path;
@@ -155,7 +156,6 @@ const updateMyProfileHandler = (req, res) => {
   first_name: req.body.first_name,
   last_name: req.body.last_name,
   email: req.body.email,
-  password: hashedPassword,
   phone: req.body.phone,
   role_id: Number(req.body.role_id) || null,
   date_of_birth: req.body.date_of_birth,
@@ -163,7 +163,7 @@ const updateMyProfileHandler = (req, res) => {
   specialization_id: Number(req.body.specialization_id) || null,
   department_Id: Number(req.body.department_Id) || null,
   education: req.body.education,
-  image_path: req.file ? req.file.filename : savedImagePath,
+  image_path
 };
 
     updateMyProfile(doctor_id, doctorData, (err, result) => {
@@ -181,7 +181,7 @@ const updateMyProfileHandler = (req, res) => {
   }
 };
 
-
+/////////////////////////////////////////////////////
 
 const getAllDoctorsHandlers=(req,res)=>{
     getAllDoctors((err,results)=>{
